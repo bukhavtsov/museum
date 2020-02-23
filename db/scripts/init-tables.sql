@@ -107,6 +107,7 @@ create table artifact_master_phas
         constraint artifact_master_phas_pk
             primary key,
     artifact_id         integer,
+    artifact_name         varchar(50),
     museum_id           integer not null
         constraint artifact_master_phas_museum_id_fk
             references museum,
@@ -119,7 +120,6 @@ create table artifact_master_phas
     excavator_full_name varchar(50),
     date_exc            date,
     creator             date,
-    object_type         varchar(50),
     object_group_id     integer
         constraint artifact_master_phas_object_group_id_fk
             references object_group,
