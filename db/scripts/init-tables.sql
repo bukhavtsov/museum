@@ -1,30 +1,50 @@
--- location table
-create table location
+-- country table
+create table country
 (
-    id           serial      not null
-        constraint location_pk
+    id           serial       not null
+        constraint country_lut_pk
             primary key,
-    country_name varchar(50) not null,
-    region       varchar(50) not null,
-    city         varchar(50) not null
+    country_name varchar(100) not null
 );
 
-alter table location
+alter table country
     owner to postgres;
 
--- contacts table
-create table contacts
+create unique index country_country_name_uindex
+    on country (country_name);
+
+
+-- region table
+create table region
 (
-    id           serial not null
-        constraint contacts_pk
+    id          serial       not null
+        constraint region_pk
             primary key,
-    phone_number varchar(50),
-    site_addr    varchar(50),
-    email        varchar(50)
+    region_name varchar(100) not null,
+    country_id  integer      not null
 );
 
-alter table contacts
+alter table region
     owner to postgres;
+
+
+-- city table
+create table city
+(
+    id        serial  not null
+        constraint city_pk
+            primary key,
+    city_name integer not null,
+    region_id integer not null
+        constraint city_region_id_fk
+            references region
+);
+
+alter table city
+    owner to postgres;
+
+create unique index city_city_name_uindex
+    on city (city_name);
 
 -- museum table
 create table museum
@@ -33,31 +53,45 @@ create table museum
         constraint museum_pk
             primary key,
     museum_name varchar(50) not null,
-    location_id integer     not null
-        constraint museum_location_id_fk
-            references location,
-    contacts_id integer
-        constraint museum_contacts_id_fk
-            references contacts
+    city_id     integer     not null
+        constraint museum_city_id_fk
+            references city
 );
 
 alter table museum
     owner to postgres;
 
--- region table
-create table region
+-- museum_contacts table
+create table museum_contacts
 (
     id           serial  not null
-        constraint region_pk
+        constraint contacts_pk
             primary key,
-    location_id  integer not null
-        constraint region_location_id_fk
-            references location,
+    phone_number varchar(50),
+    site_addr    varchar(50),
+    email        varchar(50),
+    museum_id    integer not null
+        constraint museum_contacts_museum_id_fk
+            references museum
+);
+
+alter table museum_contacts
+    owner to postgres;
+
+-- excavation_region table
+create table excavation_region
+(
+    id           serial  not null
+        constraint excavation_region_pk
+            primary key,
+    city_id      integer not null
+        constraint excavation_region_city_id_fk
+            references city,
     x_coordinate integer,
     y_coordinate integer
 );
 
-alter table region
+alter table excavation_region
     owner to postgres;
 
 
@@ -73,17 +107,20 @@ create table reg_confidence_level
 alter table reg_confidence_level
     owner to postgres;
 
--- object group
-create table object_group
+-- object_group_lut table
+create table object_group_lut
 (
-    id           serial      not null
-        constraint object_group_pk
+    id                serial       not null
+        constraint object_group_lut_pk
             primary key,
-    object_group varchar(50) not null
+    object_group_name varchar(100) not null
 );
 
-alter table object_group
+alter table object_group_lut
     owner to postgres;
+
+create unique index object_group_lut_object_group_name_uindex
+    on object_group_lut (object_group_name);
 
 -- hist culture
 create table hist_culture
@@ -103,36 +140,32 @@ create unique index hist_culture_hist_culture_uindex
 -- artifact_master_phas table
 create table artifact_master_phas
 (
-    id                  serial  not null
+    id                   serial  not null
         constraint artifact_master_phas_pk
             primary key,
-    artifact_id         integer,
-    artifact_name         varchar(50),
-    museum_id           integer not null
+    artifact_id          integer,
+    museum_id            integer not null
         constraint artifact_master_phas_museum_id_fk
             references museum,
-    region_id           integer
-        constraint artifact_master_phas_region_id_fk
-            references region,
-    reg_confidence_id   integer
+    excavation_region_id integer
+        constraint artifact_master_phas_excavation_region_id_fk
+            references excavation_region,
+    reg_confidence_id    integer
         constraint artifact_master_phas_reg_confidence_level_id_fk
             references reg_confidence_level,
-    excavator_full_name varchar(50),
-    date_exc            date,
-    creator             date,
-    object_group_id     integer
-        constraint artifact_master_phas_object_group_id_fk
-            references object_group,
-    hist_culture_id     integer
+    excavator_full_name  varchar(50),
+    date_exc             date,
+    creator              date,
+    hist_culture_id      integer
         constraint artifact_master_phas_hist_culture_id_fk
             references hist_culture,
-    rss_desc            text,
-    translation         text,
-    min_age             integer,
-    max_age             integer,
-    reference           varchar(50),
-    artifact_info_photo text,
-    photo               varchar(100)
+    rss_desc             text,
+    translation          text,
+    min_age              integer,
+    max_age              integer,
+    reference            varchar(50),
+    artifact_info_photo  text,
+    photo                varchar(100)
 );
 
 alter table artifact_master_phas
@@ -140,6 +173,23 @@ alter table artifact_master_phas
 
 create unique index artifact_master_phas_artifact_id_uindex
     on artifact_master_phas (artifact_id);
+
+-- object_group table
+create table object_group
+(
+    id              serial  not null
+        constraint object_group_pk
+            primary key,
+    object_group_id integer not null
+        constraint object_group_object_group_lut_id_fk
+            references object_group_lut,
+    artifact_id     integer not null
+        constraint object_group_artifact_master_phas_id_fk
+            references artifact_master_phas
+);
+
+alter table object_group
+    owner to postgres;
 
 -- material_type_lut
 create table material_type_lut
