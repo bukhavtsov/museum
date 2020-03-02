@@ -137,6 +137,21 @@ alter table hist_culture
 create unique index hist_culture_hist_culture_uindex
     on hist_culture (hist_culture);
 
+-- transferred_by_lut table
+create table transferred_by_lut
+(
+    id             serial       not null
+        constraint transferred_by_lut_pk
+            primary key,
+    transferred_by varchar(200) not null
+);
+
+alter table transferred_by_lut
+    owner to postgres;
+
+create unique index transferred_by_lut_transferred_by_uindex
+    on transferred_by_lut (transferred_by);
+
 -- artifact_master_phas table
 create table artifact_master_phas
 (
@@ -163,9 +178,11 @@ create table artifact_master_phas
     translation          text,
     min_age              integer,
     max_age              integer,
-    reference            varchar(50),
     artifact_info_photo  text,
-    photo                varchar(100)
+    photo                varchar(100),
+    transferred_by_id    integer
+        constraint artifact_master_phas_transferred_by_lut_id_fk
+            references transferred_by_lut
 );
 
 alter table artifact_master_phas
@@ -335,7 +352,6 @@ alter table site_name_lut
 create unique index site_name_lut_site_name_uindex
     on site_name_lut (site_name);
 
-
 -- site_name
 create table site_name
 (
@@ -350,7 +366,9 @@ create table site_name
             references site_name_lut,
     city         varchar(50),
     country      varchar(50),
-    comments     text
+    comments     text,
+    start_date   date,
+    finish_date  integer
 );
 
 alter table site_name
@@ -420,6 +438,21 @@ create table site_type
 );
 
 alter table site_type
+    owner to postgres;
+
+-- artifact_safety
+create table artifact_safety
+(
+    id          serial       not null
+        constraint artifact_safety_pk
+            primary key,
+    artifact_id integer      not null
+        constraint artifact_safety_artifact_master_phas_id_fk
+            references artifact_master_phas,
+    safety      varchar(100) not null
+);
+
+alter table artifact_safety
     owner to postgres;
 
 
