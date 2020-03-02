@@ -83,15 +83,15 @@ INSERT INTO "public"."material_confidence_level" ("id", "material_confidence_lev
 VALUES (4, 'very high');
 
 -- init material
-INSERT INTO "public"."material" ("id", "artifact_id", "material_id", "quantity", "%composition", "confidence_level_id")
+INSERT INTO "public"."material" ("id", "artifact_id", material_type_id, "quantity", "%composition", "confidence_level_id")
 VALUES (2, 1, 2, 1, null, 2);
-INSERT INTO "public"."material" ("id", "artifact_id", "material_id", "quantity", "%composition", "confidence_level_id")
+INSERT INTO "public"."material" ("id", "artifact_id", material_type_id, "quantity", "%composition", "confidence_level_id")
 VALUES (3, 1, 3, 1, null, 2);
-INSERT INTO "public"."material" ("id", "artifact_id", "material_id", "quantity", "%composition", "confidence_level_id")
+INSERT INTO "public"."material" ("id", "artifact_id", material_type_id, "quantity", "%composition", "confidence_level_id")
 VALUES (4, 1, 4, 1, null, 2);
-INSERT INTO "public"."material" ("id", "artifact_id", "material_id", "quantity", "%composition", "confidence_level_id")
+INSERT INTO "public"."material" ("id", "artifact_id", material_type_id, "quantity", "%composition", "confidence_level_id")
 VALUES (5, 1, 5, 1, null, 2);
-INSERT INTO "public"."material" ("id", "artifact_id", "material_id", "quantity", "%composition", "confidence_level_id")
+INSERT INTO "public"."material" ("id", "artifact_id", material_type_id, "quantity", "%composition", "confidence_level_id")
 VALUES (6, 1, 5, 1, null, 2);
 
 

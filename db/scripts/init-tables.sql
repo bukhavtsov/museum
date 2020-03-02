@@ -244,7 +244,7 @@ create table material
     artifact_id         integer not null
         constraint material_artifact_master_phas_id_fk
             references artifact_master_phas,
-    material_id         integer
+    material_type_id    integer
         constraint material_material_type_lut_id_fk
             references material_type_lut,
     quantity            integer,
