@@ -31,11 +31,11 @@ alter table region
 -- city table
 create table city
 (
-    id        serial  not null
+    id        serial      not null
         constraint city_pk
             primary key,
-    city_name integer not null,
-    region_id integer not null
+    city_name varchar(50) not null,
+    region_id integer     not null
         constraint city_region_id_fk
             references region
 );
@@ -250,10 +250,14 @@ create table material
     quantity            integer,
     "%composition"      integer,
     confidence_level_id integer
+        constraint material_material_confidence_level_id_fk
+            references material_confidence_level
 );
 
 alter table material
     owner to postgres;
+
+
 
 -- pb_isotope table
 create table pb_isotope
