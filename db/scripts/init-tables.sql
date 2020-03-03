@@ -28,23 +28,23 @@ alter table region
     owner to postgres;
 
 
--- city table
-create table city
+-- location table
+create table location
 (
-    id        serial      not null
-        constraint city_pk
+    id            serial      not null
+        constraint location_pk
             primary key,
-    city_name varchar(50) not null,
-    region_id integer     not null
-        constraint city_region_id_fk
+    location_name varchar(50) not null,
+    region_id     integer     not null
+        constraint location_region_id_fk
             references region
 );
 
-alter table city
+alter table location
     owner to postgres;
 
-create unique index city_city_name_uindex
-    on city (city_name);
+create unique index location_location_name_uindex
+    on location (location_name);
 
 -- museum table
 create table museum
@@ -55,7 +55,7 @@ create table museum
     museum_name varchar(50) not null,
     city_id     integer     not null
         constraint museum_city_id_fk
-            references city
+            references location
 );
 
 alter table museum
@@ -86,7 +86,7 @@ create table excavation_region
             primary key,
     city_id      integer not null
         constraint excavation_region_city_id_fk
-            references city,
+            references location,
     x_coordinate integer,
     y_coordinate integer
 );
