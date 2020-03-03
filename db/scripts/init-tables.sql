@@ -19,6 +19,8 @@ create table region
             primary key,
     region_name varchar(100) not null,
     country_id  integer      not null
+        constraint region_country_id_fk
+            references country
 );
 
 
@@ -34,9 +36,6 @@ create table location
             references region
 );
 
-create unique index location_location_name_uindex
-    on location (location_name);
-
 -- museum table
 create table museum
 (
@@ -44,8 +43,8 @@ create table museum
         constraint museum_pk
             primary key,
     museum_name varchar(50) not null,
-    city_id     integer     not null
-        constraint museum_city_id_fk
+    location_id     integer     not null
+        constraint museum_location_id_fk
             references location
 );
 
@@ -69,8 +68,8 @@ create table excavation_region
     id           serial  not null
         constraint excavation_region_pk
             primary key,
-    city_id      integer not null
-        constraint excavation_region_city_id_fk
+    location_id      integer not null
+        constraint excavation_region_location_id_fk
             references location,
     x_coordinate integer,
     y_coordinate integer
@@ -303,7 +302,7 @@ create table site_name
     site_name_id integer
         constraint site_name_site_name_lut_id_fk
             references site_name_lut,
-    city         varchar(50),
+    location         varchar(50),
     country      varchar(50),
     comments     text,
     start_date   date,
