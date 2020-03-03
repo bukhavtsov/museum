@@ -8,9 +8,9 @@ INSERT INTO region (id, region_name, country_id)
 VALUES (1, 'Ветковско-Стародубский', 1);
 
 -- insert region
-INSERT INTO city (id, city_name, region_id)
+INSERT INTO location (id, location_name, region_id)
 VALUES (1, 'Ветка', 1);
-INSERT INTO city (id, city_name, region_id)
+INSERT INTO location (id, location_name, region_id)
 VALUES (1, 'Ветка', 2);
 
 -- insert contacts

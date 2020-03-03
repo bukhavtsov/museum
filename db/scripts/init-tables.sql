@@ -7,9 +7,6 @@ create table country
     country_name varchar(100) not null
 );
 
-alter table country
-    owner to postgres;
-
 create unique index country_country_name_uindex
     on country (country_name);
 
@@ -24,9 +21,6 @@ create table region
     country_id  integer      not null
 );
 
-alter table region
-    owner to postgres;
-
 
 -- location table
 create table location
@@ -39,9 +33,6 @@ create table location
         constraint location_region_id_fk
             references region
 );
-
-alter table location
-    owner to postgres;
 
 create unique index location_location_name_uindex
     on location (location_name);
@@ -58,9 +49,6 @@ create table museum
             references location
 );
 
-alter table museum
-    owner to postgres;
-
 -- museum_contacts table
 create table museum_contacts
 (
@@ -75,9 +63,6 @@ create table museum_contacts
             references museum
 );
 
-alter table museum_contacts
-    owner to postgres;
-
 -- excavation_region table
 create table excavation_region
 (
@@ -91,10 +76,6 @@ create table excavation_region
     y_coordinate integer
 );
 
-alter table excavation_region
-    owner to postgres;
-
-
 -- reg_confidence_level table
 create table reg_confidence_level
 (
@@ -104,9 +85,6 @@ create table reg_confidence_level
     reg_confidence_level varchar(50) not null
 );
 
-alter table reg_confidence_level
-    owner to postgres;
-
 -- object_group_lut table
 create table object_group_lut
 (
@@ -115,9 +93,6 @@ create table object_group_lut
             primary key,
     object_group_name varchar(100) not null
 );
-
-alter table object_group_lut
-    owner to postgres;
 
 create unique index object_group_lut_object_group_name_uindex
     on object_group_lut (object_group_name);
@@ -131,9 +106,6 @@ create table hist_culture
     hist_culture varchar(50) not null
 );
 
-alter table hist_culture
-    owner to postgres;
-
 create unique index hist_culture_hist_culture_uindex
     on hist_culture (hist_culture);
 
@@ -145,9 +117,6 @@ create table transferred_by_lut
             primary key,
     transferred_by varchar(200) not null
 );
-
-alter table transferred_by_lut
-    owner to postgres;
 
 create unique index transferred_by_lut_transferred_by_uindex
     on transferred_by_lut (transferred_by);
@@ -185,8 +154,6 @@ create table artifact_master_phas
             references transferred_by_lut
 );
 
-alter table artifact_master_phas
-    owner to postgres;
 
 create unique index artifact_master_phas_artifact_id_uindex
     on artifact_master_phas (artifact_id);
@@ -205,9 +172,6 @@ create table object_group
             references artifact_master_phas
 );
 
-alter table object_group
-    owner to postgres;
-
 -- material_type_lut
 create table material_type_lut
 (
@@ -217,9 +181,6 @@ create table material_type_lut
     material_type varchar(50)
 );
 
-alter table material_type_lut
-    owner to postgres;
-
 -- material_confidence_level table
 create table material_confidence_level
 (
@@ -228,9 +189,6 @@ create table material_confidence_level
             primary key,
     material_confidence_level varchar(50) not null
 );
-
-alter table material_confidence_level
-    owner to postgres;
 
 create unique index material_confidence_level_material_confidence_level_uindex
     on material_confidence_level (material_confidence_level);
@@ -254,11 +212,6 @@ create table material
             references material_confidence_level
 );
 
-alter table material
-    owner to postgres;
-
-
-
 -- pb_isotope table
 create table pb_isotope
 (
@@ -273,10 +226,6 @@ create table pb_isotope
     date        date
 );
 
-alter table pb_isotope
-    owner to postgres;
-
-
 -- collection table
 create table collection
 (
@@ -287,9 +236,6 @@ create table collection
     collection_name varchar(50)
 );
 
-alter table collection
-    owner to postgres;
-
 -- prov_category_lut
 create table prov_category_lut
 (
@@ -298,9 +244,6 @@ create table prov_category_lut
             primary key,
     prov_category varchar(50) not null
 );
-
-alter table prov_category_lut
-    owner to postgres;
 
 create unique index prov_category_lut_prov_category_uindex
     on prov_category_lut (prov_category);
@@ -321,9 +264,6 @@ create table provenience_intersite
     p_info        text
 );
 
-alter table provenience_intersite
-    owner to postgres;
-
 -- artifact_measurement
 create table artifact_measurement
 (
@@ -338,9 +278,6 @@ create table artifact_measurement
     width       integer
 );
 
-alter table artifact_measurement
-    owner to postgres;
-
 -- site_name_lut
 create table site_name_lut
 (
@@ -350,8 +287,6 @@ create table site_name_lut
     site_name varchar(50) not null
 );
 
-alter table site_name_lut
-    owner to postgres;
 
 create unique index site_name_lut_site_name_uindex
     on site_name_lut (site_name);
@@ -375,9 +310,6 @@ create table site_name
     finish_date  integer
 );
 
-alter table site_name
-    owner to postgres;
-
 -- ref_categ_lut
 create table ref_categ_lut
 (
@@ -386,9 +318,6 @@ create table ref_categ_lut
             primary key,
     r_categ varchar(50) not null
 );
-
-alter table ref_categ_lut
-    owner to postgres;
 
 create unique index ref_categ_lut_r_categ_uindex
     on ref_categ_lut (r_categ);
@@ -408,9 +337,6 @@ create table reference
     reference_info text
 );
 
-alter table reference
-    owner to postgres;
-
 -- site_type_lut
 create table site_type_lut
 (
@@ -419,9 +345,6 @@ create table site_type_lut
             primary key,
     site_type varchar(50) not null
 );
-
-alter table site_type_lut
-    owner to postgres;
 
 create unique index site_type_lut_site_type_uindex
     on site_type_lut (site_type);
@@ -441,9 +364,6 @@ create table site_type
             references site_type_lut
 );
 
-alter table site_type
-    owner to postgres;
-
 -- artifact_safety
 create table artifact_safety
 (
@@ -455,11 +375,6 @@ create table artifact_safety
             references artifact_master_phas,
     safety      varchar(100) not null
 );
-
-alter table artifact_safety
-    owner to postgres;
-
-
 
 
 
