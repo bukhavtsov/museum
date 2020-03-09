@@ -43,7 +43,7 @@ create table museum
         constraint museum_pk
             primary key,
     museum_name varchar(50) not null,
-    location_id     integer     not null
+    location_id integer     not null
         constraint museum_location_id_fk
             references location
 );
@@ -68,7 +68,7 @@ create table excavation_region
     id           serial  not null
         constraint excavation_region_pk
             primary key,
-    location_id      integer not null
+    location_id  integer not null
         constraint excavation_region_location_id_fk
             references location,
     x_coordinate integer,
@@ -96,7 +96,7 @@ create table object_group_lut
 create unique index object_group_lut_object_group_name_uindex
     on object_group_lut (object_group_name);
 
--- hist culture
+-- hist culture table
 create table hist_culture
 (
     id           serial      not null
@@ -120,7 +120,7 @@ create table transferred_by_lut
 create unique index transferred_by_lut_transferred_by_uindex
     on transferred_by_lut (transferred_by);
 
--- artifact_master_phas table
+-- auto-generated definition
 create table artifact_master_phas
 (
     id                   serial  not null
@@ -136,13 +136,12 @@ create table artifact_master_phas
     reg_confidence_id    integer
         constraint artifact_master_phas_reg_confidence_level_id_fk
             references reg_confidence_level,
-    excavator_full_name  varchar(50),
     date_exc             date,
-    creator              date,
+    creator              varchar(100),
     hist_culture_id      integer
         constraint artifact_master_phas_hist_culture_id_fk
             references hist_culture,
-    rss_desc             text,
+    "desc"               text,
     translation          text,
     min_age              integer,
     max_age              integer,
@@ -152,7 +151,6 @@ create table artifact_master_phas
         constraint artifact_master_phas_transferred_by_lut_id_fk
             references transferred_by_lut
 );
-
 
 create unique index artifact_master_phas_artifact_id_uindex
     on artifact_master_phas (artifact_id);
@@ -171,7 +169,7 @@ create table object_group
             references artifact_master_phas
 );
 
--- material_type_lut
+-- material_type_lut table
 create table material_type_lut
 (
     id            serial not null
@@ -235,7 +233,7 @@ create table collection
     collection_name varchar(50)
 );
 
--- prov_category_lut
+-- prov_category_lut table
 create table prov_category_lut
 (
     id            integer     not null
@@ -263,7 +261,7 @@ create table provenience_intersite
     p_info        text
 );
 
--- artifact_measurement
+-- artifact_measurement table
 create table artifact_measurement
 (
     id          serial  not null
@@ -277,7 +275,7 @@ create table artifact_measurement
     width       integer
 );
 
--- site_name_lut
+-- site_name_lut table
 create table site_name_lut
 (
     id        serial      not null
@@ -290,7 +288,7 @@ create table site_name_lut
 create unique index site_name_lut_site_name_uindex
     on site_name_lut (site_name);
 
--- site_name
+-- site_name table
 create table site_name
 (
     id           serial  not null
@@ -302,14 +300,14 @@ create table site_name
     site_name_id integer
         constraint site_name_site_name_lut_id_fk
             references site_name_lut,
-    location         varchar(50),
+    location     varchar(50),
     country      varchar(50),
     comments     text,
     start_date   date,
     finish_date  integer
 );
 
--- ref_categ_lut
+-- ref_categ_lut table
 create table ref_categ_lut
 (
     id      serial      not null
@@ -321,7 +319,7 @@ create table ref_categ_lut
 create unique index ref_categ_lut_r_categ_uindex
     on ref_categ_lut (r_categ);
 
--- reference
+-- reference table
 create table reference
 (
     id             serial  not null
@@ -336,7 +334,7 @@ create table reference
     reference_info text
 );
 
--- site_type_lut
+-- site_type_lut table
 create table site_type_lut
 (
     id        serial      not null
@@ -349,7 +347,7 @@ create unique index site_type_lut_site_type_uindex
     on site_type_lut (site_type);
 
 
--- site_type
+-- site_type table
 create table site_type
 (
     id           serial  not null
@@ -363,7 +361,7 @@ create table site_type
             references site_type_lut
 );
 
--- artifact_safety
+-- artifact_safety table
 create table artifact_safety
 (
     id          serial       not null
@@ -372,14 +370,83 @@ create table artifact_safety
     artifact_id integer      not null
         constraint artifact_safety_artifact_master_phas_id_fk
             references artifact_master_phas,
-    safety      varchar(100) not null
+    safety      text not null
 );
 
+-- artifact_element table
+create table artifact_element
+(
+    id                    serial       not null
+        constraint artifact_element_pk
+            primary key,
+    artifact_id           integer      not null
+        constraint artifact_element_artifact_master_phas_id_fk
+            references artifact_master_phas,
+    artifact_element_name varchar(100) not null,
+    artifact_sub_element  integer
+        constraint artifact_element_artifact_element_id_fk
+            references artifact_element
+);
+
+-- restoration table
+create table restoration
+(
+    id          serial  not null
+        constraint restoration_pk
+            primary key,
+    artifact_id integer not null
+        constraint restoration_artifact_master_phas_id_fk
+            references artifact_master_phas,
+    date        date,
+    updates     varchar(100),
+    author      varchar(100)
+);
+
+-- artifact_related_people table
+create table artifact_related_people
+(
+    id          serial       not null
+        constraint artifact_related_people_pk
+            primary key,
+    artifact_id integer      not null
+        constraint artifact_related_people_artifact_master_phas_id_fk
+            references artifact_master_phas,
+    person_name varchar(100) not null
+);
+
+-- artifact_style_lut table
+create table artifact_style_lut
+(
+    id                  integer,
+    artifact_style_name varchar(100) not null
+);
+
+create unique index artifact_style_lut_artifact_style_name_uindex
+    on artifact_style_lut (artifact_style_name);
 
 
+-- artifact_style table
+create table artifact_style
+(
+    id                integer,
+    artifact_id       integer not null
+        constraint artifact_style_artifact_master_phas_id_fk
+            references artifact_master_phas,
+    artifact_style_id integer not null
+);
 
-
-
+-- artifact_publication table
+create table artifact_publication
+(
+    id          serial       not null
+        constraint artifact_publication_pk
+            primary key,
+    artifact_id integer      not null
+        constraint artifact_publication_artifact_master_phas_id_fk
+            references artifact_master_phas,
+    author_name varchar(100) not null,
+    date        date
+);
 
 
 
