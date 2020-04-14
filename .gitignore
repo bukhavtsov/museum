@@ -1,0 +1,16 @@
+.idea
+
+# Golang
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Angular
+/dist
+/tmp
+/out-tsc
+/node_modules
