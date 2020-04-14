@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/bukhavtsov/museum/back-end/db"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/bukhavtsov/museum/back-end/db"
 	"github.com/bukhavtsov/museum/back-end/pkg/api"
 	"github.com/bukhavtsov/museum/back-end/pkg/data"
 
