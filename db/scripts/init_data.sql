@@ -62,7 +62,7 @@ VALUES (1, 'поступила в составе коллекции Шкляро
 INSERT INTO artifact_master_phas (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
                                   date_exc, creator, hist_culture_id, "desc", translation,
                                   min_age, max_age, artifact_info_photo, photo, transferred_by_id)
-VALUES (1, 1, 1, 1, 5, null, '1979-02-17', null, null,
+VALUES (1, 1, 1, 1, 5, '1979-02-17', null, null, null,
         'Композиция средника иконы: поясная центральноориенированная фигура святого с благословляющей десницей и открытым Евангелием. По обе стороны фигуры на уровне плеч ростовые фигуры Христа и Богородицы на облаках. Красная фелонь святителя украшена сложносоставными золотыми букетами; омофор – светло-розовый с бело-красными крестами и золотым растительным орнаментом.',
         219, 120, 'ru.wikipedia.org/wiki/Николай_Чудотворец',
         '/path/to/photo/image.jpg', 1);
