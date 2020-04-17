@@ -11,7 +11,7 @@ import (
 )
 
 type CardData interface {
-	ReadAll() ([]*data.Artifact_master_phas, error)
+	ReadAll() ([]*data.ArtifactMasterPhas, error)
 }
 
 type cardAPI struct {
