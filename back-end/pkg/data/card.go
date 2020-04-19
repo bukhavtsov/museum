@@ -6,37 +6,23 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// ArtifactSafety describes current quality of artifact
-type ArtifactSafety struct {
-	ID         string
-	ArtifactID string `gorm:"column:artifact_id" json:"artifact_id"`
-	Safety     string `gorm:"column:safety" json:"safety"`
-}
-
-type ArtifactStyleLUT struct {
-	ID                int64  `gorm:"primary_key" json:"id"`
-	ArtifactStyleName string `gorm:"column:artifact_style_name" json:"artifact_style_name"`
-}
-
-type ArtifactStyle struct {
-	ID              int64  `gorm:"primary_key"`
-	ArtifactID      string `gorm:"column:artifact_id"`
-	ArtifactStyleID string `gorm:"column:artifact_style_id"`
+type ArtifactMeasurement struct {
+	Height int64
+	Width  int64
+	Length int64
 }
 
 // ArtifactMasterPhas the main structure of artifact
 type ArtifactMasterPhas struct {
-	ID             int64  `gorm:"primary_key" json:"id"`
-	Creator        string `gorm:"column:creator" json:"creator"`
-	ArtifactStyle  string `json:"artifact_style"`
-	ExcavationDate string `gorm:"column:date_exc" json:"date_exc"`
-	TransferredBy  string `gorm:"column:transferred_by" json:"transferred_by"`
-	Width          string `gorm:"column:width" json:"width"`
-	Height         string `gorm:"column:height" json:"height"`
-	Length         string `gorm:"column:length" json:"length"`
-	Safety         string
-	Materials      []*Material
-	Elements       []*ArtifactElement
+	ID                  int64                `json:"id"`
+	Creator             string               `json:"creator"`
+	ArtifactStyle       string               `json:"artifact_style"`
+	ExcavationDate      string               `json:"date_exc"`
+	TransferredBy       string               `json:"transferred_by"`
+	Safety              string               `json:"safety"` // rewrite with graph
+	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
+	Materials           []*Material
+	Elements            []*ArtifactElement
 }
 
 // ArtifactElement some part of artifact
@@ -44,7 +30,7 @@ type ArtifactElement struct {
 	Name string `gorm:"column:artifact_element_name" json:"artifact_element_name"`
 }
 
-// Material describes material with additional information for spicific artifact
+// Material describes material with additional information for specific artifact
 type Material struct{}
 
 // CardData gets connection to database
@@ -59,28 +45,49 @@ func NewCardData(db *gorm.DB) *CardData {
 
 // ReadAll return all cards from database
 func (cd *CardData) ReadAll() ([]*ArtifactMasterPhas, error) {
-	cd.db.SingularTable(true) // gives opportunity to use table with singular name
 	cards := make([]*ArtifactMasterPhas, 0)
-	if err := cd.db.Find(&cards).Error; err != nil {
-		return []*ArtifactMasterPhas{}, err
+	// Way how to get data with relationship from db has been found, but it's not a ORM way
+	// TODO: write working version without ORM way, after that rewrite to ORM
+	rows, err := cd.db.Raw(getBasicArtifactInfo).Rows()
+	if err != nil {
+		log.Println(err)
 	}
-	for _, card := range cards {
-		safety := new(ArtifactSafety)
-		if err := cd.db.Where("artifact_id = ?", card.ID).First(&safety).Error; err != nil {
-			log.Println("safety error:", err)
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			id                int64
+			creator           *string
+			artifactStyleName *string
+			transferredBy     string
+			dateExc           string
+			height            int64
+			width             int64
+			length            int64
+			safety            string
+		)
+		err := rows.Scan(&id, &creator, &artifactStyleName,
+			&transferredBy, &dateExc, &height, &width, &length, &safety)
+		if err != nil {
+			log.Println("scan error:", err)
 		}
-		card.Safety = safety.Safety
+		card := new(ArtifactMasterPhas)
+		card.ID = id
+		if creator != nil {
+			card.Creator = *creator
+		}
+		if artifactStyleName != nil {
+			card.ArtifactStyle = *artifactStyleName
+		}
 
-		style := new(ArtifactStyle)
-		if err := cd.db.Where("artifact_id = ?", card.ID).First(&style).Error; err != nil {
-			log.Println("ArtifactStyle error:", err)
+		card.TransferredBy = transferredBy
+		card.ExcavationDate = dateExc
+		card.ArtifactMeasurement = &ArtifactMeasurement{
+			Height: height,
+			Width:  width,
+			Length: length,
 		}
-		styleLUT := new(ArtifactStyleLUT)
-		if err := cd.db.Where("id = ?", style.ArtifactStyleID).First(&styleLUT).Error; err != nil {
-			log.Println("ArtifactStyleLUT error:", err)
-		}
-		card.ArtifactStyle = styleLUT.ArtifactStyleName
+		card.Safety = safety
+		cards = append(cards, card)
 	}
-
 	return cards, nil
 }
