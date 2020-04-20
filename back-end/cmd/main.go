@@ -48,6 +48,8 @@ func init() {
 	}
 }
 
+// safety replace to preserve. and make like graph
+
 func main() {
 	r := mux.NewRouter()
 	conn := db.GetConnection(host, port, user, dbname, password, sslmode)

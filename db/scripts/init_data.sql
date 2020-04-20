@@ -1,3 +1,8 @@
+-- TODO: make tables hierarchy
+-- 1. object group
+-- 2. materials
+-- 3. safety
+
 -- insert country
 INSERT INTO country (id, country_name)
 VALUES (1, 'Беларусь');
@@ -58,8 +63,8 @@ VALUES (5, 'very high');
 INSERT INTO transferred_by_lut (id, transferred_by)
 VALUES (1, 'поступила в составе коллекции Шклярова Ф.Г. 17.02.1979 г');
 
--- insert artifact_master_phas
-INSERT INTO artifact_master_phas (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
+-- insert artifact_master
+INSERT INTO artifact_master (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
                                   date_exc, creator, hist_culture_id, "desc", translation,
                                   min_age, max_age, artifact_info_photo, photo, transferred_by_id)
 VALUES (1, 1, 1, 1, 5, '1979-02-17', null, null, null,
@@ -137,22 +142,22 @@ INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%com
 VALUES (6, 1, 5, 1, null, 2);
 
 -- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (1, 1, 'доска', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (2, 1, 'ольха', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (3, 1, 'трехсоставная', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (4, 1, 'шпонки дубовые', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
-VALUES (5, 1, 'пластевые', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
-VALUES (6, 1, 'встречные', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
-VALUES (7, 1, 'выступающие', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
-VALUES (8, 1, 'отделанные калёвкой', 1);
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+VALUES (5, 1, 'пластевые', 4);
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+VALUES (6, 1, 'встречные', 4);
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+VALUES (7, 1, 'выступающие', 4);
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+VALUES (8, 1, 'отделанные калёвкой', 4);
 
 -- insert artifact_style_lut
 INSERT INTO artifact_style_lut (id, artifact_style_name)
@@ -192,8 +197,8 @@ INSERT INTO transferred_by_lut (id, transferred_by)
 VALUES (2, 'Приобретена в д. Леонтьево Добрушского р-на у Душечкина Якова Даниловича в 1981 (№ акта 209 от 28.08.1981., протокол от 24.08.1981.)
 ');
 
--- insert artifact_master_phas
-INSERT INTO artifact_master_phas (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
+-- insert artifact_master
+INSERT INTO artifact_master (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
                                   creator, date_exc, hist_culture_id, "desc", translation,
                                   min_age, max_age, artifact_info_photo, photo, transferred_by_id)
 VALUES (2, 2, 1, 2, 5, 'Пётр Тимофеев Мстиславец', '1575-03-30', null,
@@ -215,21 +220,21 @@ INSERT INTO "material_type_lut" ("id", "material_type")
 VALUES (9, 'гравюры');
 
 -- insert object_group
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (9, 2, 'Переплёт', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (10, 2, 'доска', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (11, 2, 'кожа', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (12, 2, 'бархат', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (13, 2, 'живопись', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (14, 2, 'металлический средник', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (15, 2, 'застёжки', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (16, 2, 'фигурные жуковины', 9);
 
 -- insert artifact_measurement
@@ -242,21 +247,21 @@ VALUES (2, 2,
         'Отсутствует 1 лист, между 177-178 л. Вырван, между 376-381 л. Рукописные на бумаге в линейку Добрушской писчебумажной фабрики, лист с выходными данными отсутствует, восстановлен рукописным. Бумага загрязнена, следы воска, сырости. Бархат на переплёте порван, выцвел, реставрирован современным бархатом малинового цвета, живопись на накладной доске почти утрачена. Застёжки – новодел.');
 
 -- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (17, 2, 'Орнамент', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (18, 2, 'заставок – 10 с 10 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (19, 2, '4 гравюры (после 1-го листа – евангелист Матфей', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (20, 2, '105 об. – евангелист Марк', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (21, 2, 'между 171-172 – евангелист Лука', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (22, 2, 'между 280-281 – евангелист Иоанн)', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (23, 2, '4 инициала (буквицы) с 4 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (24, 2, 'маргинальных рамок – 15 с 9 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_sub_element)
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (25, 2, ' вязь киноварная', 17);

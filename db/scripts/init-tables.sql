@@ -120,26 +120,26 @@ create table transferred_by_lut
 create unique index transferred_by_lut_transferred_by_uindex
     on transferred_by_lut (transferred_by);
 
--- auto-generated definition
-create table artifact_master_phas
+-- artifact_master table
+create table artifact_master
 (
     id                   serial  not null
-        constraint artifact_master_phas_pk
+        constraint artifact_master_pk
         primary key,
     artifact_id          integer,
     museum_id            integer not null
-        constraint artifact_master_phas_museum_id_fk
+        constraint artifact_master_museum_id_fk
         references museum,
     excavation_region_id integer
-        constraint artifact_master_phas_excavation_region_id_fk
+        constraint artifact_master_excavation_region_id_fk
         references excavation_region,
     reg_confidence_id    integer
-        constraint artifact_master_phas_reg_confidence_level_id_fk
+        constraint artifact_master_reg_confidence_level_id_fk
         references reg_confidence_level,
     date_exc             date,
     creator              varchar(100),
     hist_culture_id      integer
-        constraint artifact_master_phas_hist_culture_id_fk
+        constraint artifact_master_hist_culture_id_fk
         references hist_culture,
     "desc"               text,
     translation          text,
@@ -148,12 +148,12 @@ create table artifact_master_phas
     artifact_info_photo  text,
     photo                varchar(100),
     transferred_by_id    integer
-        constraint artifact_master_phas_transferred_by_lut_id_fk
+        constraint artifact_master_transferred_by_lut_id_fk
         references transferred_by_lut
 );
 
-create unique index artifact_master_phas_artifact_id_uindex
-    on artifact_master_phas (artifact_id);
+create unique index artifact_master_artifact_id_uindex
+    on artifact_master (artifact_id);
 
 -- object_group table
 create table object_group
@@ -165,8 +165,8 @@ create table object_group
         constraint object_group_object_group_lut_id_fk
         references object_group_lut,
     artifact_id     integer not null
-        constraint object_group_artifact_master_phas_id_fk
-        references artifact_master_phas
+        constraint object_group_artifact_master_id_fk
+        references artifact_master
 );
 
 -- material_type_lut table
@@ -197,8 +197,8 @@ create table material
         constraint material_pk
         primary key,
     artifact_id         integer not null
-        constraint material_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint material_artifact_master_id_fk
+        references artifact_master,
     material_type_id    integer
         constraint material_material_type_lut_id_fk
         references material_type_lut,
@@ -216,8 +216,8 @@ create table pb_isotope
         constraint pb_isotope_pk
         primary key,
     artifact_id integer not null
-        constraint pb_isotope_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint pb_isotope_artifact_master_id_fk
+        references artifact_master,
     isotope     varchar(50),
     value       varchar(50),
     date        date
@@ -228,8 +228,8 @@ create table collection
 (
     id              serial  not null,
     artifact_id     integer not null
-        constraint collection_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint collection_artifact_master_id_fk
+        references artifact_master,
     collection_name varchar(50)
 );
 
@@ -253,8 +253,8 @@ create table provenience_intersite
         constraint provenience_intersite_pk
         primary key,
     artifact_id   integer not null
-        constraint provenience_intersite_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint provenience_intersite_artifact_master_id_fk
+        references artifact_master,
     p_category_id integer
         constraint provenience_intersite_prov_category_lut_id_fk
         references prov_category_lut,
@@ -268,8 +268,8 @@ create table artifact_measurement
         constraint artifact_measurement_pk
         primary key,
     artifact_id integer not null
-        constraint artifact_measurement_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint artifact_measurement_artifact_master_id_fk
+        references artifact_master,
     length      integer,
     height      integer not null,
     width       integer
@@ -295,8 +295,8 @@ create table site_name
         constraint site_name_pk
         primary key,
     artifact_id  integer not null
-        constraint site_name_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint site_name_artifact_master_id_fk
+        references artifact_master,
     site_name_id integer
         constraint site_name_site_name_lut_id_fk
         references site_name_lut,
@@ -326,8 +326,8 @@ create table reference
         constraint reference_pk
         primary key,
     artifact_id    integer not null
-        constraint reference_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint reference_artifact_master_id_fk
+        references artifact_master,
     r_category_id  integer
         constraint reference_ref_categ_lut_id_fk
         references ref_categ_lut,
@@ -354,8 +354,8 @@ create table site_type
         constraint site_type_pk
         primary key,
     artifact_id  integer not null
-        constraint site_type_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint site_type_artifact_master_id_fk
+        references artifact_master,
     site_type_id integer
         constraint site_type_site_type_lut_id_fk
         references site_type_lut
@@ -368,8 +368,8 @@ create table artifact_safety
         constraint artifact_safety_pk
         primary key,
     artifact_id integer not null
-        constraint artifact_safety_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint artifact_safety_artifact_master_id_fk
+        references artifact_master,
     safety      text    not null
 );
 
@@ -380,10 +380,10 @@ create table artifact_element
         constraint artifact_element_pk
         primary key,
     artifact_id           integer      not null
-        constraint artifact_element_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint artifact_element_artifact_master_id_fk
+        references artifact_master,
     artifact_element_name varchar(100) not null,
-    artifact_sub_element  integer
+    artifact_parent_element_id  integer
         constraint artifact_element_artifact_element_id_fk
         references artifact_element
 );
@@ -395,8 +395,8 @@ create table restoration
         constraint restoration_pk
         primary key,
     artifact_id integer not null
-        constraint restoration_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint restoration_artifact_master_id_fk
+        references artifact_master,
     date        date,
     updates     varchar(100),
     author      varchar(100)
@@ -409,8 +409,8 @@ create table artifact_related_people
         constraint artifact_related_people_pk
         primary key,
     artifact_id integer      not null
-        constraint artifact_related_people_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint artifact_related_people_artifact_master_id_fk
+        references artifact_master,
     person_name varchar(100) not null
 );
 
@@ -433,8 +433,8 @@ create table artifact_style
         constraint artifact_style_pk
         primary key,
     artifact_id       integer not null
-        constraint artifact_style_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint artifact_style_artifact_master_id_fk
+        references artifact_master,
     artifact_style_id integer not null
         constraint artifact_style_artifact_style_lut_id_fk
         references artifact_style_lut
@@ -447,8 +447,8 @@ create table artifact_publication
         constraint artifact_publication_pk
         primary key,
     artifact_id integer      not null
-        constraint artifact_publication_artifact_master_phas_id_fk
-        references artifact_master_phas,
+        constraint artifact_publication_artifact_master_id_fk
+        references artifact_master,
     author_name varchar(100) not null,
     date        date
 );

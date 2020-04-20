@@ -12,8 +12,8 @@ type ArtifactMeasurement struct {
 	Length int64
 }
 
-// ArtifactMasterPhas the main structure of artifact
-type ArtifactMasterPhas struct {
+// ArtifactMaster the main structure of artifact
+type ArtifactMaster struct {
 	ID                  int64                `json:"id"`
 	Creator             string               `json:"creator"`
 	ArtifactStyle       string               `json:"artifact_style"`
@@ -27,7 +27,9 @@ type ArtifactMasterPhas struct {
 
 // ArtifactElement some part of artifact
 type ArtifactElement struct {
-	Name string `gorm:"column:artifact_element_name" json:"artifact_element_name"`
+	ID         int64            `json:"id"`
+	Name       string           `json:"name"`
+	SubElement *ArtifactElement `json:"sub_element"`
 }
 
 // Material describes material with additional information for specific artifact
@@ -44,11 +46,11 @@ func NewCardData(db *gorm.DB) *CardData {
 }
 
 // ReadAll return all cards from database
-func (cd *CardData) ReadAll() ([]*ArtifactMasterPhas, error) {
-	cards := make([]*ArtifactMasterPhas, 0)
+func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
+	cards := make([]*ArtifactMaster, 0)
 	// Way how to get data with relationship from db has been found, but it's not a ORM way
 	// TODO: write working version without ORM way, after that rewrite to ORM
-	rows, err := cd.db.Raw(getBasicArtifactInfo).Rows()
+	rows, err := cd.db.Raw(getArtifactsWithBasicInfo).Rows()
 	if err != nil {
 		log.Println(err)
 	}
@@ -70,7 +72,7 @@ func (cd *CardData) ReadAll() ([]*ArtifactMasterPhas, error) {
 		if err != nil {
 			log.Println("scan error:", err)
 		}
-		card := new(ArtifactMasterPhas)
+		card := new(ArtifactMaster)
 		card.ID = id
 		if creator != nil {
 			card.Creator = *creator
@@ -89,5 +91,15 @@ func (cd *CardData) ReadAll() ([]*ArtifactMasterPhas, error) {
 		card.Safety = safety
 		cards = append(cards, card)
 	}
+
+	for _, card := range cards {
+		rows, err := cd.db.Raw(getArtifactElements, card.ID).Rows()
+		if err != nil {
+			log.Println(err)
+		}
+		defer rows.Close()
+	}
+
+
 	return cards, nil
 }
