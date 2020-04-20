@@ -50,12 +50,12 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 	cards := make([]*ArtifactMaster, 0)
 	// Way how to get data with relationship from db has been found, but it's not a ORM way
 	// TODO: write working version without ORM way, after that rewrite to ORM
-	rows, err := cd.db.Raw(getArtifactsWithBasicInfo).Rows()
+	artifactRows, err := cd.db.Raw(getArtifactsWithBasicInfo).Rows()
 	if err != nil {
 		log.Println(err)
 	}
-	defer rows.Close()
-	for rows.Next() {
+	defer artifactRows.Close()
+	for artifactRows.Next() {
 		var (
 			id                int64
 			creator           *string
@@ -67,7 +67,7 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 			length            int64
 			safety            string
 		)
-		err := rows.Scan(&id, &creator, &artifactStyleName,
+		err := artifactRows.Scan(&id, &creator, &artifactStyleName,
 			&transferredBy, &dateExc, &height, &width, &length, &safety)
 		if err != nil {
 			log.Println("scan error:", err)
@@ -93,13 +93,56 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 	}
 
 	for _, card := range cards {
-		rows, err := cd.db.Raw(getArtifactElements, card.ID).Rows()
+		elementsRows, err := cd.db.Raw(getArtifactElements+" WHERE ae1.artifact_id = ?", card.ID).Rows()
 		if err != nil {
 			log.Println(err)
 		}
-		defer rows.Close()
-	}
 
+		for elementsRows.Next() {
+			var (
+				id       int64
+				name     string
+				parentID int64
+			)
+
+			err := elementsRows.Scan(&id, &name, &parentID)
+			if err != nil {
+				log.Println("scan error:", err)
+			}
+			log.Println(id)
+			log.Println(name)
+			log.Println(parentID)
+			log.Println("-------")
+			if parentID == 0 { // FIXME: draft condition for testing rows operation
+				sqlCondition := "WHERE ae1.artifact_id = ? AND ae1.artifact_parent_element_id = ?"
+				subElementsRows, err := cd.db.Raw(getArtifactElements+" "+sqlCondition, card.ID, id).Rows()
+				if err != nil {
+					log.Println(err)
+				}
+				for subElementsRows.Next() {
+					var (
+						subID       int64
+						subName     string
+						subParentID int64
+					)
+					err := subElementsRows.Scan(&subID, &subName, &subParentID)
+					if err != nil {
+						log.Println("sub scan error:", err)
+					}
+					log.Println("		", subID)
+					log.Println("		", subName)
+					log.Println("		", subParentID)
+					log.Println("-------------------")
+				}
+				subElementsRows.Close()
+			}
+		}
+		defer elementsRows.Close()
+	}
 
 	return cards, nil
 }
+
+//TODO: добавить условие: если parent_id != 0, то добавить текущий подэлемент в список к корневому
+// 1. ReadAll разбить на методы
+// 2. Присвоить иерархию элементов объекту card
