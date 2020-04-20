@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -21,8 +22,8 @@ type ArtifactMaster struct {
 	TransferredBy       string               `json:"transferred_by"`
 	Safety              string               `json:"safety"` // rewrite with graph
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
-	Materials           []*Material
 	Elements            []*ArtifactElement
+	Materials           map[string][]string `json:"materials"`
 }
 
 // ArtifactElement some part of artifact
@@ -56,39 +57,8 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 	}
 	defer artifactRows.Close()
 	for artifactRows.Next() {
-		var (
-			id                int64
-			creator           *string
-			artifactStyleName *string
-			transferredBy     string
-			dateExc           string
-			height            int64
-			width             int64
-			length            int64
-			safety            string
-		)
-		err := artifactRows.Scan(&id, &creator, &artifactStyleName,
-			&transferredBy, &dateExc, &height, &width, &length, &safety)
-		if err != nil {
-			log.Println("scan error:", err)
-		}
-		card := new(ArtifactMaster)
-		card.ID = id
-		if creator != nil {
-			card.Creator = *creator
-		}
-		if artifactStyleName != nil {
-			card.ArtifactStyle = *artifactStyleName
-		}
-
-		card.TransferredBy = transferredBy
-		card.ExcavationDate = dateExc
-		card.ArtifactMeasurement = &ArtifactMeasurement{
-			Height: height,
-			Width:  width,
-			Length: length,
-		}
-		card.Safety = safety
+		card := getCardWithBasicInfo(artifactRows)
+		card.Materials = make(map[string][]string, 0)
 		cards = append(cards, card)
 	}
 
@@ -100,41 +70,16 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 
 		for elementsRows.Next() {
 			var (
-				id       int64
-				name     string
-				parentID int64
+				id         int64
+				name       string
+				parentName string
 			)
-
-			err := elementsRows.Scan(&id, &name, &parentID)
+			err := elementsRows.Scan(&id, &name, &parentName)
 			if err != nil {
 				log.Println("scan error:", err)
 			}
-			log.Println(id)
-			log.Println(name)
-			log.Println(parentID)
-			log.Println("-------")
-			if parentID == 0 { // FIXME: draft condition for testing rows operation
-				sqlCondition := "WHERE ae1.artifact_id = ? AND ae1.artifact_parent_element_id = ?"
-				subElementsRows, err := cd.db.Raw(getArtifactElements+" "+sqlCondition, card.ID, id).Rows()
-				if err != nil {
-					log.Println(err)
-				}
-				for subElementsRows.Next() {
-					var (
-						subID       int64
-						subName     string
-						subParentID int64
-					)
-					err := subElementsRows.Scan(&subID, &subName, &subParentID)
-					if err != nil {
-						log.Println("sub scan error:", err)
-					}
-					log.Println("		", subID)
-					log.Println("		", subName)
-					log.Println("		", subParentID)
-					log.Println("-------------------")
-				}
-				subElementsRows.Close()
+			if parentName != "" {
+				card.Materials[parentName] = append(card.Materials[parentName], name)
 			}
 		}
 		defer elementsRows.Close()
@@ -143,6 +88,56 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 	return cards, nil
 }
 
-//TODO: добавить условие: если parent_id != 0, то добавить текущий подэлемент в список к корневому
-// 1. ReadAll разбить на методы
-// 2. Присвоить иерархию элементов объекту card
+func getCardWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
+	var (
+		id                int64
+		creator           *string
+		artifactStyleName *string
+		transferredBy     *string
+		dateExc           *string
+		height            int64
+		width             int64
+		length            int64
+		safety            *string
+	)
+	err := artifactRows.Scan(&id, &creator, &artifactStyleName,
+		&transferredBy, &dateExc, &height, &width, &length, &safety)
+	if err != nil {
+		log.Println("getCardWithBasicInfo scan error:", err)
+	}
+	card := new(ArtifactMaster)
+	card.ID = id
+	if creator != nil {
+		card.Creator = *creator
+	}
+	if artifactStyleName != nil {
+		card.ArtifactStyle = *artifactStyleName
+	}
+	if transferredBy != nil {
+		card.TransferredBy = *transferredBy
+	}
+	if dateExc != nil {
+		card.ExcavationDate = *dateExc
+	}
+	if safety != nil {
+		card.Safety = *safety
+	}
+	card.ArtifactMeasurement = &ArtifactMeasurement{}
+	card.ArtifactMeasurement.Height = height
+	card.ArtifactMeasurement.Width = width
+	card.ArtifactMeasurement.Length = length
+	return card
+}
+
+func (cd *CardData) getArtifactParentElement(artifactID, parentElementID int64) *ArtifactElement {
+	const sqlCondition = "WHERE ae1.artifact_id = ? AND ae1.artifact_parent_element_id = ?"
+	subElementsRows, err := cd.db.Raw(getArtifactElements+" "+sqlCondition, artifactID, parentElementID).Rows()
+	if err != nil {
+		log.Println(err)
+	}
+	for subElementsRows.Next() {
+		parent := new(ArtifactElement)
+		log.Println(parent)
+	}
+	return nil
+}

@@ -25,7 +25,7 @@ FROM artifact_master
 `
 
 const getArtifactElements = `
-SELECT ae1.artifact_id, ae1.artifact_element_name, ae1.artifact_parent_element_id
+SELECT ae1.artifact_id, ae1.artifact_element_name, ae2.artifact_element_name
 FROM artifact_element ae1
          LEFT JOIN artifact_element ae2 ON ae1.artifact_parent_element_id = ae2.id
 `
