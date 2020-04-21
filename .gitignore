@@ -10,7 +10,7 @@
 *.out
 
 # Angular
-/dist
-/tmp
-/out-tsc
-/node_modules
+front-end/dist
+front-end/tmp
+front-end/out-tsc
+front-end/node_modules
