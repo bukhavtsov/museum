@@ -1,0 +1,15 @@
+<header class="sticky-top text-white">
+  <nav class="navbar bg-dark">
+    <a class="navbar-brand text-light" [routerLink]="['/artifacts']">
+      Vetka Museum
+    </a>
+    <form class="form-inline my-2 ">
+      <p class="my-2 my-sm-0 px-3">
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons/icons/person-fill.svg" class="inverted" width="30"
+          height="30" alt="">
+        User</p>
+      <button class="btn btn-danger active my-2 my-sm-0" type="submit">Log out</button>
+    </form>
+  </nav>
+  <app-admin-panel (artifactsSource)='receiveArtifactsSource($event)'></app-admin-panel>
+</header>

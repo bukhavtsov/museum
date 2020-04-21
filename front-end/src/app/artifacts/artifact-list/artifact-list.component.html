@@ -1,0 +1,23 @@
+<div *ngFor="let card of this.cards" class="row p-1">
+    <div class="row">
+        <div class="col-sm-4">
+            <img class="img-thumbnail"
+                 src="https://relicrecord.com/wp-content/uploads/2017/08/Loaning-to-Museum-Blog.jpg">
+        </div>
+        <div class="col-sm-4">
+            <div class="module">
+                <p>id: {{card.id}}</p>
+                <p>creator: {{card.creator}}</p>
+                <p>date_exc: {{card.date_exc}}</p>
+                <p>transferred_by: {{card.transferred_by}}</p>
+                <p>safety: {{card.safety}}</p>
+            </div>
+        </div>
+        <div class="col-sm-2 small">{{card.date_exc| date}}</div>
+        <div class="col-sm-2">
+            <button type="button" class="btn btn-secondary btn-sm btn-block">Edit</button>
+            <button type="button" class="btn btn-danger btn-sm btn-block">Delete</button>
+        </div>
+    </div>
+</div>
+
