@@ -46,7 +46,7 @@ export class ArtifactListComponent implements OnInit {
         this.cards.forEach(artifact => {
             this.showShortDesciption.set(artifact.id, false)
         });
-        this.maxArtifactsQty = this.cards.length
+        this.maxArtifactsQty = this.cards.length;
     }
 
     private alterDescriptionText(id: number) {

@@ -13,6 +13,14 @@ export interface Artifact {
     date_exc?: string
     transferred_by?: string
     safety?: string
+    artifact_measurement?: artifact_measurement
+    artifact_elements?: Map<string, string[]>
+}
+
+export interface artifact_measurement {
+    width?: number
+    height?: number
+    length?: number
 }
 
 @Injectable({

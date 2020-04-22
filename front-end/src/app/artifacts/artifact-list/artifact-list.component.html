@@ -8,12 +8,20 @@
             <div class="module">
                 <p>id: {{card.id}}</p>
                 <p>creator: {{card.creator}}</p>
-                <p>date_exc: {{card.date_exc}}</p>
-                <p>transferred_by: {{card.transferred_by}}</p>
+                <p>excavation date: {{card.date_exc| date}}</p>
+                <p>transferred by: {{card.transferred_by}}</p>
                 <p>safety: {{card.safety}}</p>
+                <p>measurement:
+                    {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}
+                    x{{card.artifact_measurement.length}}
+                </p>
+                <p>artifact_elements: {{card.artifact_elements}}</p>
+                <div *ngFor="let element of card.artifact_elements | keyvalue">
+                    <p>element: {{element.key}}</p>
+                    <p>sub elements: {{element.value}}</p>
+                </div>
             </div>
         </div>
-        <div class="col-sm-2 small">{{card.date_exc| date}}</div>
         <div class="col-sm-2">
             <button type="button" class="btn btn-secondary btn-sm btn-block">Edit</button>
             <button type="button" class="btn btn-danger btn-sm btn-block">Delete</button>

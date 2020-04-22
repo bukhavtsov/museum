@@ -8,9 +8,9 @@ import (
 )
 
 type ArtifactMeasurement struct {
-	Height int64
-	Width  int64
-	Length int64
+	Height int64 `json:"height"`
+	Width  int64 `json:"width"`
+	Length int64 `json:"length"`
 }
 
 // ArtifactMaster the main structure of artifact
@@ -22,8 +22,8 @@ type ArtifactMaster struct {
 	TransferredBy       string               `json:"transferred_by"`
 	Safety              string               `json:"safety"` // rewrite with graph
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
-	Elements            []*ArtifactElement
-	Materials           map[string][]string `json:"materials"`
+	Elements            map[string][]string  `json:"artifact_elements"`
+	//Elements            []*ArtifactElement
 }
 
 // ArtifactElement some part of artifact
@@ -58,7 +58,7 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 	defer artifactRows.Close()
 	for artifactRows.Next() {
 		card := getCardWithBasicInfo(artifactRows)
-		card.Materials = make(map[string][]string, 0)
+		card.Elements = make(map[string][]string, 0)
 		cards = append(cards, card)
 	}
 
@@ -79,7 +79,7 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 				log.Println("scan error:", err)
 			}
 			if parentName != "" {
-				card.Materials[parentName] = append(card.Materials[parentName], name)
+				card.Elements[parentName] = append(card.Elements[parentName], name)
 			}
 		}
 		defer elementsRows.Close()
