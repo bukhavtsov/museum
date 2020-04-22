@@ -1,4 +1,4 @@
-# Client side of museum app
+# Back-end side of museum app
 
 ## Goals
 
@@ -8,7 +8,8 @@
 - [ ] Update existing Artifact
 - [ ] Remove existing Artifact
 - [ ] Artifact search by specific criteria
-- [ ] Redesign with refactoring
-- [ ] Internationalization (i18n)
+- [ ] Rewriting to ORM style
 - [ ] Unit testing
+- [ ] Containerization with docker, docker-compose
 - [ ] JWT Authentication
+- [ ] Pagination
