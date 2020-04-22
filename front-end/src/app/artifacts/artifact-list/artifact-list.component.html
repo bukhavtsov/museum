@@ -15,7 +15,6 @@
                     {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}
                     x{{card.artifact_measurement.length}}
                 </p>
-                <p>artifact_elements: {{card.artifact_elements}}</p>
                 <div *ngFor="let element of card.artifact_elements | keyvalue">
                     <p>element: {{element.key}}</p>
                     <p>sub elements: {{element.value}}</p>
