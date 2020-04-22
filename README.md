@@ -5,6 +5,6 @@
 - [X] create script with tables initialization
 - [X] create script with test data initialization
 - [ ] back-end (in progress..)
-- [ ] front-end
+- [ ] front-end (in progress..)
 - [ ] docker
 - [ ] deployment configuration
