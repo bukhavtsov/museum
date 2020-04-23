@@ -1,7 +1,7 @@
 -- TODO: make tables hierarchy
 -- 1. object group - completed
--- 2. materials
--- 3. safety
+-- 2. materials - completed
+-- 3. preservation
 
 -- insert country
 INSERT INTO country (id, country_name)
@@ -88,8 +88,8 @@ VALUES (6, 6, 1, 2);
 INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
 VALUES (7, 7, 1, 2);
 
--- insert artifact_safety
-INSERT INTO artifact_safety (id, artifact_id, safety)
+-- insert artifact_preservation
+INSERT INTO artifact_preservation (id, artifact_id, preservation)
 VALUES (1, 1, 'утраты живописи и золотого покрытия, потёртости, осыпи по верхней кромке, вертикальная трещина.
 ');
 
@@ -253,8 +253,8 @@ VALUES (16, 2, 'фигурные жуковины', 9);
 INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
 VALUES (2, 2, 324, 203, 75);
 
--- insert artifact_safety
-INSERT INTO artifact_safety (id, artifact_id, safety)
+-- insert artifact_preservation
+INSERT INTO artifact_preservation (id, artifact_id, preservation)
 VALUES (2, 2,
         'Отсутствует 1 лист, между 177-178 л. Вырван, между 376-381 л. Рукописные на бумаге в линейку Добрушской писчебумажной фабрики, лист с выходными данными отсутствует, восстановлен рукописным. Бумага загрязнена, следы воска, сырости. Бархат на переплёте порван, выцвел, реставрирован современным бархатом малинового цвета, живопись на накладной доске почти утрачена. Застёжки – новодел.');
 
