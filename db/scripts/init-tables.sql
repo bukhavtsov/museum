@@ -158,15 +158,18 @@ create unique index artifact_master_artifact_id_uindex
 -- object_group table
 create table object_group
 (
-    id              serial  not null
+    id                     serial  not null
         constraint object_group_pk
-        primary key,
-    object_group_id integer not null
+            primary key,
+    object_group_id        integer not null
         constraint object_group_object_group_lut_id_fk
-        references object_group_lut,
-    artifact_id     integer not null
+            references object_group_lut,
+    artifact_id            integer not null
         constraint object_group_artifact_master_id_fk
-        references artifact_master
+            references artifact_master,
+    object_group_parent_id integer
+        constraint object_group_object_group_id_fk
+            references object_group
 );
 
 -- material_type_lut table
