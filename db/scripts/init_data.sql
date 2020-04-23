@@ -89,9 +89,14 @@ INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_grou
 VALUES (7, 7, 1, 2);
 
 -- insert artifact_preservation
-INSERT INTO artifact_preservation (id, artifact_id, preservation)
-VALUES (1, 1, 'утраты живописи и золотого покрытия, потёртости, осыпи по верхней кромке, вертикальная трещина.
-');
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (1, 1, 'утраты живописи и золотого покрытия', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (2, 1, 'потёртости', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (3, 1, 'осыпи по верхней кромке', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (4, 1, 'вертикальная трещина', null);
 
 -- insert artifact_measurement
 INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
@@ -254,9 +259,41 @@ INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "wi
 VALUES (2, 2, 324, 203, 75);
 
 -- insert artifact_preservation
-INSERT INTO artifact_preservation (id, artifact_id, preservation)
-VALUES (2, 2,
-        'Отсутствует 1 лист, между 177-178 л. Вырван, между 376-381 л. Рукописные на бумаге в линейку Добрушской писчебумажной фабрики, лист с выходными данными отсутствует, восстановлен рукописным. Бумага загрязнена, следы воска, сырости. Бархат на переплёте порван, выцвел, реставрирован современным бархатом малинового цвета, живопись на накладной доске почти утрачена. Застёжки – новодел.');
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (5, 2, 'Отсутствует 1 лист', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (6, 2, 'между 177-178 л', 5);
+
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (7, 2, 'Вырван', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (8, 2, 'между 376-381 л', 7);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (9, 2, 'Рукописные на бумаге в линейку Добрушской писчебумажной фабрики', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (10, 2, 'лист с выходными данными отсутствует', 9);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (11, 2, 'восстановлен рукописным', 9);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (12, 2, 'Бумага загрязнена', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (13, 2, 'следы воска', 12);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (14, 2, 'сырости', 12);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (15, 2, 'Бархат на переплёте', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (16, 2, 'порван', 15);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (17, 2, 'выцвел', 15);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (18, 2, 'реставрирован современным бархатом малинового цвета', 15);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (19, 2, 'живопись на накладной доске почти утрачена', 15);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (20, 2, 'Застёжки', null);
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (21, 2,'новодел', 20);
 
 -- insert artifact_element
 INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)

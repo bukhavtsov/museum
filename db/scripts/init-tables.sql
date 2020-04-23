@@ -370,13 +370,16 @@ create table site_type
 -- artifact_preservation table
 create table artifact_preservation
 (
-    id          serial  not null
+    id                              serial  not null
         constraint artifact_preservation_pk
             primary key,
-    artifact_id integer not null
+    artifact_id                     integer not null
         constraint artifact_preservation_artifact_master_id_fk
             references artifact_master,
-    preservation      text    not null
+    preservation                    text    not null,
+    artifact_preservation_parent_id integer
+        constraint artifact_preservation_artifact_preservation_id_fk
+            references artifact_preservation
 );
 
 -- artifact_element table
