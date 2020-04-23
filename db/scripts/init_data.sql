@@ -1,5 +1,5 @@
 -- TODO: make tables hierarchy
--- 1. object group
+-- 1. object group - completed
 -- 2. materials
 -- 3. safety
 
@@ -65,28 +65,28 @@ VALUES (1, 'поступила в составе коллекции Шкляро
 
 -- insert artifact_master
 INSERT INTO artifact_master (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
-                                  date_exc, creator, hist_culture_id, "desc", translation,
-                                  min_age, max_age, artifact_info_photo, photo, transferred_by_id)
+                             date_exc, creator, hist_culture_id, "desc", translation,
+                             min_age, max_age, artifact_info_photo, photo, transferred_by_id)
 VALUES (1, 1, 1, 1, 5, '1979-02-17', null, null, null,
         'Композиция средника иконы: поясная центральноориенированная фигура святого с благословляющей десницей и открытым Евангелием. По обе стороны фигуры на уровне плеч ростовые фигуры Христа и Богородицы на облаках. Красная фелонь святителя украшена сложносоставными золотыми букетами; омофор – светло-розовый с бело-красными крестами и золотым растительным орнаментом.',
         219, 120, 'ru.wikipedia.org/wiki/Николай_Чудотворец',
         '/path/to/photo/image.jpg', 1);
 
 -- insert object group
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (1, 1, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (2, 2, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (3, 3, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (4, 4, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (5, 5, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (6, 6, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (7, 7, 1);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (1, 1, 1, null);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (2, 2, 1, 1);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (3, 3, 1, 2);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (4, 4, 1, 2);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (5, 5, 1, 2);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (6, 6, 1, 2);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (7, 7, 1, 2);
 
 -- insert artifact_safety
 INSERT INTO artifact_safety (id, artifact_id, safety)
@@ -199,17 +199,17 @@ VALUES (2, 'Приобретена в д. Леонтьево Добрушско�
 
 -- insert artifact_master
 INSERT INTO artifact_master (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
-                                  creator, date_exc, hist_culture_id, "desc", translation,
-                                  min_age, max_age, artifact_info_photo, photo, transferred_by_id)
+                             creator, date_exc, hist_culture_id, "desc", translation,
+                             min_age, max_age, artifact_info_photo, photo, transferred_by_id)
 VALUES (2, 2, 1, 2, 5, 'Пётр Тимофеев Мстиславец', '1575-03-30', null,
         'Переплёт: доски в коже, покрыты бархатом сиреневого цвета, на верхней крышке накладная доска с живописными наугольниками с изображениями 4-х евангелистов и металлическим литым средником (крест-распятие с предстоящими), застёжки.',
         null, 445, 320, 'ru.wikipedia.org/wiki/Николай_Чудотворец', '/path/to/photo/image.jpg', 2);
 
 -- insert object_group
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (8, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id")
-VALUES (9, 8, 2);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (8, 1, 2, null);
+INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+VALUES (9, 8, 2, 1);
 
 -- insert material
 INSERT INTO "material_type_lut" ("id", "material_type")
