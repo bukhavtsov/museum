@@ -28,7 +28,7 @@ export interface artifact_measurement {
 })
 export class ArtifactService {
     private artifactList: Artifact[] = [];
-    private readonly getCardsURL = "http://localhost:8080/cards";
+    private readonly getCardsURL = "http://localhost:8080/artifacts";
 
     constructor(private http: HttpClient) {
     }

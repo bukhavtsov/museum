@@ -36,18 +36,18 @@ type ArtifactElement struct {
 // Material describes material with additional information for specific artifact
 type Material struct{}
 
-// CardData gets connection to database
-type CardData struct {
+// ArtifactData gets connection to database
+type ArtifactData struct {
 	db *gorm.DB
 }
 
 // NewCardData creates new instance
-func NewCardData(db *gorm.DB) *CardData {
-	return &CardData{db}
+func NewCardData(db *gorm.DB) *ArtifactData {
+	return &ArtifactData{db}
 }
 
 // ReadAll return all cards from database
-func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
+func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 	cards := make([]*ArtifactMaster, 0)
 	// Way how to get data with relationship from db has been found, but it's not a ORM way
 	// TODO: write working version without ORM way, after that rewrite to ORM
@@ -57,38 +57,17 @@ func (cd *CardData) ReadAll() ([]*ArtifactMaster, error) {
 	}
 	defer artifactRows.Close()
 	for artifactRows.Next() {
-		card := getCardWithBasicInfo(artifactRows)
-		card.Elements = make(map[string][]string, 0)
-		cards = append(cards, card)
-	}
-
-	for _, card := range cards {
-		elementsRows, err := cd.db.Raw(getArtifactElements+" WHERE ae1.artifact_id = ?", card.ID).Rows()
+		card := getArtifactWithBasicInfo(artifactRows)
+		err := cd.initArtifactElements(card)
 		if err != nil {
 			log.Println(err)
 		}
-
-		for elementsRows.Next() {
-			var (
-				id         int64
-				name       string
-				parentName string
-			)
-			err := elementsRows.Scan(&id, &name, &parentName)
-			if err != nil {
-				log.Println("scan error:", err)
-			}
-			if parentName != "" {
-				card.Elements[parentName] = append(card.Elements[parentName], name)
-			}
-		}
-		defer elementsRows.Close()
+		cards = append(cards, card)
 	}
-
 	return cards, nil
 }
 
-func getCardWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
+func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 	var (
 		id                int64
 		creator           *string
@@ -103,33 +82,57 @@ func getCardWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 	err := artifactRows.Scan(&id, &creator, &artifactStyleName,
 		&transferredBy, &dateExc, &height, &width, &length, &safety)
 	if err != nil {
-		log.Println("getCardWithBasicInfo scan error:", err)
+		log.Println("getArtifactWithBasicInfo scan error:", err)
 	}
-	card := new(ArtifactMaster)
-	card.ID = id
+	artifact := new(ArtifactMaster)
+	artifact.ID = id
 	if creator != nil {
-		card.Creator = *creator
+		artifact.Creator = *creator
 	}
 	if artifactStyleName != nil {
-		card.ArtifactStyle = *artifactStyleName
+		artifact.ArtifactStyle = *artifactStyleName
 	}
 	if transferredBy != nil {
-		card.TransferredBy = *transferredBy
+		artifact.TransferredBy = *transferredBy
 	}
 	if dateExc != nil {
-		card.ExcavationDate = *dateExc
+		artifact.ExcavationDate = *dateExc
 	}
 	if safety != nil {
-		card.Safety = *safety
+		artifact.Safety = *safety
 	}
-	card.ArtifactMeasurement = &ArtifactMeasurement{}
-	card.ArtifactMeasurement.Height = height
-	card.ArtifactMeasurement.Width = width
-	card.ArtifactMeasurement.Length = length
-	return card
+	artifact.ArtifactMeasurement = &ArtifactMeasurement{}
+	artifact.ArtifactMeasurement.Height = height
+	artifact.ArtifactMeasurement.Width = width
+	artifact.ArtifactMeasurement.Length = length
+	return artifact
 }
 
-func (cd *CardData) getArtifactParentElement(artifactID, parentElementID int64) *ArtifactElement {
+func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
+	card.Elements = make(map[string][]string, 0)
+	elementsRows, err := cd.db.Raw(getArtifactElements+" WHERE ae1.artifact_id = ?", artifact.ID).Rows()
+	if err != nil {
+		log.Println(err)
+	}
+	defer elementsRows.Close()
+	for elementsRows.Next() {
+		var (
+			id         int64
+			name       string
+			parentName string
+		)
+		err := elementsRows.Scan(&id, &name, &parentName)
+		if err != nil {
+			log.Println("scan error:", err)
+			return 
+		}
+		if parentName != "" {
+			artifact.Elements[parentName] = append(artifact.Elements[parentName], name)
+		}
+	}
+}
+
+func (cd *ArtifactData) getArtifactParentElement(artifactID, parentElementID int64) *ArtifactElement {
 	const sqlCondition = "WHERE ae1.artifact_id = ? AND ae1.artifact_parent_element_id = ?"
 	subElementsRows, err := cd.db.Raw(getArtifactElements+" "+sqlCondition, artifactID, parentElementID).Rows()
 	if err != nil {
