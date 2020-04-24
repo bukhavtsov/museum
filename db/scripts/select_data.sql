@@ -21,13 +21,20 @@ FROM artifact_master
 
 
 -- select artifact_element table with foreign key to same table
-SELECT ae1.artifact_id, ae1.artifact_element_name, ae2.artifact_element_name
-FROM artifact_element ae1
-         LEFT JOIN artifact_element ae2 ON ae1.artifact_parent_element_id = ae2.id;
+SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
+FROM artifact_element child_ae
+         LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id;
 
---select object_group
-SELECT og1.artifact_id, ogl1.object_group_name, ogl2.object_group_name as object_group_parent_name
-FROM object_group og1
-         LEFT JOIN object_group_lut ogl1 on og1.object_group_id = ogl1.id
-         LEFT JOIN object_group og2 on og1.object_group_id = og2.id
-         LEFT JOIN object_group_lut ogl2 on og2.object_group_id = ogl2.id;
+--select object_group table with foreign key to same table
+SELECT child_og.artifact_id,
+       child_og_lut.object_group_name,
+       parent_og_lut.object_group_name as object_group_parent_name
+FROM object_group child_og
+         LEFT JOIN object_group parent_og on child_og.object_group_parent_id = parent_og.id
+         LEFT JOIN object_group_lut child_og_lut on child_og.object_group_id = child_og_lut.id
+         LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id;
+
+--select artifact_preservation table with foreign key to same table
+SELECT child_ap.artifact_id, child_ap.preservation, parent_ap.preservation
+FROM artifact_preservation child_ap
+         LEFT JOIN artifact_preservation parent_ap ON child_ap.artifact_preservation_parent_id = parent_ap.id;

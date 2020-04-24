@@ -15,9 +15,9 @@
                     {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}
                     x{{card.artifact_measurement.length}}
                 </p>
+                <p style="font-weight: bold">elements:</p>
                 <div *ngFor="let element of card.artifact_elements | keyvalue">
-                    <p>element: {{element.key}}</p>
-                    <p>sub elements: {{element.value}}</p>
+                    <p>{{element.key}}[{{element.value}}]</p>
                 </div>
             </div>
         </div>

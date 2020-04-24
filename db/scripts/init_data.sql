@@ -209,7 +209,7 @@ VALUES (2, 2, 1, 2, 5, 'Пётр Тимофеев Мстиславец', '1575-0
 INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
 VALUES (8, 1, 2, null);
 INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (9, 8, 2, 1);
+VALUES (9, 8, 2, 8);
 
 -- insert material_type_lut
 INSERT INTO "material_type_lut" ("id", "material_type")
