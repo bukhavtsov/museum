@@ -1,8 +1,3 @@
--- TODO: make tables hierarchy
--- 1. object group - completed
--- 2. materials - completed
--- 3. preservation
-
 -- insert country
 INSERT INTO country (id, country_name)
 VALUES (1, 'Беларусь');
