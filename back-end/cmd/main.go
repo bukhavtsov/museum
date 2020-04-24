@@ -48,13 +48,11 @@ func init() {
 	}
 }
 
-// safety replace to preserve. and make like graph
-
 func main() {
 	r := mux.NewRouter()
 	conn := db.GetConnection(host, port, user, dbname, password, sslmode)
 	defer conn.Close()
-	api.ServerCardResource(r, data.NewCardData(conn))
+	api.ServerArtifactResource(r, data.NewArtifactData(conn))
 	handler := cors.AllowAll().Handler(r)
 	log.Println("serving server at ", serverEndpoint)
 	log.Fatal(http.ListenAndServe(serverEndpoint, handler))

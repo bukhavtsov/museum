@@ -10,23 +10,23 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type CardData interface {
+type ArtifactData interface {
 	ReadAll() ([]*data.ArtifactMaster, error)
 }
 
-type cardAPI struct {
-	data CardData
+type artifactAPI struct {
+	data ArtifactData
 }
 
-func ServerCardResource(r *mux.Router, data CardData) {
-	api := &cardAPI{data: data}
-	r.HandleFunc("/cards", api.getCards).Methods("GET")
+func ServerArtifactResource(r *mux.Router, data ArtifactData) {
+	api := &artifactAPI{data: data}
+	r.HandleFunc("/artifacts", api.getArtifacts).Methods("GET")
 }
 
-func (api cardAPI) getCards(writer http.ResponseWriter, request *http.Request) {
+func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
 	cards, err := api.data.ReadAll()
 	if err != nil {
-		log.Println("cards haven't been read")
+		log.Println("artifacts haven't been read")
 		writer.WriteHeader(http.StatusNoContent)
 		return
 	}

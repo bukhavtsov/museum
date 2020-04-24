@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -20,10 +21,8 @@ type ArtifactMaster struct {
 	ArtifactStyle       string               `json:"artifact_style"`
 	ExcavationDate      string               `json:"date_exc"`
 	TransferredBy       string               `json:"transferred_by"`
-	Safety              string               `json:"safety"` // rewrite with graph
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 	Elements            map[string][]string  `json:"artifact_elements"`
-	//Elements            []*ArtifactElement
 }
 
 // ArtifactElement some part of artifact
@@ -41,30 +40,30 @@ type ArtifactData struct {
 	db *gorm.DB
 }
 
-// NewCardData creates new instance
-func NewCardData(db *gorm.DB) *ArtifactData {
+// NewArtifactData creates new instance
+func NewArtifactData(db *gorm.DB) *ArtifactData {
 	return &ArtifactData{db}
 }
 
-// ReadAll return all cards from database
+// ReadAll return all artifacts from database
 func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
-	cards := make([]*ArtifactMaster, 0)
+	artifacts := make([]*ArtifactMaster, 0)
 	// Way how to get data with relationship from db has been found, but it's not a ORM way
 	// TODO: write working version without ORM way, after that rewrite to ORM
-	artifactRows, err := cd.db.Raw(getArtifactsWithBasicInfo).Rows()
+	artifactRows, err := cd.db.Raw(getArtifactsWithBasicInfoQuery).Rows()
 	if err != nil {
 		log.Println(err)
 	}
 	defer artifactRows.Close()
 	for artifactRows.Next() {
-		card := getArtifactWithBasicInfo(artifactRows)
-		err := cd.initArtifactElements(card)
+		artifact := getArtifactWithBasicInfo(artifactRows)
+		err := cd.initArtifactElements(artifact)
 		if err != nil {
 			log.Println(err)
 		}
-		cards = append(cards, card)
+		artifacts = append(artifacts, artifact)
 	}
-	return cards, nil
+	return artifacts, nil
 }
 
 func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
@@ -77,10 +76,9 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 		height            int64
 		width             int64
 		length            int64
-		safety            *string
 	)
 	err := artifactRows.Scan(&id, &creator, &artifactStyleName,
-		&transferredBy, &dateExc, &height, &width, &length, &safety)
+		&transferredBy, &dateExc, &height, &width, &length)
 	if err != nil {
 		log.Println("getArtifactWithBasicInfo scan error:", err)
 	}
@@ -98,9 +96,6 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 	if dateExc != nil {
 		artifact.ExcavationDate = *dateExc
 	}
-	if safety != nil {
-		artifact.Safety = *safety
-	}
 	artifact.ArtifactMeasurement = &ArtifactMeasurement{}
 	artifact.ArtifactMeasurement.Height = height
 	artifact.ArtifactMeasurement.Width = width
@@ -109,10 +104,10 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 }
 
 func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
-	card.Elements = make(map[string][]string, 0)
-	elementsRows, err := cd.db.Raw(getArtifactElements+" WHERE ae1.artifact_id = ?", artifact.ID).Rows()
+	artifact.Elements = make(map[string][]string, 0)
+	elementsRows, err := cd.db.Raw(getArtifactElementByIdQuery, artifact.ID).Rows()
 	if err != nil {
-		log.Println(err)
+		return fmt.Errorf("elementsRows.cd.db.Raw err: %s", err)
 	}
 	defer elementsRows.Close()
 	for elementsRows.Next() {
@@ -123,24 +118,11 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 		)
 		err := elementsRows.Scan(&id, &name, &parentName)
 		if err != nil {
-			log.Println("scan error:", err)
-			return 
+			return fmt.Errorf("elementsRows.Scan err: %s", err)
 		}
 		if parentName != "" {
 			artifact.Elements[parentName] = append(artifact.Elements[parentName], name)
 		}
-	}
-}
-
-func (cd *ArtifactData) getArtifactParentElement(artifactID, parentElementID int64) *ArtifactElement {
-	const sqlCondition = "WHERE ae1.artifact_id = ? AND ae1.artifact_parent_element_id = ?"
-	subElementsRows, err := cd.db.Raw(getArtifactElements+" "+sqlCondition, artifactID, parentElementID).Rows()
-	if err != nil {
-		log.Println(err)
-	}
-	for subElementsRows.Next() {
-		parent := new(ArtifactElement)
-		log.Println(parent)
 	}
 	return nil
 }
