@@ -38,3 +38,10 @@ FROM object_group child_og
          LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id
 WHERE child_og.artifact_id = ?
 `
+
+const getArtifactPreservationByIdQuery = `
+SELECT child_ap.artifact_id, child_ap.preservation, parent_ap.preservation
+FROM artifact_preservation child_ap
+         LEFT JOIN artifact_preservation parent_ap ON child_ap.artifact_preservation_parent_id = parent_ap.id
+WHERE child_ap.artifact_id = ?
+`

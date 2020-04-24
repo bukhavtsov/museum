@@ -27,16 +27,6 @@ type ArtifactMaster struct {
 	Preservation        map[string][]string  `json:"preservation"`
 }
 
-// ArtifactElement some part of artifact
-type ArtifactElement struct {
-	ID         int64            `json:"id"`
-	Name       string           `json:"name"`
-	SubElement *ArtifactElement `json:"sub_element"`
-}
-
-// Material describes material with additional information for specific artifact
-type Material struct{}
-
 // ArtifactData gets connection to database
 type ArtifactData struct {
 	db *gorm.DB
@@ -64,6 +54,10 @@ func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 			log.Println(err)
 		}
 		err = cd.initArtifactObjectGroup(artifact)
+		if err != nil {
+			log.Println(err)
+		}
+		err = cd.initArtifactPreservation(artifact)
 		if err != nil {
 			log.Println(err)
 		}
@@ -120,14 +114,19 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 		var (
 			id                int64
 			childElementName  string
-			parentElementName string
+			parentElementName sql.NullString
 		)
 		err := elementsRows.Scan(&id, &childElementName, &parentElementName)
 		if err != nil {
 			return fmt.Errorf("elementsRows.Scan err: %s", err)
 		}
-		if parentElementName != "" {
-			artifact.Elements[parentElementName] = append(artifact.Elements[parentElementName], childElementName)
+		if value, _ := parentElementName.Value(); value != nil {
+			artifact.Elements[parentElementName.String] = append(artifact.Elements[parentElementName.String], childElementName)
+		} else {
+			_, ok := artifact.Elements[childElementName]
+			if !ok {
+				artifact.Elements[childElementName] = make([]string, 0)
+			}
 		}
 	}
 	return nil
@@ -144,14 +143,50 @@ func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error 
 		var (
 			id                int64
 			childObjectGroup  string
-			parentObjectGroup string
+			parentObjectGroup sql.NullString
 		)
 		err := objectGroupRows.Scan(&id, &childObjectGroup, &parentObjectGroup)
 		if err != nil {
 			return fmt.Errorf("objectGroupRows.Scan err: %s", err)
 		}
-		if parentObjectGroup != "" {
-			artifact.ObjectGroup[parentObjectGroup] = append(artifact.ObjectGroup[parentObjectGroup], childObjectGroup)
+		if value, _ := parentObjectGroup.Value(); value != nil {
+			artifact.ObjectGroup[parentObjectGroup.String] = append(artifact.ObjectGroup[parentObjectGroup.String], childObjectGroup)
+		} else {
+			_, ok := artifact.ObjectGroup[childObjectGroup]
+			if !ok {
+				artifact.ObjectGroup[childObjectGroup] = make([]string, 0)
+			}
+		}
+	}
+	return nil
+}
+
+func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error {
+	artifact.Preservation = make(map[string][]string, 0)
+	preservationRows, err := cd.db.Raw(getArtifactPreservationByIdQuery, artifact.ID).Rows()
+	if err != nil {
+		return fmt.Errorf("preservationRows.cd.db.Raw err: %s", err)
+	}
+	defer preservationRows.Close()
+	for preservationRows.Next() {
+		var (
+			id                 int64
+			childPreservation  string
+			parentPreservation sql.NullString
+		)
+		err := preservationRows.Scan(&id, &childPreservation, &parentPreservation)
+		if err != nil {
+			err := preservationRows.Scan(&id, &childPreservation, &parentPreservation)
+			return fmt.Errorf("preservationRows.Scan err: %s", err)
+		}
+
+		if value, _ := parentPreservation.Value(); value != nil {
+			artifact.Preservation[parentPreservation.String] = append(artifact.Preservation[parentPreservation.String], childPreservation)
+		} else {
+			_, ok := artifact.Preservation[childPreservation]
+			if !ok {
+				artifact.Preservation[childPreservation] = make([]string, 0)
+			}
 		}
 	}
 	return nil

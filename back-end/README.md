@@ -3,7 +3,7 @@
 ## Goals
 
 - [X] Read all artifacts with basic fields
-- [ ] Read all artifacts with all fields including hierarchy fields(in progress..) 
+- [X] Read all artifacts with all fields including hierarchy fields 
 - [ ] Add new Artifact
 - [ ] Update existing Artifact
 - [ ] Remove existing Artifact
