@@ -63,6 +63,10 @@ func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 		if err != nil {
 			log.Println(err)
 		}
+		err = cd.initArtifactObjectGroup(artifact)
+		if err != nil {
+			log.Println(err)
+		}
 		artifacts = append(artifacts, artifact)
 	}
 	return artifacts, nil
@@ -114,16 +118,40 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 	defer elementsRows.Close()
 	for elementsRows.Next() {
 		var (
-			id         int64
-			name       string
-			parentName string
+			id                int64
+			childElementName  string
+			parentElementName string
 		)
-		err := elementsRows.Scan(&id, &name, &parentName)
+		err := elementsRows.Scan(&id, &childElementName, &parentElementName)
 		if err != nil {
 			return fmt.Errorf("elementsRows.Scan err: %s", err)
 		}
-		if parentName != "" {
-			artifact.Elements[parentName] = append(artifact.Elements[parentName], name)
+		if parentElementName != "" {
+			artifact.Elements[parentElementName] = append(artifact.Elements[parentElementName], childElementName)
+		}
+	}
+	return nil
+}
+
+func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error {
+	artifact.ObjectGroup = make(map[string][]string, 0)
+	objectGroupRows, err := cd.db.Raw(getArtifactObjectGroupByIdQuery, artifact.ID).Rows()
+	if err != nil {
+		return fmt.Errorf("objectGroupRows.cd.db.Raw err: %s", err)
+	}
+	defer objectGroupRows.Close()
+	for objectGroupRows.Next() {
+		var (
+			id                int64
+			childObjectGroup  string
+			parentObjectGroup string
+		)
+		err := objectGroupRows.Scan(&id, &childObjectGroup, &parentObjectGroup)
+		if err != nil {
+			return fmt.Errorf("objectGroupRows.Scan err: %s", err)
+		}
+		if parentObjectGroup != "" {
+			artifact.ObjectGroup[parentObjectGroup] = append(artifact.ObjectGroup[parentObjectGroup], childObjectGroup)
 		}
 	}
 	return nil

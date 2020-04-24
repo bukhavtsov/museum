@@ -21,10 +21,20 @@ FROM artifact_master
      on (artifact_master.id = artifact_style.artifact_id)
          INNER JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 `
-const getArtifactElementsQuery = `
-SELECT ae1.artifact_id, ae1.artifact_element_name, ae2.artifact_element_name
-FROM artifact_element ae1
-         LEFT JOIN artifact_element ae2 ON ae1.artifact_parent_element_id = ae2.id
+const getArtifactElementByIdQuery = `
+SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
+FROM artifact_element child_ae
+         LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id
+WHERE child_ae.artifact_id = ?
 `
 
-const getArtifactElementByIdQuery = getArtifactElementsQuery + " WHERE ae1.artifact_id = ?"
+const getArtifactObjectGroupByIdQuery = `
+SELECT child_og.artifact_id,
+       child_og_lut.object_group_name,
+       parent_og_lut.object_group_name as object_group_parent_name
+FROM object_group child_og
+         LEFT JOIN object_group parent_og on child_og.object_group_parent_id = parent_og.id
+         LEFT JOIN object_group_lut child_og_lut on child_og.object_group_id = child_og_lut.id
+         LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id
+WHERE child_og.artifact_id = ?
+`
