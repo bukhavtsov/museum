@@ -23,6 +23,8 @@ type ArtifactMaster struct {
 	TransferredBy       string               `json:"transferred_by"`
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 	Elements            map[string][]string  `json:"artifact_elements"`
+	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
+	Preservation        map[string][]string  `json:"preservation"`
 }
 
 // ArtifactElement some part of artifact
