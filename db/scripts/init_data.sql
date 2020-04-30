@@ -113,7 +113,7 @@ VALUES (6, 'сусальное золото');
 
 -- insert material confidence level
 
-INSERT INTO material_confidence_level (id, material_confidence_level)
+INSERT INTO "material_confidence_level" (id, material_confidence_level)
 VALUES (1, 'very low');
 INSERT INTO material_confidence_level (id, material_confidence_level)
 VALUES (2, 'low');
@@ -125,21 +125,18 @@ INSERT INTO material_confidence_level (id, material_confidence_level)
 VALUES (5, 'very high');
 
 -- init material
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (2, 1, 2, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+VALUES (1, 1, 2, 1, null, 2, null);
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (3, 1, 3, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+VALUES (2, 1, 3, 1, null, 2, 1);
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (4, 1, 4, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+VALUES (3, 1, 4, 1, null, 2, null);
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (5, 1, 5, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (6, 1, 5, 1, null, 2, null);
+VALUES (4, 1, 5, 1, null, 2, 3);
 
 -- insert artifact_element
 INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
@@ -220,15 +217,15 @@ INSERT INTO "material_type_lut" ("id", "material_type")
 VALUES (9, 'гравюры');
 
 -- insert material
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (7, 2, 7, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+VALUES (5, 2, 7, 1, null, 2, null);
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (8, 2, 8, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+VALUES (6, 2, 8, 1, null, 2, 5);
+INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (9, 2, 9, 1, null, 2, null);
+VALUES (7, 2, 9, 1, null, 2, 5);
 
 
 -- insert object_group
