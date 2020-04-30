@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// ArtifactMeasurement is artifact parameters
 type ArtifactMeasurement struct {
 	Height int64 `json:"height"`
 	Width  int64 `json:"width"`
