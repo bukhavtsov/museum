@@ -19,7 +19,11 @@ type ArtifactMeasurement struct {
 type ArtifactElement struct {
 	ID            int64              `json:"id"`
 	Name          string             `json:"name"`
+	ParentID      int64              `json:"parent_id"`
 	ChildElements []*ArtifactElement `json:"child_elements"`
+}
+
+type ArtifactMaterials struct {
 }
 
 // ArtifactMaster the main structure of artifact
@@ -31,6 +35,7 @@ type ArtifactMaster struct {
 	TransferredBy       string               `json:"transferred_by"`
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 	Elements            []*ArtifactElement   `json:"artifact_elements"`
+	Materials           []*ArtifactMaterials `json:"artifact_materials"`
 	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
 	Preservation        map[string][]string  `json:"preservation"`
 }
@@ -133,6 +138,7 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 		element := &ArtifactElement{
 			ID:            id,
 			Name:          childElementName,
+			ParentID:      parentElementID.Int64,
 			ChildElements: childElements,
 		}
 		if len(element.ChildElements) > 0 {
@@ -161,8 +167,9 @@ func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]
 		}
 
 		childElement := &ArtifactElement{
-			ID:   id,
-			Name: childElementName,
+			ID:       id,
+			Name:     childElementName,
+			ParentID: parentElementID.Int64,
 		}
 		childElements = append(childElements, childElement)
 	}
