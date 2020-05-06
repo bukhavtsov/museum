@@ -21,7 +21,7 @@ FROM artifact_master
 
 
 -- select artifact_element table with foreign key to same table
-SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
+SELECT child_ae.id, child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.id
 FROM artifact_element child_ae
     LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id;
 
@@ -44,12 +44,12 @@ FROM artifact_preservation child_ap
 
 --select material table with foreigh key to same table 
 SELECT child_m.id,
-	child_m.artifact_id,
-	child_m.quantity,
+    child_m.artifact_id,
+    child_m.quantity,
     child_m."%composition",
     child_m_lut.material_type,
-	parent_m.id as id_parent,
-	parent_m.artifact_id as artifact_id_parent,
+    parent_m.id as id_parent,
+    parent_m.artifact_id as artifact_id_parent,
     parent_m_lut.material_type AS material_type_parent,
     parent_m.quantity AS quantity_parent,
     parent_m."%composition" AS "%composition_parent"

@@ -15,6 +15,13 @@ type ArtifactMeasurement struct {
 	Length int64 `json:"length"`
 }
 
+// ArtifactElement is part of artifact
+type ArtifactElement struct {
+	ID            int64              `json:"id"`
+	Name          string             `json:"name"`
+	ChildElements []*ArtifactElement `json:"child_elements"`
+}
+
 // ArtifactMaster the main structure of artifact
 type ArtifactMaster struct {
 	ID                  int64                `json:"id"`
@@ -23,7 +30,7 @@ type ArtifactMaster struct {
 	ExcavationDate      string               `json:"date_exc"`
 	TransferredBy       string               `json:"transferred_by"`
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
-	Elements            map[string][]string  `json:"artifact_elements"`
+	Elements            []*ArtifactElement   `json:"artifact_elements"`
 	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
 	Preservation        map[string][]string  `json:"preservation"`
 }
@@ -105,37 +112,66 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 }
 
 func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
-	artifact.Elements = make(map[string][]string, 0)
-	elementsRows, err := cd.db.Raw(getArtifactElementByIdQuery, artifact.ID).Rows()
+	artifact.Elements = make([]*ArtifactElement, 0)
+	elementsRows, err := cd.db.Raw(getArtifactElementByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("elementsRows.cd.db.Raw err: %s", err)
 	}
 	defer elementsRows.Close()
 	for elementsRows.Next() {
 		var (
-			id                int64
-			childElementName  string
-			parentElementName sql.NullString
+			id               int64
+			childElementName string
+			parentElementID  sql.NullInt64
 		)
-		err := elementsRows.Scan(&id, &childElementName, &parentElementName)
+		err := elementsRows.Scan(&id, &childElementName, &parentElementID)
 		if err != nil {
 			return fmt.Errorf("elementsRows.Scan err: %s", err)
 		}
-		if value, _ := parentElementName.Value(); value != nil {
-			artifact.Elements[parentElementName.String] = append(artifact.Elements[parentElementName.String], childElementName)
-		} else {
-			_, ok := artifact.Elements[childElementName]
-			if !ok {
-				artifact.Elements[childElementName] = make([]string, 0)
-			}
+		childElements := make([]*ArtifactElement, 0)
+		childElements, err = cd.getArtifactChildElements(artifact.ID, id)
+		element := &ArtifactElement{
+			ID:            id,
+			Name:          childElementName,
+			ChildElements: childElements,
+		}
+		if len(element.ChildElements) > 0 {
+			artifact.Elements = append(artifact.Elements, element)
 		}
 	}
 	return nil
 }
 
+func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]*ArtifactElement, error) {
+	childElements := make([]*ArtifactElement, 0)
+	childElementsRows, err := cd.db.Raw(getArtifactChildElementQuery, artifactID, parentID).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("childElementsRows.cd.db.Raw.err: %s", err)
+	}
+	defer childElementsRows.Close()
+	for childElementsRows.Next() {
+		var (
+			id               int64
+			childElementName string
+			parentElementID  sql.NullInt64
+		)
+		err := childElementsRows.Scan(&id, &childElementName, &parentElementID)
+		if err != nil {
+			return nil, fmt.Errorf("childElementsRows.Scan err: %s", err)
+		}
+
+		childElement := &ArtifactElement{
+			ID:   id,
+			Name: childElementName,
+		}
+		childElements = append(childElements, childElement)
+	}
+	return childElements, nil
+}
+
 func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error {
 	artifact.ObjectGroup = make(map[string][]string, 0)
-	objectGroupRows, err := cd.db.Raw(getArtifactObjectGroupByIdQuery, artifact.ID).Rows()
+	objectGroupRows, err := cd.db.Raw(getArtifactObjectGroupByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("objectGroupRows.cd.db.Raw err: %s", err)
 	}
@@ -164,7 +200,7 @@ func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error 
 
 func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error {
 	artifact.Preservation = make(map[string][]string, 0)
-	preservationRows, err := cd.db.Raw(getArtifactPreservationByIdQuery, artifact.ID).Rows()
+	preservationRows, err := cd.db.Raw(getArtifactPreservationByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("preservationRows.cd.db.Raw err: %s", err)
 	}
