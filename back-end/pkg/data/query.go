@@ -22,14 +22,14 @@ FROM artifact_master
          INNER JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 `
 const getArtifactElementByIDQuery = `
-SELECT child_ae.id, child_ae.artifact_element_name, parent_ae.id
+SELECT child_ae.id, child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.id
 FROM artifact_element child_ae
          LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id
 WHERE child_ae.artifact_id = ? ORDER BY child_ae.id asc
 `
 
 const getArtifactChildElementQuery = `
-SELECT child_ae.id, child_ae.artifact_element_name, parent_ae.id
+SELECT child_ae.id, child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.id
 FROM artifact_element child_ae
          LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id
 WHERE child_ae.artifact_id = ? and child_ae.artifact_parent_element_id = ? ORDER BY child_ae.id asc

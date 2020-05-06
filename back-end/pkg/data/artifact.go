@@ -18,12 +18,16 @@ type ArtifactMeasurement struct {
 // ArtifactElement is part of artifact
 type ArtifactElement struct {
 	ID            int64              `json:"id"`
+	ArtifactID    int64              `json:"artifact_id"`
 	Name          string             `json:"name"`
 	ParentID      int64              `json:"parent_id"`
 	ChildElements []*ArtifactElement `json:"child_elements"`
 }
 
+// ArtifactMaterials deeply description of artifact elements
 type ArtifactMaterials struct {
+	ID         int64 `json:"id"`
+	ArtifactID int64 `json:"artifact_id"`
 }
 
 // ArtifactMaster the main structure of artifact
@@ -126,10 +130,11 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 	for elementsRows.Next() {
 		var (
 			id               int64
+			artifactId       int64
 			childElementName string
 			parentElementID  sql.NullInt64
 		)
-		err := elementsRows.Scan(&id, &childElementName, &parentElementID)
+		err := elementsRows.Scan(&id, &artifactId, &childElementName, &parentElementID)
 		if err != nil {
 			return fmt.Errorf("elementsRows.Scan err: %s", err)
 		}
@@ -137,6 +142,7 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 		childElements, err = cd.getArtifactChildElements(artifact.ID, id)
 		element := &ArtifactElement{
 			ID:            id,
+			ArtifactID:    artifactId,
 			Name:          childElementName,
 			ParentID:      parentElementID.Int64,
 			ChildElements: childElements,
@@ -161,15 +167,16 @@ func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]
 			childElementName string
 			parentElementID  sql.NullInt64
 		)
-		err := childElementsRows.Scan(&id, &childElementName, &parentElementID)
+		err := childElementsRows.Scan(&id, &artifactID, &childElementName, &parentElementID)
 		if err != nil {
 			return nil, fmt.Errorf("childElementsRows.Scan err: %s", err)
 		}
 
 		childElement := &ArtifactElement{
-			ID:       id,
-			Name:     childElementName,
-			ParentID: parentElementID.Int64,
+			ID:         id,
+			ArtifactID: artifactID,
+			Name:       childElementName,
+			ParentID:   parentElementID.Int64,
 		}
 		childElements = append(childElements, childElement)
 	}
