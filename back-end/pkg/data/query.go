@@ -36,14 +36,27 @@ WHERE child_ae.artifact_id = ? AND child_ae.artifact_parent_element_id = ? ORDER
 `
 
 const getArtifactObjectGroupByIDQuery = `
-SELECT child_og.artifact_id,
+SELECT child_og.id,
+       child_og.artifact_id,
        child_og_lut.object_group_name,
-       parent_og_lut.object_group_name as object_group_parent_name
+       child_og.object_group_parent_id
 FROM object_group child_og
          LEFT JOIN object_group parent_og on child_og.object_group_parent_id = parent_og.id
          LEFT JOIN object_group_lut child_og_lut on child_og.object_group_id = child_og_lut.id
          LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id
-WHERE child_og.artifact_id = ?
+WHERE child_og.artifact_id = ? ORDER BY child_og.id ASC
+`
+
+const getArtifactChildObjectGroupQuery = `
+SELECT child_og.id,
+       child_og.artifact_id,
+       child_og_lut.object_group_name,
+       child_og.object_group_parent_id
+FROM object_group child_og
+         LEFT JOIN object_group parent_og on child_og.object_group_parent_id = parent_og.id
+         LEFT JOIN object_group_lut child_og_lut on child_og.object_group_id = child_og_lut.id
+         LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id
+WHERE child_og.artifact_id = ? AND child_og.object_group_parent_id = ? ORDER BY child_og.id ASC
 `
 
 const getArtifactPreservationByIDQuery = `

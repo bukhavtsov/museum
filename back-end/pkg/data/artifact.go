@@ -11,7 +11,7 @@ import (
 /**
 TODO:
 	1. add Materials hierarchy field - completed
-	2. rewrite ObjectGroup
+	2. rewrite ObjectGroup - completed
 	3. rewrite Preservation
 	4. start rewriting front-end readAll artifact part
 */
@@ -34,27 +34,35 @@ type ArtifactElement struct {
 
 // ArtifactMaterial deeply description of artifact elements
 type ArtifactMaterial struct {
-	ID            int64               `json:"id"`
-	ArtifactID    int64               `json:"artifact_id"`
-	Quantity      int64               `json:"quantity"`
-	Composition   int64               `json:"composition"`
-	MaterialType  string              `json:"material_type"`
-	ParentID      int64               `json:"parent_id"`
-	ChildElements []*ArtifactMaterial `json:"child_elements"`
+	ID             int64               `json:"id"`
+	ArtifactID     int64               `json:"artifact_id"`
+	Quantity       int64               `json:"quantity"`
+	Composition    int64               `json:"composition"`
+	MaterialType   string              `json:"material_type"`
+	ParentID       int64               `json:"parent_id"`
+	ChildMaterials []*ArtifactMaterial `json:"child_materials"`
+}
+
+type ArtifactObjectGroup struct {
+	ID               int64                  `json:"id"`
+	ArtifactID       int64                  `json:"artifact_id"`
+	ParentID         int64                  `json:"parent_id"`
+	Name             string                 `json:"object_group_name"`
+	ChildObjectGroup []*ArtifactObjectGroup `json:"child_object_group"`
 }
 
 // ArtifactMaster the main structure of artifact
 type ArtifactMaster struct {
-	ID                  int64                `json:"id"`
-	Creator             string               `json:"creator"`
-	ArtifactStyle       string               `json:"artifact_style"`
-	ExcavationDate      string               `json:"date_exc"`
-	TransferredBy       string               `json:"transferred_by"`
-	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
-	Elements            []*ArtifactElement   `json:"artifact_elements"`
-	Materials           []*ArtifactMaterial  `json:"artifact_materials"`
-	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
-	Preservation        map[string][]string  `json:"preservation"`
+	ID                  int64                  `json:"id"`
+	Creator             string                 `json:"creator"`
+	ArtifactStyle       string                 `json:"artifact_style"`
+	ExcavationDate      string                 `json:"date_exc"`
+	TransferredBy       string                 `json:"transferred_by"`
+	ArtifactMeasurement *ArtifactMeasurement   `json:"artifact_measurement"`
+	Elements            []*ArtifactElement     `json:"artifact_elements"`
+	Materials           []*ArtifactMaterial    `json:"artifact_materials"`
+	ObjectGroup         []*ArtifactObjectGroup `json:"artifact_object_group"`
+	Preservation        map[string][]string    `json:"preservation"`
 }
 
 // ArtifactData gets connection to database
@@ -181,17 +189,18 @@ func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]
 	for childElementsRows.Next() {
 		var (
 			id               int64
+			childArtifactID  int64
 			childElementName string
 			parentElementID  sql.NullInt64
 		)
-		err := childElementsRows.Scan(&id, &artifactID, &childElementName, &parentElementID)
+		err := childElementsRows.Scan(&id, &childArtifactID, &childElementName, &parentElementID)
 		if err != nil {
 			return nil, fmt.Errorf("childElementsRows.Scan err: %s", err)
 		}
 
 		childElement := &ArtifactElement{
 			ID:         id,
-			ArtifactID: artifactID,
+			ArtifactID: childArtifactID,
 			Name:       childElementName,
 			ParentID:   parentElementID.Int64,
 		}
@@ -201,7 +210,7 @@ func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]
 }
 
 func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error {
-	artifact.ObjectGroup = make(map[string][]string, 0)
+	artifact.ObjectGroup = make([]*ArtifactObjectGroup, 0)
 	objectGroupRows, err := cd.db.Raw(getArtifactObjectGroupByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("objectGroupRows.cd.db.Raw err: %s", err)
@@ -209,21 +218,26 @@ func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error 
 	defer objectGroupRows.Close()
 	for objectGroupRows.Next() {
 		var (
-			id                int64
-			childObjectGroup  string
-			parentObjectGroup sql.NullString
+			id              int64
+			artifactId      int64
+			objectGroupName string
+			parentElementID sql.NullInt64
 		)
-		err := objectGroupRows.Scan(&id, &childObjectGroup, &parentObjectGroup)
+		err := objectGroupRows.Scan(&id, &artifactId, &objectGroupName, &parentElementID)
 		if err != nil {
 			return fmt.Errorf("objectGroupRows.Scan err: %s", err)
 		}
-		if value, _ := parentObjectGroup.Value(); value != nil {
-			artifact.ObjectGroup[parentObjectGroup.String] = append(artifact.ObjectGroup[parentObjectGroup.String], childObjectGroup)
-		} else {
-			_, ok := artifact.ObjectGroup[childObjectGroup]
-			if !ok {
-				artifact.ObjectGroup[childObjectGroup] = make([]string, 0)
-			}
+		childObjectGroup := make([]*ArtifactObjectGroup, 0)
+		childObjectGroup, err = cd.getArtifactChildObjectGroup(artifact.ID, id)
+		objectGroup := &ArtifactObjectGroup{
+			ID:               id,
+			ArtifactID:       artifactId,
+			Name:             objectGroupName,
+			ParentID:         parentElementID.Int64,
+			ChildObjectGroup: childObjectGroup,
+		}
+		if len(objectGroup.ChildObjectGroup) > 0 {
+			artifact.ObjectGroup = append(artifact.ObjectGroup, objectGroup)
 		}
 	}
 	return nil
@@ -290,15 +304,15 @@ func (cd *ArtifactData) initArtifactMaterials(artifact *ArtifactMaster) error {
 		childMaterials := make([]*ArtifactMaterial, 0)
 		childMaterials, err = cd.getArtifactChildMaterials(artifact.ID, id)
 		element := &ArtifactMaterial{
-			ID:            id,
-			ArtifactID:    artifactId,
-			Quantity:      quantity,
-			Composition:   composition.Int64,
-			MaterialType:  materialType,
-			ParentID:      parentMaterialID.Int64,
-			ChildElements: childMaterials,
+			ID:             id,
+			ArtifactID:     artifactId,
+			Quantity:       quantity,
+			Composition:    composition.Int64,
+			MaterialType:   materialType,
+			ParentID:       parentMaterialID.Int64,
+			ChildMaterials: childMaterials,
 		}
-		if len(element.ChildElements) > 0 {
+		if len(element.ChildMaterials) > 0 {
 			artifact.Materials = append(artifact.Materials, element)
 		}
 	}
@@ -344,4 +358,34 @@ func (cd *ArtifactData) getArtifactChildMaterials(artifactID, parentID int64) ([
 		childMaterials = append(childMaterials, childMaterial)
 	}
 	return childMaterials, nil
+}
+
+func (cd *ArtifactData) getArtifactChildObjectGroup(artifactID, parentID int64) ([]*ArtifactObjectGroup, error) {
+	childObjectGroup := make([]*ArtifactObjectGroup, 0)
+	childObjectGroupRows, err := cd.db.Raw(getArtifactChildObjectGroupQuery, artifactID, parentID).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("childObjectGroupRows.cd.db.Raw.err: %s", err)
+	}
+	defer childObjectGroupRows.Close()
+	for childObjectGroupRows.Next() {
+		var (
+			id              int64
+			childArtifactID int64
+			objectGroupName string
+			parentElementID sql.NullInt64
+		)
+		err := childObjectGroupRows.Scan(&id, &childArtifactID, &objectGroupName, &parentElementID)
+		if err != nil {
+			return nil, fmt.Errorf("childObjectGroupRows.Scan err: %s", err)
+		}
+
+		childElement := &ArtifactObjectGroup{
+			ID:         id,
+			ArtifactID: artifactID,
+			Name:       objectGroupName,
+			ParentID:   parentElementID.Int64,
+		}
+		childObjectGroup = append(childObjectGroup, childElement)
+	}
+	return childObjectGroup, nil
 }
