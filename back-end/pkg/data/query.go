@@ -32,7 +32,7 @@ const getArtifactChildElementQuery = `
 SELECT child_ae.id, child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.id
 FROM artifact_element child_ae
          LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id
-WHERE child_ae.artifact_id = ? and child_ae.artifact_parent_element_id = ? ORDER BY child_ae.id asc
+WHERE child_ae.artifact_id = ? AND child_ae.artifact_parent_element_id = ? ORDER BY child_ae.id ASC
 `
 
 const getArtifactObjectGroupByIDQuery = `
@@ -59,14 +59,24 @@ SELECT child_m.id,
 	child_m.quantity,
     child_m."%composition",
     child_m_lut.material_type,
-	parent_m.id as id_parent,
-	parent_m.artifact_id as artifact_id_parent,
-    parent_m_lut.material_type AS material_type_parent,
-    parent_m.quantity AS quantity_parent,
-    parent_m."%composition" AS "%composition_parent"
+	parent_m.id as id_parent
 FROM material child_m
     LEFT JOIN material parent_m ON child_m.material_type_parent_id = parent_m.id
     LEFT JOIN material_type_lut child_m_lut ON child_m.material_type_id = child_m_lut.id
     LEFT JOIN material_type_lut parent_m_lut ON parent_m.material_type_id = parent_m_lut.id
-WHERE child_m.artifact_id = ?
+WHERE child_m.artifact_id = ? ORDER BY child_m.id ASC
+`
+
+const getArtifactChildMaterialsQuery = `
+SELECT child_m.id,
+	child_m.artifact_id,
+	child_m.quantity,
+    child_m."%composition",
+    child_m_lut.material_type,
+	parent_m.id as id_parent
+FROM material child_m
+    LEFT JOIN material parent_m ON child_m.material_type_parent_id = parent_m.id
+    LEFT JOIN material_type_lut child_m_lut ON child_m.material_type_id = child_m_lut.id
+    LEFT JOIN material_type_lut parent_m_lut ON parent_m.material_type_id = parent_m_lut.id
+WHERE child_m.artifact_id = ? AND child_m.material_type_parent_id = ? ORDER BY child_m.id ASC
 `

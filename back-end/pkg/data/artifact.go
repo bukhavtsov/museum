@@ -8,6 +8,14 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+/**
+TODO:
+	1. add Materials hierarchy field - completed
+	2. rewrite ObjectGroup
+	3. rewrite Preservation
+	4. start rewriting front-end readAll artifact part
+*/
+
 // ArtifactMeasurement is artifact parameters
 type ArtifactMeasurement struct {
 	Height int64 `json:"height"`
@@ -24,10 +32,15 @@ type ArtifactElement struct {
 	ChildElements []*ArtifactElement `json:"child_elements"`
 }
 
-// ArtifactMaterials deeply description of artifact elements
-type ArtifactMaterials struct {
-	ID         int64 `json:"id"`
-	ArtifactID int64 `json:"artifact_id"`
+// ArtifactMaterial deeply description of artifact elements
+type ArtifactMaterial struct {
+	ID            int64               `json:"id"`
+	ArtifactID    int64               `json:"artifact_id"`
+	Quantity      int64               `json:"quantity"`
+	Composition   int64               `json:"composition"`
+	MaterialType  string              `json:"material_type"`
+	ParentID      int64               `json:"parent_id"`
+	ChildElements []*ArtifactMaterial `json:"child_elements"`
 }
 
 // ArtifactMaster the main structure of artifact
@@ -39,7 +52,7 @@ type ArtifactMaster struct {
 	TransferredBy       string               `json:"transferred_by"`
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 	Elements            []*ArtifactElement   `json:"artifact_elements"`
-	Materials           []*ArtifactMaterials `json:"artifact_materials"`
+	Materials           []*ArtifactMaterial  `json:"artifact_materials"`
 	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
 	Preservation        map[string][]string  `json:"preservation"`
 }
@@ -75,6 +88,10 @@ func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 			log.Println(err)
 		}
 		err = cd.initArtifactPreservation(artifact)
+		if err != nil {
+			log.Println(err)
+		}
+		err = cd.initArtifactMaterials(artifact)
 		if err != nil {
 			log.Println(err)
 		}
@@ -241,4 +258,90 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 		}
 	}
 	return nil
+}
+
+func (cd *ArtifactData) initArtifactMaterials(artifact *ArtifactMaster) error {
+	artifact.Materials = make([]*ArtifactMaterial, 0)
+	materialsRows, err := cd.db.Raw(getArtifactMaterialsByIDQuery, artifact.ID).Rows()
+	if err != nil {
+		return fmt.Errorf("materialsRows.cd.db.Raw err: %s", err)
+	}
+	defer materialsRows.Close()
+	for materialsRows.Next() {
+		var (
+			id               int64
+			artifactId       int64
+			quantity         int64
+			composition      sql.NullInt64
+			materialType     string
+			parentMaterialID sql.NullInt64
+		)
+		err := materialsRows.Scan(
+			&id,
+			&artifactId,
+			&quantity,
+			&composition,
+			&materialType,
+			&parentMaterialID,
+		)
+		if err != nil {
+			return fmt.Errorf("materialsRows.Scan err: %s", err)
+		}
+		childMaterials := make([]*ArtifactMaterial, 0)
+		childMaterials, err = cd.getArtifactChildMaterials(artifact.ID, id)
+		element := &ArtifactMaterial{
+			ID:            id,
+			ArtifactID:    artifactId,
+			Quantity:      quantity,
+			Composition:   composition.Int64,
+			MaterialType:  materialType,
+			ParentID:      parentMaterialID.Int64,
+			ChildElements: childMaterials,
+		}
+		if len(element.ChildElements) > 0 {
+			artifact.Materials = append(artifact.Materials, element)
+		}
+	}
+	return nil
+}
+
+func (cd *ArtifactData) getArtifactChildMaterials(artifactID, parentID int64) ([]*ArtifactMaterial, error) {
+	childMaterials := make([]*ArtifactMaterial, 0)
+	childMaterialsRows, err := cd.db.Raw(getArtifactChildMaterialsQuery, artifactID, parentID).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("childMaterialsRows.cd.db.Raw.err: %s", err)
+	}
+	defer childMaterialsRows.Close()
+	for childMaterialsRows.Next() {
+		var (
+			id               int64
+			artifactId       int64
+			quantity         int64
+			composition      sql.NullInt64
+			materialType     string
+			parentMaterialID sql.NullInt64
+		)
+		err := childMaterialsRows.Scan(
+			&id,
+			&artifactId,
+			&quantity,
+			&composition,
+			&materialType,
+			&parentMaterialID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("childMaterialsRows.Scan err: %s", err)
+		}
+
+		childMaterial := &ArtifactMaterial{
+			ID:           id,
+			ArtifactID:   artifactID,
+			Quantity:     quantity,
+			Composition:  composition.Int64,
+			MaterialType: materialType,
+			ParentID:     parentMaterialID.Int64,
+		}
+		childMaterials = append(childMaterials, childMaterial)
+	}
+	return childMaterials, nil
 }
