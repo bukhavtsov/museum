@@ -60,10 +60,23 @@ WHERE child_og.artifact_id = ? AND child_og.object_group_parent_id = ? ORDER BY 
 `
 
 const getArtifactPreservationByIDQuery = `
-SELECT child_ap.artifact_id, child_ap.preservation, parent_ap.preservation
+SELECT child_ap.id,
+	child_ap.artifact_id,
+	child_ap.preservation,
+	child_ap.artifact_preservation_parent_id
 FROM artifact_preservation child_ap
          LEFT JOIN artifact_preservation parent_ap ON child_ap.artifact_preservation_parent_id = parent_ap.id
-WHERE child_ap.artifact_id = ?
+WHERE child_ap.artifact_id = ? ORDER BY child_ap.id ASC
+`
+
+const getArtifactChildPreservationQuery = `
+SELECT child_ap.id,
+	child_ap.artifact_id,
+	child_ap.preservation,
+	child_ap.artifact_preservation_parent_id
+FROM artifact_preservation child_ap
+         LEFT JOIN artifact_preservation parent_ap ON child_ap.artifact_preservation_parent_id = parent_ap.id
+WHERE child_ap.artifact_id = ? AND child_ap.artifact_preservation_parent_id = ? ORDER BY child_ap.id ASC
 `
 
 const getArtifactMaterialsByIDQuery = `

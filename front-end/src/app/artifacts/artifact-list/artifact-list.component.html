@@ -16,8 +16,23 @@
                     x{{card.artifact_measurement.length}}
                 </p>
                 <p style="font-weight: bold">elements:</p>
-                <div *ngFor="let element of card.artifact_elements | keyvalue">
-                    <p>{{element.key}}[{{element.value}}]</p>
+                <div *ngFor="let element of card.artifact_elements">
+                    <p>id:{{element.id}}</p>
+                    <p>artifactId:{{element.artifact_id}}</p>
+                    <p>name:{{element.name}}</p>
+                    <p>parentId:{{element.parent_id}}</p>
+                    <div>child elements: [
+                        <div *ngIf="element.child_elements?.length > 0">
+                            <div *ngFor="let child of element.child_elements">
+                                <p>id:{{child.id}}</p>
+                                <p>artifactId:{{child.artifact_id}}</p>
+                                <p>name:{{child.name}}</p>
+                                <p>parentId:{{child.parent_id}}</p>
+                                ------------------------------------
+                            </div>
+                        </div>
+                        ]
+                    </div>
                 </div>
             </div>
         </div>

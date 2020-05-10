@@ -3,21 +3,29 @@
 // 3. components responsible for subscribing and getting info by service
 
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 export interface Artifact {
-    id?: number
-    creator?: string
-    artifact_style?: string
-    date_exc?: string
-    transferred_by?: string
-    safety?: string
-    artifact_measurement?: artifact_measurement
-    artifact_elements?: Map<string, string[]>
+    id?: number;
+    creator?: string;
+    artifact_style?: string;
+    date_exc?: string;
+    transferred_by?: string;
+    artifact_measurement?: ArtifactMeasurement;
+    artifact_elements?: ArtifactElement[]
 }
 
-export interface artifact_measurement {
+export interface ArtifactElement {
+    id: number
+    artifact_id: number
+    name: string
+    parent_id: number
+    child_elements?: ArtifactElement[]
+}
+
+
+export interface ArtifactMeasurement {
     width?: number
     height?: number
     length?: number
@@ -28,7 +36,7 @@ export interface artifact_measurement {
 })
 export class ArtifactService {
     private artifactList: Artifact[] = [];
-    private readonly getCardsURL = "http://localhost:8080/artifacts";
+    private readonly getCardsURL = 'http://localhost:8080/artifacts';
 
     constructor(private http: HttpClient) {
     }

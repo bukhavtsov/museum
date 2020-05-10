@@ -12,11 +12,11 @@ import (
 TODO:
 	1. add Materials hierarchy field - completed
 	2. rewrite ObjectGroup - completed
-	3. rewrite Preservation
-	4. start rewriting front-end readAll artifact part
+	3. rewrite ArtifactPreservation - completed
+	4. start rewriting front-end readAll artifact part - in progress...
 */
 
-// ArtifactMeasurement is artifact parameters
+// Measurement is artifact parameters
 type ArtifactMeasurement struct {
 	Height int64 `json:"height"`
 	Width  int64 `json:"width"`
@@ -51,18 +51,26 @@ type ArtifactObjectGroup struct {
 	ChildObjectGroup []*ArtifactObjectGroup `json:"child_object_group"`
 }
 
+type ArtifactPreservation struct {
+	ID                int64                   `json:"id"`
+	ArtifactID        int64                   `json:"artifact_id"`
+	ParentID          int64                   `json:"parent_id"`
+	Name              string                  `json:"object_group_name"`
+	ChildPreservation []*ArtifactPreservation `json:"artifact_preservation"`
+}
+
 // ArtifactMaster the main structure of artifact
 type ArtifactMaster struct {
-	ID                  int64                  `json:"id"`
-	Creator             string                 `json:"creator"`
-	ArtifactStyle       string                 `json:"artifact_style"`
-	ExcavationDate      string                 `json:"date_exc"`
-	TransferredBy       string                 `json:"transferred_by"`
-	ArtifactMeasurement *ArtifactMeasurement   `json:"artifact_measurement"`
-	Elements            []*ArtifactElement     `json:"artifact_elements"`
-	Materials           []*ArtifactMaterial    `json:"artifact_materials"`
-	ObjectGroup         []*ArtifactObjectGroup `json:"artifact_object_group"`
-	Preservation        map[string][]string    `json:"preservation"`
+	ID             int64                   `json:"id"`
+	Creator        string                  `json:"creator"`
+	ArtifactStyle  string                  `json:"artifact_style"`
+	ExcavationDate string                  `json:"date_exc"`
+	TransferredBy  string                  `json:"transferred_by"`
+	Measurement    *ArtifactMeasurement    `json:"artifact_measurement"`
+	Elements       []*ArtifactElement      `json:"artifact_elements"`
+	Materials      []*ArtifactMaterial     `json:"artifact_materials"`
+	ObjectGroup    []*ArtifactObjectGroup  `json:"artifact_object_group"`
+	Preservation   []*ArtifactPreservation `json:"artifact_preservation"`
 }
 
 // ArtifactData gets connection to database
@@ -138,10 +146,10 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 	if dateExc != nil {
 		artifact.ExcavationDate = *dateExc
 	}
-	artifact.ArtifactMeasurement = &ArtifactMeasurement{}
-	artifact.ArtifactMeasurement.Height = height
-	artifact.ArtifactMeasurement.Width = width
-	artifact.ArtifactMeasurement.Length = length
+	artifact.Measurement = &ArtifactMeasurement{}
+	artifact.Measurement.Height = height
+	artifact.Measurement.Width = width
+	artifact.Measurement.Length = length
 	return artifact
 }
 
@@ -244,7 +252,7 @@ func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error 
 }
 
 func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error {
-	artifact.Preservation = make(map[string][]string, 0)
+	artifact.Preservation = make([]*ArtifactPreservation, 0)
 	preservationRows, err := cd.db.Raw(getArtifactPreservationByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("preservationRows.cd.db.Raw err: %s", err)
@@ -252,23 +260,26 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 	defer preservationRows.Close()
 	for preservationRows.Next() {
 		var (
-			id                 int64
-			childPreservation  string
-			parentPreservation sql.NullString
+			id                    int64
+			artifactId            int64
+			childPreservationName string
+			parentPreservationID  sql.NullInt64
 		)
-		err := preservationRows.Scan(&id, &childPreservation, &parentPreservation)
+		err := preservationRows.Scan(&id, &artifactId, &childPreservationName, &parentPreservationID)
 		if err != nil {
-			err := preservationRows.Scan(&id, &childPreservation, &parentPreservation)
 			return fmt.Errorf("preservationRows.Scan err: %s", err)
 		}
-
-		if value, _ := parentPreservation.Value(); value != nil {
-			artifact.Preservation[parentPreservation.String] = append(artifact.Preservation[parentPreservation.String], childPreservation)
-		} else {
-			_, ok := artifact.Preservation[childPreservation]
-			if !ok {
-				artifact.Preservation[childPreservation] = make([]string, 0)
-			}
+		childPreservation := make([]*ArtifactPreservation, 0)
+		childPreservation, err = cd.getArtifactChildPreservation(artifact.ID, id)
+		element := &ArtifactPreservation{
+			ID:                id,
+			ArtifactID:        artifactId,
+			Name:              childPreservationName,
+			ParentID:          parentPreservationID.Int64,
+			ChildPreservation: childPreservation,
+		}
+		if len(element.ChildPreservation) > 0 {
+			artifact.Preservation = append(artifact.Preservation, element)
 		}
 	}
 	return nil
@@ -388,4 +399,34 @@ func (cd *ArtifactData) getArtifactChildObjectGroup(artifactID, parentID int64) 
 		childObjectGroup = append(childObjectGroup, childElement)
 	}
 	return childObjectGroup, nil
+}
+
+func (cd *ArtifactData) getArtifactChildPreservation(artifactID, parentID int64) ([]*ArtifactPreservation, error) {
+	childPreservation := make([]*ArtifactPreservation, 0)
+	childPreservationRows, err := cd.db.Raw(getArtifactChildPreservationQuery, artifactID, parentID).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("childPreservationRows.cd.db.Raw.err: %s", err)
+	}
+	defer childPreservationRows.Close()
+	for childPreservationRows.Next() {
+		var (
+			id                   int64
+			childArtifactID      int64
+			preservationName     string
+			parentPreservationID sql.NullInt64
+		)
+		err := childPreservationRows.Scan(&id, &childArtifactID, &preservationName, &parentPreservationID)
+		if err != nil {
+			return nil, fmt.Errorf("childPreservationRows.Scan err: %s", err)
+		}
+
+		childElement := &ArtifactPreservation{
+			ID:         id,
+			ArtifactID: artifactID,
+			Name:       preservationName,
+			ParentID:   parentPreservationID.Int64,
+		}
+		childPreservation = append(childPreservation, childElement)
+	}
+	return childPreservation, nil
 }
