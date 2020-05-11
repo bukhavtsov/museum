@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Artifact, ArtifactService} from 'src/app/shared/artifactService';
+import {Artifact, ArtifactService} from 'src/app/shared/artifact.service';
 import {SearchArtifactService} from 'src/app/shared/search-artifact.service';
 
 @Component({

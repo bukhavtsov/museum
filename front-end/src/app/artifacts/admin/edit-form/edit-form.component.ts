@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import {Artifact, ArtifactService} from '../../../shared/artifactService'
+import {Artifact, ArtifactService} from '../../../shared/artifact.service'
 
 @Component({
     selector: 'app-edit-form',

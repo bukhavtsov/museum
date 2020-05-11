@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
-import {Artifact, ArtifactService} from '../../shared/artifactService'
+import {Artifact, ArtifactService} from '../../shared/artifact.service'
 
 @Component({
     selector: 'app-view-artifact',

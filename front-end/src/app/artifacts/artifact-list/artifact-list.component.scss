@@ -1,4 +1,12 @@
 .show-less {
-  height: 4.5rem;
-  overflow: hidden;
+    height: 4.5rem;
+    overflow: hidden;
+}
+
+label {
+    font-weight: bold;
+}
+
+.card-border {
+    border-bottom: 1px solid black;
 }

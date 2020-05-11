@@ -1,6 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
-import {Artifact} from './artifactService'
+import {Artifact} from './artifact.service'
 
 @Pipe({
     name: 'artifactFilter'

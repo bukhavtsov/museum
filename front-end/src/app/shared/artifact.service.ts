@@ -14,6 +14,8 @@ export interface Artifact {
     transferred_by?: string;
     artifact_measurement?: ArtifactMeasurement;
     artifact_elements?: ArtifactElement[]
+    artifact_materials?: ArtifactMaterial[]
+
 }
 
 export interface ArtifactElement {
@@ -22,6 +24,16 @@ export interface ArtifactElement {
     name: string
     parent_id: number
     child_elements?: ArtifactElement[]
+}
+
+export interface ArtifactMaterial {
+    id: number
+    artifact_id: number
+    quantity?: number
+    composition?: number
+    material_type?: string
+    parent_id: number
+    child_materials?: ArtifactMaterial[]
 }
 
 

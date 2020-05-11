@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, Validators, FormControl } from '@angular/forms';
 
-import { ArtifactService, Artifact } from '../../../shared/artifactService';
+import { ArtifactService, Artifact } from '../../../shared/artifact.service';
 
 @Component({
   selector: 'app-add-form',

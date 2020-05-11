@@ -1,4 +1,4 @@
-<div *ngFor="let card of cards" class="row p-1">
+<div *ngFor="let card of cards" class="row p-1 card-border">
     <div class="row">
         <div class="col-sm-4">
             <img class="img-thumbnail"
@@ -6,34 +6,40 @@
         </div>
         <div class="col-sm-4">
             <div class="module">
-                <p>id: {{card.id}}</p>
-                <p>creator: {{card.creator}}</p>
-                <p>excavation date: {{card.date_exc| date}}</p>
-                <p>transferred by: {{card.transferred_by}}</p>
-                <p>safety: {{card.safety}}</p>
-                <p>measurement:
-                    {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}
-                    x{{card.artifact_measurement.length}}
-                </p>
-                <p style="font-weight: bold">elements:</p>
-                <div *ngFor="let element of card.artifact_elements">
-                    <p>id:{{element.id}}</p>
-                    <p>artifactId:{{element.artifact_id}}</p>
-                    <p>name:{{element.name}}</p>
-                    <p>parentId:{{element.parent_id}}</p>
-                    <div>child elements: [
-                        <div *ngIf="element.child_elements?.length > 0">
-                            <div *ngFor="let child of element.child_elements">
-                                <p>id:{{child.id}}</p>
-                                <p>artifactId:{{child.artifact_id}}</p>
-                                <p>name:{{child.name}}</p>
-                                <p>parentId:{{child.parent_id}}</p>
-                                ------------------------------------
-                            </div>
-                        </div>
-                        ]
-                    </div>
-                </div>
+                <label *ngIf="!!card.creator">creator:</label>
+                {{card.creator}}<br/>
+                <label *ngIf="!!card.date_exc">excavation date:</label>
+                {{card.date_exc| date}}<br/>
+                <label *ngIf="!!card.transferred_by">transferred by:</label>
+                {{card.transferred_by}}<br/>
+                <label *ngIf="!!card.measurement">measurement:</label>
+                {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}
+                x{{card.artifact_measurement.length}}<br/>
+                <label *ngIf="card.artifact_elements?.length > 0">elements:</label>
+                <ul *ngFor="let element of card.artifact_elements">
+                    <li><label>name:</label>{{element.name}}</li>
+                    <label>child elements: </label>
+                    <ul *ngIf="element.child_elements?.length > 0">
+                        <li *ngFor="let child of element.child_elements">
+                            {{child.name}}
+                        </li>
+                    </ul>
+                </ul>
+                <label *ngIf="card.artifact_materials">artifact material:</label>
+                <ul *ngFor="let material of card.artifact_materials">
+                    <li>
+                        <label *ngIf="!!material.material_type">material_type:</label>{{material.material_type}}<br/>
+                        <label>quantity:</label>{{material.quantity}}<br/>
+                        <label>composition:</label>{{material.composition}}<br/>
+                        <label>child_materials:</label>
+                        <ul *ngFor="let child of material.child_materials">
+                            <label *ngIf="!!child.material_type">material_type:</label>{{child.material_type}}<br/>
+                            <label>quantity:</label>{{child.quantity}}<br/>
+                            <label>composition:</label>{{child.composition}}<br/>
+                        </ul>
+                        <label></label>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="col-sm-2">
