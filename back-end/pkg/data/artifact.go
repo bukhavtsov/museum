@@ -8,14 +8,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-/**
-TODO:
-	1. add Materials hierarchy field - completed
-	2. rewrite ObjectGroup - completed
-	3. rewrite ArtifactPreservation - completed
-	4. start rewriting front-end readAll artifact part - in progress...
-*/
-
 // Measurement is artifact parameters
 type ArtifactMeasurement struct {
 	Height int64 `json:"height"`
@@ -55,8 +47,8 @@ type ArtifactPreservation struct {
 	ID                int64                   `json:"id"`
 	ArtifactID        int64                   `json:"artifact_id"`
 	ParentID          int64                   `json:"parent_id"`
-	Name              string                  `json:"object_group_name"`
-	ChildPreservation []*ArtifactPreservation `json:"artifact_preservation"`
+	Name              string                  `json:"preservation"`
+	ChildPreservation []*ArtifactPreservation `json:"child_preservation"`
 }
 
 // ArtifactMaster the main structure of artifact

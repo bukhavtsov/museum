@@ -13,34 +13,50 @@ export interface Artifact {
     date_exc?: string;
     transferred_by?: string;
     artifact_measurement?: ArtifactMeasurement;
-    artifact_elements?: ArtifactElement[]
-    artifact_materials?: ArtifactMaterial[]
-
+    artifact_elements?: ArtifactElement[];
+    artifact_materials?: ArtifactMaterial[];
+    artifact_object_group?: ArtifactObjectGroup[];
+    artifact_preservation?: ArtifactPreservation[];
 }
 
 export interface ArtifactElement {
-    id: number
-    artifact_id: number
-    name: string
-    parent_id: number
-    child_elements?: ArtifactElement[]
+    id: number;
+    artifact_id: number;
+    name: string;
+    parent_id: number;
+    child_elements?: ArtifactElement[];
 }
 
 export interface ArtifactMaterial {
-    id: number
-    artifact_id: number
-    quantity?: number
-    composition?: number
-    material_type?: string
-    parent_id: number
-    child_materials?: ArtifactMaterial[]
+    id: number;
+    artifact_id: number;
+    quantity?: number;
+    composition?: number;
+    material_type?: string;
+    parent_id: number;
+    child_materials?: ArtifactMaterial[];
 }
 
+export interface ArtifactObjectGroup {
+    id: number;
+    artifact_id: number;
+    parent_id: number;
+    object_group_name: string;
+    child_object_group: ArtifactObjectGroup[];
+}
+
+export interface ArtifactPreservation {
+    id: number;
+    artifact_id: number;
+    parent_id: number;
+    preservation: string;
+    child_preservation: ArtifactPreservation[];
+}
 
 export interface ArtifactMeasurement {
-    width?: number
-    height?: number
-    length?: number
+    width?: number;
+    height?: number;
+    length?: number;
 }
 
 @Injectable({
