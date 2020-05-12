@@ -38,24 +38,20 @@ WHERE child_ae.artifact_id = ? AND child_ae.artifact_parent_element_id = ? ORDER
 const getArtifactObjectGroupByIDQuery = `
 SELECT child_og.id,
        child_og.artifact_id,
-       child_og_lut.object_group_name,
+       child_og.object_group_name,
        child_og.object_group_parent_id
 FROM object_group child_og
          LEFT JOIN object_group parent_og on child_og.object_group_parent_id = parent_og.id
-         LEFT JOIN object_group_lut child_og_lut on child_og.object_group_id = child_og_lut.id
-         LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id
 WHERE child_og.artifact_id = ? ORDER BY child_og.id ASC
 `
 
 const getArtifactChildObjectGroupQuery = `
 SELECT child_og.id,
        child_og.artifact_id,
-       child_og_lut.object_group_name,
+       child_og.object_group_name,
        child_og.object_group_parent_id
 FROM object_group child_og
          LEFT JOIN object_group parent_og on child_og.object_group_parent_id = parent_og.id
-         LEFT JOIN object_group_lut child_og_lut on child_og.object_group_id = child_og_lut.id
-         LEFT JOIN object_group_lut parent_og_lut on parent_og.object_group_id = parent_og_lut.id
 WHERE child_og.artifact_id = ? AND child_og.object_group_parent_id = ? ORDER BY child_og.id ASC
 `
 
@@ -84,12 +80,10 @@ SELECT child_m.id,
 	child_m.artifact_id,
 	child_m.quantity,
     child_m."%composition",
-    child_m_lut.material_type,
+    child_m.material_type,
 	parent_m.id as id_parent
 FROM material child_m
     LEFT JOIN material parent_m ON child_m.material_type_parent_id = parent_m.id
-    LEFT JOIN material_type_lut child_m_lut ON child_m.material_type_id = child_m_lut.id
-    LEFT JOIN material_type_lut parent_m_lut ON parent_m.material_type_id = parent_m_lut.id
 WHERE child_m.artifact_id = ? ORDER BY child_m.id ASC
 `
 
@@ -98,11 +92,52 @@ SELECT child_m.id,
 	child_m.artifact_id,
 	child_m.quantity,
     child_m."%composition",
-    child_m_lut.material_type,
+    child_m.material_type,
 	parent_m.id as id_parent
 FROM material child_m
     LEFT JOIN material parent_m ON child_m.material_type_parent_id = parent_m.id
-    LEFT JOIN material_type_lut child_m_lut ON child_m.material_type_id = child_m_lut.id
-    LEFT JOIN material_type_lut parent_m_lut ON parent_m.material_type_id = parent_m_lut.id
 WHERE child_m.artifact_id = ? AND child_m.material_type_parent_id = ? ORDER BY child_m.id ASC
+`
+
+const insertTransferredByLUTQuery = `
+	INSERT INTO transferred_by_lut (id, transferred_by) VALUES (default, ?);`
+
+const insertArtifactMasterQuery = `
+INSERT INTO artifact_master (museum_id, excavation_region_id, reg_confidence_id,
+                             creator, date_exc, hist_culture_id, "desc", translation,
+                             min_age, max_age, artifact_info_photo, photo, transferred_by_id)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+`
+
+const insertObjectGroupQuery = `
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (default, ?, ?, ?)
+`
+
+const insertMaterialTypeQuery = `
+INSERT INTO "material_type_lut" ("id", "material_type")
+VALUES (default, ?);
+`
+const insertArtifactElementsQuery = `
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+VALUES (default, ?, ?, ?);
+`
+
+const artifactMeasurementQuery = `
+INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
+VALUES (default, ?, ?, ?, ?);
+`
+
+const artifactPreservationQuery = `
+INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+VALUES (default, ?, ?, ?);
+`
+
+const artifactElementQuery = `
+INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+VALUES (default, ?, ?, ?);
+`
+
+const getTransferredByLUTQuery =`
+SELECT id FROM transferred_by_lut WHERE transferred_by = ?; 
 `

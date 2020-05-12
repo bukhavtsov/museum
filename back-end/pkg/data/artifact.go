@@ -3,9 +3,8 @@ package data
 import (
 	"database/sql"
 	"fmt"
-	"log"
-
 	"github.com/jinzhu/gorm"
+	"log"
 )
 
 // Measurement is artifact parameters
@@ -76,36 +75,111 @@ func NewArtifactData(db *gorm.DB) *ArtifactData {
 }
 
 // ReadAll return all artifacts from database
-func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
+func (ad *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 	artifacts := make([]*ArtifactMaster, 0)
 	// Way how to get data with relationship from db has been found, but it's not a ORM way
 	// TODO: write working version without ORM way, after that rewrite to ORM
-	artifactRows, err := cd.db.Raw(getArtifactsWithBasicInfoQuery).Rows()
+	artifactRows, err := ad.db.Raw(getArtifactsWithBasicInfoQuery).Rows()
 	if err != nil {
 		log.Println(err)
 	}
 	defer artifactRows.Close()
 	for artifactRows.Next() {
 		artifact := getArtifactWithBasicInfo(artifactRows)
-		err := cd.initArtifactElements(artifact)
+		err := ad.initArtifactElements(artifact)
 		if err != nil {
 			log.Println(err)
 		}
-		err = cd.initArtifactObjectGroup(artifact)
+		err = ad.initArtifactObjectGroup(artifact)
 		if err != nil {
 			log.Println(err)
 		}
-		err = cd.initArtifactPreservation(artifact)
+		err = ad.initArtifactPreservation(artifact)
 		if err != nil {
 			log.Println(err)
 		}
-		err = cd.initArtifactMaterials(artifact)
+		err = ad.initArtifactMaterials(artifact)
 		if err != nil {
 			log.Println(err)
 		}
 		artifacts = append(artifacts, artifact)
 	}
 	return artifacts, nil
+}
+
+func (ad *ArtifactData) Create(artifact *ArtifactMaster) (int64, error) {
+	err := ad.db.Exec(insertTransferredByLUTQuery, artifact.TransferredBy).Error
+	var transferredID int64
+	if err != nil {
+		log.Println("transferredBy field didn't added, err:", err)
+	}
+	transferredID, err = ad.getTransferredLUTID(artifact.TransferredBy)
+	if err != nil {
+		log.Println("transferredBy field not found in db err:", err)
+	}
+	err = ad.db.Exec(insertArtifactMasterQuery,
+		1, // default museum is Vetka
+		1, // default excavation region is Vetka
+		1, // default reg_confidence_id
+		artifact.Creator,
+		artifact.ExcavationDate,
+		nil,           // default hist culture id
+		nil,           // desc is nil by default
+		nil,           // translation is nil by default
+		nil,           // age min nil
+		nil,           // age max nil
+		nil,           // artifact info photo nil
+		nil,           // artifact photo nil
+		transferredID, // transferred_by_id
+	).Error
+	if err != nil {
+		log.Println(err)
+	}
+
+	artifactRows, err := ad.db.Raw("SELECT MAX(id) FROM artifact_master").Rows()
+	if err != nil {
+		log.Println("artifactRows err:", err)
+		return -1, err
+	}
+
+	defer artifactRows.Close()
+	var artifactID int64
+	artifactRows.Next()
+	err = artifactRows.Scan(&artifactID)
+	if err != nil {
+		log.Println("artifactRows.Scan err:", err)
+		return -1, err
+	}
+
+	for _, object := range artifact.ObjectGroup {
+		err = ad.db.Exec(insertObjectGroupQuery, object.Name, artifactID, object.ParentID).Error
+		if err != nil {
+			log.Printf("insertObjectGroupQuery err: %s\n", err)
+		}
+		for _, childObject := range object.ChildObjectGroup {
+			err = ad.db.Exec(insertObjectGroupQuery, childObject.Name, artifactID, childObject.ParentID).Error
+			if err != nil {
+				log.Printf("childObject insertObjectGroupQuery err: %s\n", err)
+			}
+		}
+	}
+	return -1, nil
+}
+
+func (ad *ArtifactData) getTransferredLUTID(transferredBy string) (int64, error) {
+	artifactRows, err := ad.db.Raw(getTransferredByLUTQuery, transferredBy).Rows()
+	if err != nil {
+		return -1, err
+	}
+	defer artifactRows.Close()
+	var transferredID int64
+	for artifactRows.Next() {
+		err := artifactRows.Scan(&transferredID)
+		if err != nil {
+			return -1, err
+		}
+	}
+	return transferredID, nil
 }
 
 func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
@@ -145,9 +219,9 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 	return artifact
 }
 
-func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
+func (ad *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 	artifact.Elements = make([]*ArtifactElement, 0)
-	elementsRows, err := cd.db.Raw(getArtifactElementByIDQuery, artifact.ID).Rows()
+	elementsRows, err := ad.db.Raw(getArtifactElementByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("elementsRows.cd.db.Raw err: %s", err)
 	}
@@ -164,7 +238,7 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 			return fmt.Errorf("elementsRows.Scan err: %s", err)
 		}
 		childElements := make([]*ArtifactElement, 0)
-		childElements, err = cd.getArtifactChildElements(artifact.ID, id)
+		childElements, err = ad.getArtifactChildElements(artifact.ID, id)
 		element := &ArtifactElement{
 			ID:            id,
 			ArtifactID:    artifactId,
@@ -179,9 +253,9 @@ func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
 	return nil
 }
 
-func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]*ArtifactElement, error) {
+func (ad *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]*ArtifactElement, error) {
 	childElements := make([]*ArtifactElement, 0)
-	childElementsRows, err := cd.db.Raw(getArtifactChildElementQuery, artifactID, parentID).Rows()
+	childElementsRows, err := ad.db.Raw(getArtifactChildElementQuery, artifactID, parentID).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("childElementsRows.cd.db.Raw.err: %s", err)
 	}
@@ -209,9 +283,9 @@ func (cd *ArtifactData) getArtifactChildElements(artifactID, parentID int64) ([]
 	return childElements, nil
 }
 
-func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error {
+func (ad *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error {
 	artifact.ObjectGroup = make([]*ArtifactObjectGroup, 0)
-	objectGroupRows, err := cd.db.Raw(getArtifactObjectGroupByIDQuery, artifact.ID).Rows()
+	objectGroupRows, err := ad.db.Raw(getArtifactObjectGroupByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("objectGroupRows.cd.db.Raw err: %s", err)
 	}
@@ -228,7 +302,7 @@ func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error 
 			return fmt.Errorf("objectGroupRows.Scan err: %s", err)
 		}
 		childObjectGroup := make([]*ArtifactObjectGroup, 0)
-		childObjectGroup, err = cd.getArtifactChildObjectGroup(artifact.ID, id)
+		childObjectGroup, err = ad.getArtifactChildObjectGroup(artifact.ID, id)
 		objectGroup := &ArtifactObjectGroup{
 			ID:               id,
 			ArtifactID:       artifactId,
@@ -243,9 +317,9 @@ func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error 
 	return nil
 }
 
-func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error {
+func (ad *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error {
 	artifact.Preservation = make([]*ArtifactPreservation, 0)
-	preservationRows, err := cd.db.Raw(getArtifactPreservationByIDQuery, artifact.ID).Rows()
+	preservationRows, err := ad.db.Raw(getArtifactPreservationByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("preservationRows.cd.db.Raw err: %s", err)
 	}
@@ -262,7 +336,7 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 			return fmt.Errorf("preservationRows.Scan err: %s", err)
 		}
 		childPreservation := make([]*ArtifactPreservation, 0)
-		childPreservation, err = cd.getArtifactChildPreservation(artifact.ID, id)
+		childPreservation, err = ad.getArtifactChildPreservation(artifact.ID, id)
 		element := &ArtifactPreservation{
 			ID:                id,
 			ArtifactID:        artifactId,
@@ -277,9 +351,9 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 	return nil
 }
 
-func (cd *ArtifactData) initArtifactMaterials(artifact *ArtifactMaster) error {
+func (ad *ArtifactData) initArtifactMaterials(artifact *ArtifactMaster) error {
 	artifact.Materials = make([]*ArtifactMaterial, 0)
-	materialsRows, err := cd.db.Raw(getArtifactMaterialsByIDQuery, artifact.ID).Rows()
+	materialsRows, err := ad.db.Raw(getArtifactMaterialsByIDQuery, artifact.ID).Rows()
 	if err != nil {
 		return fmt.Errorf("materialsRows.cd.db.Raw err: %s", err)
 	}
@@ -305,7 +379,7 @@ func (cd *ArtifactData) initArtifactMaterials(artifact *ArtifactMaster) error {
 			return fmt.Errorf("materialsRows.Scan err: %s", err)
 		}
 		childMaterials := make([]*ArtifactMaterial, 0)
-		childMaterials, err = cd.getArtifactChildMaterials(artifact.ID, id)
+		childMaterials, err = ad.getArtifactChildMaterials(artifact.ID, id)
 		element := &ArtifactMaterial{
 			ID:             id,
 			ArtifactID:     artifactId,
@@ -322,9 +396,9 @@ func (cd *ArtifactData) initArtifactMaterials(artifact *ArtifactMaster) error {
 	return nil
 }
 
-func (cd *ArtifactData) getArtifactChildMaterials(artifactID, parentID int64) ([]*ArtifactMaterial, error) {
+func (ad *ArtifactData) getArtifactChildMaterials(artifactID, parentID int64) ([]*ArtifactMaterial, error) {
 	childMaterials := make([]*ArtifactMaterial, 0)
-	childMaterialsRows, err := cd.db.Raw(getArtifactChildMaterialsQuery, artifactID, parentID).Rows()
+	childMaterialsRows, err := ad.db.Raw(getArtifactChildMaterialsQuery, artifactID, parentID).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("childMaterialsRows.cd.db.Raw.err: %s", err)
 	}
@@ -363,9 +437,9 @@ func (cd *ArtifactData) getArtifactChildMaterials(artifactID, parentID int64) ([
 	return childMaterials, nil
 }
 
-func (cd *ArtifactData) getArtifactChildObjectGroup(artifactID, parentID int64) ([]*ArtifactObjectGroup, error) {
+func (ad *ArtifactData) getArtifactChildObjectGroup(artifactID, parentID int64) ([]*ArtifactObjectGroup, error) {
 	childObjectGroup := make([]*ArtifactObjectGroup, 0)
-	childObjectGroupRows, err := cd.db.Raw(getArtifactChildObjectGroupQuery, artifactID, parentID).Rows()
+	childObjectGroupRows, err := ad.db.Raw(getArtifactChildObjectGroupQuery, artifactID, parentID).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("childObjectGroupRows.cd.db.Raw.err: %s", err)
 	}
@@ -393,9 +467,9 @@ func (cd *ArtifactData) getArtifactChildObjectGroup(artifactID, parentID int64) 
 	return childObjectGroup, nil
 }
 
-func (cd *ArtifactData) getArtifactChildPreservation(artifactID, parentID int64) ([]*ArtifactPreservation, error) {
+func (ad *ArtifactData) getArtifactChildPreservation(artifactID, parentID int64) ([]*ArtifactPreservation, error) {
 	childPreservation := make([]*ArtifactPreservation, 0)
-	childPreservationRows, err := cd.db.Raw(getArtifactChildPreservationQuery, artifactID, parentID).Rows()
+	childPreservationRows, err := ad.db.Raw(getArtifactChildPreservationQuery, artifactID, parentID).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("childPreservationRows.cd.db.Raw.err: %s", err)
 	}

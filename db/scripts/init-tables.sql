@@ -84,18 +84,6 @@ create table reg_confidence_level
     reg_confidence_level varchar(50) not null
 );
 
--- object_group_lut table
-create table object_group_lut
-(
-    id                serial       not null
-        constraint object_group_lut_pk
-            primary key,
-    object_group_name varchar(100) not null
-);
-
-create unique index object_group_lut_object_group_name_uindex
-    on object_group_lut (object_group_name);
-
 -- hist culture table
 create table hist_culture
 (
@@ -124,9 +112,7 @@ create unique index transferred_by_lut_transferred_by_uindex
 create table artifact_master
 (
     id                   serial  not null
-        constraint artifact_master_pk
-            primary key,
-    artifact_id          integer,
+        constraint artifact_master_pk primary key,
     museum_id            integer not null
         constraint artifact_master_museum_id_fk
             references museum,
@@ -152,33 +138,19 @@ create table artifact_master
             references transferred_by_lut
 );
 
-create unique index artifact_master_artifact_id_uindex
-    on artifact_master (artifact_id);
-
 -- object_group table
 create table object_group
 (
-    id                     serial  not null
+    id                     serial       not null
         constraint object_group_pk
             primary key,
-    object_group_id        integer not null
-        constraint object_group_object_group_lut_id_fk
-            references object_group_lut,
-    artifact_id            integer not null
+    object_group_name      varchar(250) not null,
+    artifact_id            integer      not null
         constraint object_group_artifact_master_id_fk
             references artifact_master,
     object_group_parent_id integer
         constraint object_group_object_group_id_fk
             references object_group
-);
-
--- material_type_lut table
-create table material_type_lut
-(
-    id            serial not null
-        constraint material_type_lut_pk
-            primary key,
-    material_type varchar(50)
 );
 
 -- material_confidence_level table
@@ -196,15 +168,13 @@ create unique index material_confidence_level_material_confidence_level_uindex
 -- material table
 create table material
 (
-    id                      serial  not null
+    id                      serial       not null
         constraint material_pk
             primary key,
-    artifact_id             integer not null
+    artifact_id             integer      not null
         constraint material_artifact_master_id_fk
             references artifact_master,
-    material_type_id        integer
-        constraint material_material_type_lut_id_fk
-            references material_type_lut,
+    material_type           varchar(100) not null,
     quantity                integer,
     "%composition"          integer,
     confidence_level_id     integer

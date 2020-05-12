@@ -21,23 +21,6 @@ VALUES (1, 'Ветковский Музей', 1);
 INSERT INTO museum_contacts ("id", "phone_number", "site_addr", "email", "museum_id")
 VALUES (1, '8(02330) 4-26-05 ', 'vetka-museum.ru', 'vetkamuzejj@rambler.ru', 1);
 
--- insert into object_group_lut
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (1, 'памятник');
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (2, 'Икона Николай чудотворец');
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (3, 'слева сверху Евдокия');
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (4, 'слева снизу Прокопий');
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (5, 'справа сверху женский образ');
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (6, 'справа снизу ап. Павел');
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (7, 'Палеосные святые');
-
-
 -- insert excavation_region
 INSERT INTO excavation_region ("id", location_id, "x_coordinate", "y_coordinate")
 VALUES (1, 2, null, null);
@@ -59,29 +42,29 @@ INSERT INTO transferred_by_lut (id, transferred_by)
 VALUES (1, 'поступила в составе коллекции Шклярова Ф.Г. 17.02.1979 г');
 
 -- insert artifact_master
-INSERT INTO artifact_master (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
+INSERT INTO artifact_master (id, museum_id, excavation_region_id, reg_confidence_id,
                              date_exc, creator, hist_culture_id, "desc", translation,
                              min_age, max_age, artifact_info_photo, photo, transferred_by_id)
-VALUES (1, 1, 1, 1, 5, '1979-02-17', null, null, null,
+VALUES (1, 1, 1, 5, '1979-02-17', null, null, null,
         'Композиция средника иконы: поясная центральноориенированная фигура святого с благословляющей десницей и открытым Евангелием. По обе стороны фигуры на уровне плеч ростовые фигуры Христа и Богородицы на облаках. Красная фелонь святителя украшена сложносоставными золотыми букетами; омофор – светло-розовый с бело-красными крестами и золотым растительным орнаментом.',
         219, 120, 'ru.wikipedia.org/wiki/Николай_Чудотворец',
         '/path/to/photo/image.jpg', 1);
 
 -- insert object group
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (1, 1, 1, null);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (2, 2, 1, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (3, 3, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (4, 4, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (5, 5, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (6, 6, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (7, 7, 1, 2);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (1, 'памятник', 1, null);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (2, 'Икона Николай чудотворец', 1, 1);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (3, 'слева сверху Евдокия', 1, 2);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (4, 'слева снизу Прокопий', 1, 2);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (5, 'справа сверху женский образ', 1, 2);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (6, 'справа снизу ап. Павел', 1, 2);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (7, 'Палеосные святые', 1, 2);
 
 -- insert artifact_preservation
 INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
@@ -97,20 +80,6 @@ VALUES (4, 1, 'вертикальная трещина', null);
 INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
 VALUES (1, 1, 527, 435, 34);
 
--- init material type
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (1, 'дерево');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (2, 'паволока');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (3, 'левкас');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (4, 'яичная темпера');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (5, 'творёное золото');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (6, 'сусальное золото');
-
 -- insert material confidence level
 
 INSERT INTO "material_confidence_level" (id, material_confidence_level)
@@ -124,19 +93,19 @@ VALUES (4, 'high');
 INSERT INTO material_confidence_level (id, material_confidence_level)
 VALUES (5, 'very high');
 
--- init material
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+-- insert material
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (1, 1, 2, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+VALUES (1, 1, 'паволока', 1, null, 2, null);
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (2, 1, 3, 1, null, 2, 1);
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+VALUES (2, 1, 'левкас', 1, null, 2, 1);
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (3, 1, 4, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+VALUES (3, 1, 'яичная темпера', 1, null, 2, null);
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (4, 1, 5, 1, null, 2, 3);
+VALUES (4, 1, 'творёное золото', 1, null, 2, 3);
 
 -- insert artifact_element
 INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
@@ -168,11 +137,6 @@ VALUES (1, 1, 1);
 
 -- next card
 
-
--- insert into object_group_lut
-INSERT INTO "object_group_lut" ("id", "object_group_name")
-VALUES (8, 'Евангелие-тетр');
-
 -- insert country
 INSERT INTO country (id, country_name)
 VALUES (2, 'Литва');
@@ -195,37 +159,29 @@ VALUES (2, 'Приобретена в д. Леонтьево Добрушско�
 ');
 
 -- insert artifact_master
-INSERT INTO artifact_master (id, artifact_id, museum_id, excavation_region_id, reg_confidence_id,
+INSERT INTO artifact_master (id, museum_id, excavation_region_id, reg_confidence_id,
                              creator, date_exc, hist_culture_id, "desc", translation,
                              min_age, max_age, artifact_info_photo, photo, transferred_by_id)
-VALUES (2, 2, 1, 2, 5, 'Пётр Тимофеев Мстиславец', '1575-03-30', null,
+VALUES (2, 1, 2, 5, 'Пётр Тимофеев Мстиславец', '1575-03-30', null,
         'Переплёт: доски в коже, покрыты бархатом сиреневого цвета, на верхней крышке накладная доска с живописными наугольниками с изображениями 4-х евангелистов и металлическим литым средником (крест-распятие с предстоящими), застёжки.',
         null, 445, 320, 'ru.wikipedia.org/wiki/Николай_Чудотворец', '/path/to/photo/image.jpg', 2);
 
 -- insert object_group
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (8, 1, 2, null);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (9, 8, 2, 8);
-
--- insert material_type_lut
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (7, 'бумага с филигранями');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (8, 'двуцветная печать');
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (9, 'гравюры');
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (8, 'памятник', 2, null);
+INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_group_parent_id")
+VALUES (9, 'Евангелие-тетр', 2, 8);
 
 -- insert material
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (5, 2, 7, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+VALUES (5, 2, 'бумага с филигранями', 1, null, 2, null);
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (6, 2, 8, 1, null, 2, 5);
-INSERT INTO "material" ("id", "artifact_id", "material_type_id", "quantity", "%composition",
+VALUES (6, 2, 'двуцветная печать', 1, null, 2, 5);
+INSERT INTO "material" ("id", "artifact_id", "material_type", "quantity", "%composition",
                         "confidence_level_id", "material_type_parent_id")
-VALUES (7, 2, 9, 1, null, 2, 5);
+VALUES (7, 2, 'гравюры', 1, null, 2, 5);
 
 
 -- insert object_group
@@ -285,7 +241,7 @@ VALUES (19, 2, 'живопись на накладной доске почти �
 INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
 VALUES (20, 2, 'Застёжки', null);
 INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (21, 2,'новодел', 20);
+VALUES (21, 2, 'новодел', 20);
 
 -- insert artifact_element
 INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)

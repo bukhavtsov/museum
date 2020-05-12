@@ -23,6 +23,7 @@ type artifactAPI struct {
 func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 	api := &artifactAPI{data: data}
 	r.HandleFunc("/artifacts", api.getArtifacts).Methods("GET")
+	r.HandleFunc("/artifacts", api.createArtifact).Methods("POST")
 }
 
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
