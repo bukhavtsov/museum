@@ -5,7 +5,7 @@ import {Artifact, ArtifactService} from '../../shared/artifact.service'
 
 @Component({
     selector: 'app-view-artifact',
-    templateUrl: './view-artifact.component.html',
+    templateUrl: `<h1></h1>`
 })
 export class ViewArtifactComponent implements OnInit {
 
@@ -15,7 +15,5 @@ export class ViewArtifactComponent implements OnInit {
     }
 
     ngOnInit() {
-        let id = this.route.snapshot.paramMap.get('id');
-        this.artifact = this.artifactService.getArtifact(Number(id));
     }
 }

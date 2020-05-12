@@ -114,10 +114,7 @@ INSERT INTO "object_group" ("id", "object_group_name", "artifact_id", "object_gr
 VALUES (default, ?, ?, ?)
 `
 
-const insertMaterialTypeQuery = `
-INSERT INTO "material_type_lut" ("id", "material_type")
-VALUES (default, ?);
-`
+
 const insertArtifactElementsQuery = `
 INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (default, ?, ?, ?);

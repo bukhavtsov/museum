@@ -1,0 +1,24 @@
+<form class=" text-center border-light p-5 form-horizontal" [formGroup]="addForm"
+      (ngSubmit)="addArtifact(addForm.value)">
+    <h1 class="h3 font-weight-normal" style="text-align: center">Add Artifact</h1>
+    <input class="form-control mb-4" id="exc_date" type="date" formControlName="exc_date" placeholder="Excavation date"
+           autofocus="">
+
+    <input class="form-control mb-4" id="transferred_by" type="text" formControlName="transferred_by"
+           placeholder="Transferred by"
+           autofocus="">
+    <input class="form-control mb-4" id="creator" type="text" formControlName="creator" placeholder="Creator"
+           autofocus="">
+
+    <input class="form-control mb-4" id="object_group_name" type="text" formControlName="object_group_name"
+           placeholder="Object Group name"
+           autofocus="">
+    <input class="form-control mb-4" id="preservation" type="text" formControlName="preservation"
+           placeholder="preservation"
+           autofocus="">
+    <input class="form-control mb-4" id="material" type="text" formControlName="material"
+           placeholder="material"
+           autofocus="">
+
+    <button class="btn btn-lg btn-dark btn-block mb-4" type="submit">Create</button>
+</form>

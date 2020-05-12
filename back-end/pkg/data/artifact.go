@@ -151,6 +151,19 @@ func (ad *ArtifactData) Create(artifact *ArtifactMaster) (int64, error) {
 		return -1, err
 	}
 
+	if artifact.Measurement != nil {
+		err = ad.db.Exec(
+			artifactMeasurementQuery,
+			artifactID,
+			artifact.Measurement.Length,
+			artifact.Measurement.Height,
+			artifact.Measurement.Width,
+		).Error
+		if err != nil {
+			log.Println("artifactMeasurement field didn't added, err:", err)
+		}
+	}
+
 	for _, object := range artifact.ObjectGroup {
 		err = ad.db.Exec(insertObjectGroupQuery, object.Name, artifactID, object.ParentID).Error
 		if err != nil {
@@ -163,7 +176,8 @@ func (ad *ArtifactData) Create(artifact *ArtifactMaster) (int64, error) {
 			}
 		}
 	}
-	return -1, nil
+
+	return artifactID, nil
 }
 
 func (ad *ArtifactData) getTransferredLUTID(transferredBy string) (int64, error) {
