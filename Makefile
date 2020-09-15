@@ -42,3 +42,7 @@ image: build ## build images from Dockerfile ./docker/back-end/Dockerfile and ./
 	rm $(BACKEND_DOCKER_PATH)/backend
 	@echo "Building db-museum image..."
 	@docker build -f $(DB_DOCKER_PATH) -t $(DB_IMAGE_NAME) .
+
+.PHONY: up
+up : image ## up docker compose
+	@docker-compose up
