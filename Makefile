@@ -32,3 +32,13 @@ build: fmt ## compile package and dependencies
 run: build ## execute back-end binary
 	@echo "Running server..."
 	$(BACKEND_BIN_PATH)
+
+
+.PHONY: image
+image: build ## build images from Dockerfile ./docker/back-end/Dockerfile and ./docker/db-museum/Dockerfile
+	@echo "Building back-end image..."
+	cp $(BACKEND_BIN_PATH) $(BACKEND_DOCKER_PATH)
+	@docker build -t $(BACKEND_IMAGE_NAME) $(BACKEND_DOCKER_PATH)
+	rm $(BACKEND_DOCKER_PATH)/backend
+	@echo "Building db-museum image..."
+	@docker build -f $(DB_DOCKER_PATH) -t $(DB_IMAGE_NAME) .
