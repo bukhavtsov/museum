@@ -15,6 +15,8 @@ type ArtifactMeasurement struct {
 }
 
 // ArtifactMaster the main structure of artifact
+
+// add material
 type ArtifactMaster struct {
 	ID                  int64                `json:"id"`
 	Creator             string               `json:"creator"`
@@ -24,7 +26,7 @@ type ArtifactMaster struct {
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 	Elements            map[string][]string  `json:"artifact_elements"`
 	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
-	Preservation        map[string][]string  `json:"preservation"`
+	Preservation        map[string][]string  `json:"artifact_preservation"`
 }
 
 // ArtifactData gets connection to database

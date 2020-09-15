@@ -12,9 +12,11 @@ export interface Artifact {
     artifact_style?: string
     date_exc?: string
     transferred_by?: string
-    safety?: string
     artifact_measurement?: artifact_measurement
     artifact_elements?: Map<string, string[]>
+    artifact_object_group?: Map<string, string[]>
+    artifact_materials?: Map<string, string[]>
+    artifact_preservation?: Map<string, string[]>
 }
 
 export interface artifact_measurement {

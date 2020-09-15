@@ -1,5 +1,5 @@
 <div *ngFor="let card of cards" class="row p-1">
-    <div class="row">
+    <div class="row" style="border: black solid 1px">
         <div class="col-sm-4">
             <img class="img-thumbnail"
                  src="https://relicrecord.com/wp-content/uploads/2017/08/Loaning-to-Museum-Blog.jpg">
@@ -10,14 +10,24 @@
                 <p>creator: {{card.creator}}</p>
                 <p>excavation date: {{card.date_exc| date}}</p>
                 <p>transferred by: {{card.transferred_by}}</p>
-                <p>safety: {{card.safety}}</p>
                 <p>measurement:
-                    {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}
-                    x{{card.artifact_measurement.length}}
+                    {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}x{{card.artifact_measurement.length}}
                 </p>
                 <p style="font-weight: bold">elements:</p>
-                <div *ngFor="let element of card.artifact_elements | keyvalue">
+                <div *ngFor="let element of card.artifact_object_group | keyvalue">
                     <p>{{element.key}}[{{element.value}}]</p>
+                </div>
+                <p style="font-weight: bold">materials:</p>
+                <div *ngFor="let material of card.artifact_materials | keyvalue">
+                    <p>{{material.key}}[{{material.value}}]</p>
+                </div>
+                <p style="font-weight: bold">preservation:</p>
+                <div *ngFor="let preservation of card.artifact_preservation | keyvalue">
+                    <p>{{preservation.key}}[{{preservation.value}}]</p>
+                </div>
+                <p style="font-weight: bold">preservation:</p>
+                <div *ngFor="let object of card.artifact_object_group | keyvalue">
+                    <p>{{object.key}}[{{object.value}}]</p>
                 </div>
             </div>
         </div>

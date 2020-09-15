@@ -16,7 +16,7 @@ export class ArtifactListComponent implements OnInit {
     private maxArtifactsQty = 0;
     private currentArtifactQty: number;
     private difference: number;
-    showShortDesciption: Map<number, boolean>;
+    showShortDescription: Map<number, boolean>;
 
 
     constructor(private artifactService: ArtifactService, private svcSearch: SearchArtifactService) {
@@ -41,16 +41,16 @@ export class ArtifactListComponent implements OnInit {
     }
 
     private initMap() {
-        this.showShortDesciption = new Map<number, boolean>();
+        this.showShortDescription = new Map<number, boolean>();
         this.artifactService.getArtifactList().subscribe(data => this.cards = data);
         this.cards.forEach(artifact => {
-            this.showShortDesciption.set(artifact.id, false)
+            this.showShortDescription.set(artifact.id, false)
         });
         this.maxArtifactsQty = this.cards.length;
     }
 
     private alterDescriptionText(id: number) {
-        this.showShortDesciption.set(id, !this.showShortDesciption.get(id))
+        this.showShortDescription.set(id, !this.showShortDescription.get(id))
     }
 
 }
