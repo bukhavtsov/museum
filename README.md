@@ -6,5 +6,5 @@
 - [X] create script with test data initialization
 - [ ] back-end (in progress..)
 - [ ] front-end (in progress..)
-- [ ] docker
+- [X] docker (back-end, db)
 - [ ] deployment configuration
