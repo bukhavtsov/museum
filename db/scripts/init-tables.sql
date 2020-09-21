@@ -51,13 +51,13 @@ create table museum
 -- museum_contacts table
 create table museum_contacts
 (
-    id           serial  not null
+    id           serial not null
         constraint contacts_pk
             primary key,
     phone_number varchar(50),
     site_addr    varchar(50),
     email        varchar(50),
-    museum_id    integer not null
+    museum_id    integer
         constraint museum_contacts_museum_id_fk
             references museum
 );
@@ -127,7 +127,7 @@ create table artifact_master
         constraint artifact_master_pk
             primary key,
     artifact_id          integer,
-    museum_id            integer not null
+    museum_id            integer
         constraint artifact_master_museum_id_fk
             references museum,
     excavation_region_id integer

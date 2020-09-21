@@ -54,7 +54,7 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	printArtifact(artifact) // for temp menual testing
+	printArtifact(artifact) // for temp manual testing
 	artifactId, err := api.data.Add(artifact)
 	if err != nil {
 		log.Println("artifact hasn't been created")

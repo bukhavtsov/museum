@@ -45,3 +45,34 @@ FROM artifact_preservation child_ap
          LEFT JOIN artifact_preservation parent_ap ON child_ap.artifact_preservation_parent_id = parent_ap.id
 WHERE child_ap.artifact_id = ?
 `
+
+const insertTransferredBy = `
+INSERT INTO transferred_by_lut (transferred_by) VALUES (?)
+`
+
+const selectTransferredBy = `
+SELECT id FROM transferred_by_lut WHERE transferred_by = ?
+`
+
+const insertArtifactStyleLUT = `
+INSERT INTO artifact_style_lut (artifact_style_name) VALUES (?)
+`
+const selectArtifactStyleLUT = `
+SELECT id FROM artifact_style_lut WHERE artifact_style_name = ? 
+`
+
+const insertArtifactStyle = `
+INSERT INTO artifact_style (artifact_id, artifact_style_id) VALUES (?,?)
+`
+
+const selectArtifactStyle = `
+SELECT id FROM artifact_style WHERE artifact_id = ? AND artifact_style_id = ?
+`
+
+const insertArtifactMaster = `
+INSERT INTO artifact_master (creator, date_exc, transferred_by_id) VALUES (?, ?, ?)
+`
+
+const selectArtifactMaster = `
+SELECT id FROM artifact_master where creator = ? AND date_exc = ? AND transferred_by_id = ?
+`

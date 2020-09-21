@@ -3,9 +3,8 @@ package data
 import (
 	"database/sql"
 	"fmt"
-	"log"
-
 	"github.com/jinzhu/gorm"
+	"log"
 )
 
 type ArtifactMeasurement struct {
@@ -194,16 +193,114 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 	return nil
 }
 
-
-func (cd * ArtifactData) Add(artifact *ArtifactMaster) (int64, error) {
+func (cd *ArtifactData) Add(artifact *ArtifactMaster) (int64, error) {
 	//TODO: investigate transaction and rollback. Actually, I make insertion to database in different tables.
 	// Need to make a rollback in case if we will got a failure in the insertion data time.
 
+	// first of all need to insert data to tables to which we have a foreign key
+	insertedTransferredById, err := cd.insertTransferredBy(artifact.TransferredBy)
+	if err != nil {
+		return -1, err
+	}
+	fmt.Println("transferredByID:", insertedTransferredById)
+	insertedStyleLUTID, err := cd.insertStyleLUT(artifact.ArtifactStyle)
+	if err != nil {
+		return -1, err
+	}
+	fmt.Println("insertedStyleLUTID:", insertedStyleLUTID)
 
-	// 1. Insert Artifact Measurement
-	
+	insertedArtifactMasterID, err := cd.insertArtifactMaster(artifact, insertedTransferredById)
+	if err != nil {
+		return -1, err
+	}
+	fmt.Println("insertedArtifactMasterID:", insertArtifactMaster)
 
+	//should be after the artifact initialization
+	//insertedStyleID, err := cd.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
+	//if err != nil {
+	//	return -1, err
+	//}
+	//fmt.Println("insertedStyleID", insertedStyleID)
 
+	return -1, nil
+}
 
-	return -1, nil;
+func (cd *ArtifactData) insertTransferredBy(transferredBy string) (insertedTransferredById int64, err error) {
+	result := cd.db.Exec(insertTransferredBy, transferredBy)
+	if result.Error != nil {
+		return -1, err
+	}
+	transferredByRows, err := cd.db.Raw(selectTransferredBy, transferredBy).Rows()
+	if err != nil {
+		return -1, err
+	}
+	for transferredByRows.Next() {
+		err := transferredByRows.Scan(&insertedTransferredById)
+		if err != nil {
+			return -1, err
+		}
+		return insertedTransferredById, nil
+	}
+	return insertedTransferredById, nil
+}
+
+func (cd *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int64, err error) {
+	result := cd.db.Exec(insertArtifactStyleLUT, style)
+	if result.Error != nil {
+		return -1, err
+	}
+	artifactStyleRows, err := cd.db.Raw(selectArtifactStyleLUT, style).Rows()
+	if err != nil {
+		return -1, err
+	}
+	for artifactStyleRows.Next() {
+		err := artifactStyleRows.Scan(&insertedStyleLUTID)
+		if err != nil {
+			return -1, err
+		}
+		return insertedStyleLUTID, nil
+	}
+	return insertedStyleLUTID, nil
+}
+
+func (cd *ArtifactData) insertStyle(artifactID, styleLUTID int64) (insertedStyleID int64, err error) {
+	result := cd.db.Exec(insertArtifactStyle, artifactID, styleLUTID)
+	if result.Error != nil {
+		return -1, err
+	}
+	artifactStyleRows, err := cd.db.Raw(selectArtifactStyle, artifactID, styleLUTID).Rows()
+	if err != nil {
+		return -1, err
+	}
+	for artifactStyleRows.Next() {
+		err := artifactStyleRows.Scan(&insertedStyleID)
+		if err != nil {
+			return -1, err
+		}
+		return insertedStyleID, nil
+	}
+	return insertedStyleID, nil
+}
+
+func (cd *ArtifactData) insertArtifactMaster(master *ArtifactMaster, insertedTransferredById int64) (insertedArtifactMasterID int64, err error) {
+	result := cd.db.Exec(insertArtifactMaster, master.Creator, master.ExcavationDate, insertedTransferredById)
+	if result.Error != nil {
+		return -1, err
+	}
+	artifactStyleRows, err := cd.db.Raw(
+		selectArtifactMaster,
+		master.Creator,
+		master.ExcavationDate,
+		insertedTransferredById).Rows()
+	if err != nil {
+		return -1, err
+	}
+	for artifactStyleRows.Next() {
+		err := artifactStyleRows.Scan(&insertedArtifactMasterID)
+		if err != nil {
+			return -1, err
+		}
+		return insertedArtifactMasterID, nil
+	}
+	return insertedArtifactMasterID, nil
 }
