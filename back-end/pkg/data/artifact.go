@@ -193,3 +193,17 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 	}
 	return nil
 }
+
+
+func (cd * ArtifactData) Add(artifact *ArtifactMaster) (int64, error) {
+	//TODO: investigate transaction and rollback. Actually, I make insertion to database in different tables.
+	// Need to make a rollback in case if we will got a failure in the insertion data time.
+
+
+	// 1. Insert Artifact Measurement
+	
+
+
+
+	return -1, nil;
+}
