@@ -10,16 +10,16 @@ SELECT artifact_master.id,
        artifact_measurement.width,
        artifact_measurement.length
 FROM artifact_master
-         INNER JOIN transferred_by_lut
+         FULL JOIN transferred_by_lut
                     ON (artifact_master.transferred_by_id = transferred_by_lut.id)
-         LEFT JOIN
+         FULL JOIN
      (
          SELECT artifact_id, artifact_style_name
          FROM artifact_style
-                  INNER JOIN artifact_style_lut on (artifact_style.id = artifact_style_lut.id)
+                  FULL JOIN artifact_style_lut on (artifact_style.id = artifact_style_lut.id)
      ) as artifact_style
      on (artifact_master.id = artifact_style.artifact_id)
-         INNER JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
+         FULL JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 `
 const getArtifactElementByIdQuery = `
 SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
@@ -47,7 +47,7 @@ WHERE child_ap.artifact_id = ?
 `
 
 const insertTransferredBy = `
-INSERT INTO transferred_by_lut (transferred_by) VALUES (?)
+INSERT INTO transferred_by_lut (id,transferred_by) VALUES (default, ?)
 `
 
 const selectTransferredBy = `

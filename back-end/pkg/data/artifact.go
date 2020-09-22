@@ -213,7 +213,7 @@ func (cd *ArtifactData) Add(artifact *ArtifactMaster) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("insertedArtifactMasterID:", insertArtifactMaster)
+	fmt.Println("insertedArtifactMasterID:", insertedArtifactMasterID)
 
 	//should be after the artifact initialization
 	//insertedStyleID, err := cd.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
