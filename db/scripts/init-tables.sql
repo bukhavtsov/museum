@@ -438,7 +438,7 @@ create unique index artifact_style_lut_artifact_style_name_uindex
 -- artifact_style table
 create table artifact_style
 (
-    id                integer not null
+    id                serial not null
         constraint artifact_style_pk
             primary key,
     artifact_id       integer not null
