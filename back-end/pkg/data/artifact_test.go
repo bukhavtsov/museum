@@ -1,29 +1,43 @@
 package data
 
 import (
-	"github.com/DATA-DOG/go-sqlmock"
-	_ "github.com/DATA-DOG/go-sqlmock"
-	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/assert"
-
 	"testing"
+	"time"
+
+	"github.com/bukhavtsov/museum/back-end/db"
 )
 
-func TestReadAll(t *testing.T) {
-	assert.Equal(t, true, true, "test should works")
+var (
+	host     = "localhost"
+	port     = "5432"
+	user     = "postgres"
+	dbname   = "postgres"
+	password = "postgres"
+	sslmode  = "disable"
+)
+
+func getTestArtifactPreservation() map[string][]string {
+	return map[string][]string{}
+}
+func getTestArtifactElements() map[string][]string {
+	return map[string][]string{}
+}
+func getTestArtifactObjectGroup() map[string][]string {
+	return map[string][]string{}
 }
 
-func TestGetArtifactWithBasicInfo(t *testing.T) {
-	sdb, _, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("faild to create mock DB: %v", err)
-	}
-	defer sdb.Close()
-
-	db, err := gorm.Open("postgres", sdb)
-	if err != nil {
-		t.Fatalf("faild to create gorm DB: %v", err)
-	}
-	defer db.Close()
-
+func TestAdd(t *testing.T) {
+	conn := db.GetConnection(host, port, user, dbname, password, sslmode)
+	defer conn.Close()
+	//1. create artifact with insertion of all fields
+	artifactMaster := new(ArtifactMaster)
+	artifactMaster.ID = 0
+	artifactMaster.ExcavationDate = time.Now().String()
+	artifactMaster.Creator = "Test Creator"
+	artifactMaster.ArtifactStyle = "Belarussian style"
+	artifactMaster.TransferredBy = "Good Boy"
+	artifactMaster.ArtifactMeasurement = &ArtifactMeasurement{Width: 10, Height: 20, Length: 30}
+	artifactMaster.Preservation = getTestArtifactPreservation()
+	artifactMaster.Elements = getTestArtifactElements()
+	artifactMaster.ObjectGroup = getTestArtifactObjectGroup()
 }
