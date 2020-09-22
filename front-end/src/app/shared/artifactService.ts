@@ -29,6 +29,7 @@ export interface artifact_measurement {
     providedIn: 'root'
 })
 export class ArtifactService {
+    private artifactNumber: number = 0; // temp var, is not work
     private artifactList: Artifact[] = [];
     private readonly getCardsURL = "http://localhost:8080/artifacts";
 
@@ -39,16 +40,25 @@ export class ArtifactService {
         return this.http.get<Artifact[]>(this.getCardsURL);
     }
 
+    public getArtifactNumber(): number {
+        return this.artifactNumber;
+    }
+
     public getArtifact(id: number): Artifact {
         return this.artifactList.find(artifact => artifact.id === id)
     }
 
     public remove(id: number) {
+        this.artifactNumber--;
         this.artifactList = this.artifactList.filter(event => event.id !== id);
     }
 
     public add(artifact: Artifact) {
-        this.artifactList.push(artifact);
+        console.log("Hello from service");
+        console.log(artifact);
+        this.http.post<Artifact>(this.getCardsURL, artifact).subscribe({
+            error: error => console.error('There was an error!', error)
+        })
     }
 
     public edit(artifact: Artifact) {
