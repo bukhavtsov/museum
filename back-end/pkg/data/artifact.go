@@ -193,29 +193,35 @@ func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error
 	return nil
 }
 
-func (cd *ArtifactData) Add(artifact *ArtifactMaster) (int64, error) {
+func (cd *ArtifactData) Add(artifactMaster *ArtifactMaster) (int64, error) {
 	//TODO: investigate transaction and rollback. Actually, I make insertion to database in different tables.
 	// Need to make a rollback in case if we will got a failure in the insertion data time.
 
 	// first of all need to insert data to tables to which we have a foreign key
-	insertedTransferredById, err := cd.insertTransferredBy(artifact.TransferredBy)
+	insertedTransferredById, err := cd.insertTransferredBy(artifactMaster.TransferredBy)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("transferredByID:", insertedTransferredById)
-	insertedStyleLUTID, err := cd.insertStyleLUT(artifact.ArtifactStyle)
+	insertedStyleLUTID, err := cd.insertStyleLUT(artifactMaster.ArtifactStyle)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("insertedStyleLUTID:", insertedStyleLUTID)
 
-	insertedArtifactMasterID, err := cd.insertArtifactMaster(artifact, insertedTransferredById)
+	insertedArtifactMasterID, err := cd.insertArtifactMaster(artifactMaster, insertedTransferredById)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("insertedArtifactMasterID:", insertedArtifactMasterID)
 
-	//should be after the artifact initialization
+	// can return nil pointer
+	insertedMeasurementID, err := cd.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
+	if err != nil {
+		return -1, err
+	}
+	fmt.Println("insertedMeasurementID:", insertedMeasurementID)
+	//should be after the artifactMaster initialization
 	//insertedStyleID, err := cd.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
 	//if err != nil {
 	//	return -1, err
@@ -303,4 +309,35 @@ func (cd *ArtifactData) insertArtifactMaster(master *ArtifactMaster, insertedTra
 		return insertedArtifactMasterID, nil
 	}
 	return insertedArtifactMasterID, nil
+}
+
+func (cd *ArtifactData) insertMeasurement(artifactID int64, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int64, err error) {
+	result := cd.db.Exec(
+		insertMeasurement,
+		artifactID,
+		artifactMeasurement.Length,
+		artifactMeasurement.Height,
+		artifactMeasurement.Width,
+	)
+	if result.Error != nil {
+		return -1, err
+	}
+	artifactStyleRows, err := cd.db.Raw(
+		selectArtifactMeasurement,
+		artifactID,
+		artifactMeasurement.Length,
+		artifactMeasurement.Width,
+		artifactMeasurement.Height).
+		Rows()
+	if err != nil {
+		return -1, err
+	}
+	for artifactStyleRows.Next() {
+		err := artifactStyleRows.Scan(&insertedMeasurement)
+		if err != nil {
+			return -1, err
+		}
+		return insertedMeasurement, nil
+	}
+	return insertedMeasurement, nil
 }

@@ -1,11 +1,21 @@
-<form class=" text-center border-light p-5 form-horizontal" [formGroup]="addForm" (ngSubmit)="addArtifact(addForm.value)">
+<form class=" text-center border-light p-5 form-horizontal" [formGroup]="addForm"
+      (ngSubmit)="addArtifact()">
     <h1 class="h3 font-weight-normal" style="text-align: center">Add News</h1>
-    <input class="form-control mb-4" id="creator" type="text" formControlName="creator" placeholder="creator" autofocus="" autocomplete="off">
+    <input class="form-control mb-4" id="creator" type="text" formControlName="creator" placeholder="creator"
+           autofocus="" autocomplete="off">
 
-    <input class="form-control mb-4" id="artifact_style" type="text" formControlName="artifact_style" placeholder="artifact_style"
+    <input class="form-control mb-4" id="artifact_style" type="text" formControlName="artifact_style"
+           placeholder="artifact_style"
            autofocus="" autocomplete="off">
     <input class="form-control mb-4" id="date_exc" type="date" formControlName="date_exc" autocomplete="off">
-    <input class="form-control mb-4" id="transferred_by" type="text" formControlName="transferred_by" placeholder="transferred_by"
+    <input class="form-control mb-4" id="transferred_by" type="text" formControlName="transferred_by"
+           placeholder="transferred_by"
+           autofocus="" autocomplete="off">
+    <input class="form-control mb-4" id="length" type="text" formControlName="length" placeholder="length"
+           autofocus="" autocomplete="off">
+    <input class="form-control mb-4" id="height" type="text" formControlName="height" placeholder="height"
+           autofocus="" autocomplete="off">
+    <input class="form-control mb-4" id="width" type="text" formControlName="width" placeholder="width"
            autofocus="" autocomplete="off">
     <button class="btn btn-lg btn-dark btn-block mb-4" type="submit">Create</button>
 </form>

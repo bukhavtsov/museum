@@ -18,6 +18,7 @@ export class AddFormComponent implements OnInit {
     ) {
     }
 
+
     ngOnInit() {
         this.initForm()
     }
@@ -28,13 +29,32 @@ export class AddFormComponent implements OnInit {
             artifact_style: new FormControl(''),
             date_exc: new FormControl(''),
             transferred_by: new FormControl(''),
+            length: new FormControl(''),
+            height: new FormControl(''),
+            width: new FormControl(''),
         })
     }
 
-    addArtifact(artifact: Artifact) {
+
+    addArtifact() {
         console.log("hello from form");
+        console.log(this.addForm.value);
+
+        let result: Artifact = {
+            creator: this.addForm.controls["creator"].value,
+            artifact_style: this.addForm.controls["artifact_style"].value,
+            date_exc: this.addForm.controls["date_exc"].value,
+            transferred_by: this.addForm.controls["transferred_by"].value,
+            artifact_measurement: {
+                length: +this.addForm.controls["length"].value,
+                width: +this.addForm.controls["width"].value,
+                height: +this.addForm.controls["height"].value,
+            },
+        };
+
         //artifact.id = this.artifactService.getArtifact(this.artifactService.getArtifactNumber() - 1).id + 1;
-        this.artifactService.add(artifact);
+        this.artifactService.add(result);
+
         this.router.navigate(['/artifact'])
     }
 

@@ -6,13 +6,14 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 
+
 export interface Artifact {
     id?: number
-    creator?: string
-    artifact_style?: string
-    date_exc?: string
-    transferred_by?: string
-    artifact_measurement?: artifact_measurement
+    creator: string
+    artifact_style: string
+    date_exc: string
+    transferred_by: string
+    artifact_measurement: artifact_measurement
     artifact_elements?: Map<string, string[]>
     artifact_object_group?: Map<string, string[]>
     artifact_materials?: Map<string, string[]>

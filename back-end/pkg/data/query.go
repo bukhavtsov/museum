@@ -74,5 +74,13 @@ INSERT INTO artifact_master (creator, date_exc, transferred_by_id) VALUES (?, ?,
 `
 
 const selectArtifactMaster = `
-SELECT id FROM artifact_master where creator = ? AND date_exc = ? AND transferred_by_id = ?
+SELECT id FROM artifact_master WHERE creator = ? AND date_exc = ? AND transferred_by_id = ?
+`
+
+const insertMeasurement = `
+INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
+VALUES (DEFAULT, ?, ?, ?, ?)
+`
+const selectArtifactMeasurement = `
+SELECT id FROM "artifact_measurement" WHERE artifact_id = ? AND length = ? AND height = ? AND width = ?
 `
