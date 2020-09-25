@@ -329,9 +329,8 @@ func (cd *ArtifactData) insertMeasurement(artifactID int64, artifactMeasurement 
 		selectArtifactMeasurement,
 		artifactID,
 		artifactMeasurement.Length,
-		artifactMeasurement.Width,
-		artifactMeasurement.Height).
-		Rows()
+		artifactMeasurement.Height,
+		artifactMeasurement.Width).Rows()
 	if err != nil {
 		return -1, err
 	}
