@@ -32,16 +32,16 @@ export class AddFormComponent implements OnInit {
             length: new FormControl(''),
             height: new FormControl(''),
             width: new FormControl(''),
+            objectGroupMap: new FormGroup({})
         })
     }
 
-    // // object group
-    // //
-    // addObjectGroup() {
-    //     this.addForm.addControl("objectGroupMap", new FormGroup({
-    //
-    //     }))
-    // }
+    // TODO: objectGroupMap -> (fromGroup)objectGroup : (FormArray [Controls] (objects)) subObject
+    addObjectGroup(objectGroupName: string) {
+        let emptyFromArray = new FormArray([new FormControl(''),]);
+        this.addForm.controls["objectGroupMap"].value
+            .addControl(objectGroupName, emptyFromArray);
+    }
 
     addArtifact() {
         console.log("hello from form");
