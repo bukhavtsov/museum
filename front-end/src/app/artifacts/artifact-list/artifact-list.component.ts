@@ -13,9 +13,6 @@ export class ArtifactListComponent implements OnInit {
     private search: string;
 
     private cards: Artifact[] = [];
-    private maxArtifactsQty = 0;
-    private currentArtifactQty: number;
-    private difference: number;
     showShortDescription: Map<number, boolean>;
 
 
@@ -23,21 +20,9 @@ export class ArtifactListComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.difference = 5;
-        this.currentArtifactQty = this.difference;
         this.isAdmin = true;
-
         this.svcSearch.sharedSearch.subscribe(search => this.search = search);
-
         this.initMap();
-    }
-
-    private loadMore() {
-        if (this.currentArtifactQty + this.difference < this.maxArtifactsQty) {
-            this.currentArtifactQty += this.difference;
-        } else if (this.currentArtifactQty < this.maxArtifactsQty) {
-            this.currentArtifactQty = this.maxArtifactsQty
-        }
     }
 
     private initMap() {
@@ -46,7 +31,6 @@ export class ArtifactListComponent implements OnInit {
         this.cards.forEach(artifact => {
             this.showShortDescription.set(artifact.id, false)
         });
-        this.maxArtifactsQty = this.cards.length;
     }
 
     private alterDescriptionText(id: number) {

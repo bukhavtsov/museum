@@ -62,6 +62,9 @@ func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 		if err != nil {
 			log.Println(err)
 		}
+		if artifact.ID == 0 { //FIXME: hot fix, because rows return n+1 elements
+			continue
+		}
 		artifacts = append(artifacts, artifact)
 	}
 	return artifacts, nil

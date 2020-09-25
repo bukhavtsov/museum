@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {FormControl, FormGroup} from '@angular/forms';
+import {FormArray, FormControl, FormGroup} from '@angular/forms';
 
 import {Artifact, ArtifactService} from '../../../shared/artifactService';
 
@@ -35,6 +35,13 @@ export class AddFormComponent implements OnInit {
         })
     }
 
+    // // object group
+    // //
+    // addObjectGroup() {
+    //     this.addForm.addControl("objectGroupMap", new FormGroup({
+    //
+    //     }))
+    // }
 
     addArtifact() {
         console.log("hello from form");
