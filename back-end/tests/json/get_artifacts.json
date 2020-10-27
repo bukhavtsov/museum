@@ -1,0 +1,368 @@
+[
+  {
+    "id": 1,
+    "creator": "",
+    "artifact_style": "Ветковская школа",
+    "date_exc": "1979-02-17T00:00:00Z",
+    "transferred_by": "поступила в составе коллекции Шклярова Ф.Г. 17.02.1979 г",
+    "artifact_measurement": {
+      "height": 435,
+      "width": 34,
+      "length": 527
+    },
+    "artifact_elements": [
+      {
+        "id": 1,
+        "artifact_id": 1,
+        "artifact_element_name": "доска",
+        "artifact_parent_element_id": null,
+        "artifact_children": [
+          {
+            "id": 2,
+            "artifact_id": 1,
+            "artifact_element_name": "ольха",
+            "artifact_parent_element_id": 1,
+            "artifact_children": []
+          },
+          {
+            "id": 3,
+            "artifact_id": 1,
+            "artifact_element_name": "трехсоставная",
+            "artifact_parent_element_id": 1,
+            "artifact_children": []
+          },
+          {
+            "id": 4,
+            "artifact_id": 1,
+            "artifact_element_name": "шпонки дубовые",
+            "artifact_parent_element_id": 1,
+            "artifact_children": [
+              {
+                "id": 5,
+                "artifact_id": 1,
+                "artifact_element_name": "пластевые",
+                "artifact_parent_element_id": 4,
+                "artifact_children": []
+              },
+              {
+                "id": 6,
+                "artifact_id": 1,
+                "artifact_element_name": "встречные",
+                "artifact_parent_element_id": 4,
+                "artifact_children": []
+              },
+              {
+                "id": 7,
+                "artifact_id": 1,
+                "artifact_element_name": "выступающие",
+                "artifact_parent_element_id": 4,
+                "artifact_children": []
+              },
+              {
+                "id": 8,
+                "artifact_id": 1,
+                "artifact_element_name": "отделанные калёвкой",
+                "artifact_parent_element_id": 4,
+                "artifact_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "artifact_object_group": [
+      {
+        "id": 1,
+        "artifact_id": 1,
+        "object_group_name": "памятник",
+        "object_group_parent_id": null,
+        "object_group_children": [
+          {
+            "id": 2,
+            "artifact_id": 1,
+            "object_group_name": "Икона Николай чудотворец",
+            "object_group_parent_id": 1,
+            "object_group_children": [
+              {
+                "id": 3,
+                "artifact_id": 1,
+                "object_group_name": "слева сверху Евдокия",
+                "object_group_parent_id": 2,
+                "object_group_children": []
+              },
+              {
+                "id": 4,
+                "artifact_id": 1,
+                "object_group_name": "слева снизу Прокопий",
+                "object_group_parent_id": 2,
+                "object_group_children": []
+              },
+              {
+                "id": 5,
+                "artifact_id": 1,
+                "object_group_name": "справа сверху женский образ",
+                "object_group_parent_id": 2,
+                "object_group_children": []
+              },
+              {
+                "id": 6,
+                "artifact_id": 1,
+                "object_group_name": "справа снизу ап. Павел",
+                "object_group_parent_id": 2,
+                "object_group_children": []
+              },
+              {
+                "id": 7,
+                "artifact_id": 1,
+                "object_group_name": "Палеосные святые",
+                "object_group_parent_id": 2,
+                "object_group_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "artifact_preservation": [
+      {
+        "id": 1,
+        "artifact_id": 1,
+        "preservation": "утраты живописи и золотого покрытия",
+        "preservation_parent_id": null,
+        "preservation_children": []
+      },
+      {
+        "id": 2,
+        "artifact_id": 1,
+        "preservation": "потёртости",
+        "preservation_parent_id": null,
+        "preservation_children": []
+      },
+      {
+        "id": 3,
+        "artifact_id": 1,
+        "preservation": "осыпи по верхней кромке",
+        "preservation_parent_id": null,
+        "preservation_children": []
+      },
+      {
+        "id": 4,
+        "artifact_id": 1,
+        "preservation": "вертикальная трещина",
+        "preservation_parent_id": null,
+        "preservation_children": []
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "creator": "Пётр Тимофеев Мстиславец",
+    "artifact_style": "",
+    "date_exc": "1575-03-30T00:00:00Z",
+    "transferred_by": "Приобретена в д. Леонтьево Добрушского р-на у Душечкина Якова Даниловича в 1981 (№ акта 209 от 28.08.1981., протокол от 24.08.1981.)\n",
+    "artifact_measurement": {
+      "height": 203,
+      "width": 75,
+      "length": 324
+    },
+    "artifact_elements": [
+      {
+        "id": 9,
+        "artifact_id": 2,
+        "artifact_element_name": "Переплёт",
+        "artifact_parent_element_id": null,
+        "artifact_children": [
+          {
+            "id": 10,
+            "artifact_id": 2,
+            "artifact_element_name": "доска",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          },
+          {
+            "id": 11,
+            "artifact_id": 2,
+            "artifact_element_name": "кожа",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          },
+          {
+            "id": 12,
+            "artifact_id": 2,
+            "artifact_element_name": "бархат",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          },
+          {
+            "id": 13,
+            "artifact_id": 2,
+            "artifact_element_name": "живопись",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          },
+          {
+            "id": 14,
+            "artifact_id": 2,
+            "artifact_element_name": "металлический средник",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          },
+          {
+            "id": 15,
+            "artifact_id": 2,
+            "artifact_element_name": "застёжки",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          },
+          {
+            "id": 16,
+            "artifact_id": 2,
+            "artifact_element_name": "фигурные жуковины",
+            "artifact_parent_element_id": 9,
+            "artifact_children": []
+          }
+        ]
+      }
+    ],
+    "artifact_object_group": [
+      {
+        "id": 8,
+        "artifact_id": 2,
+        "object_group_name": "памятник",
+        "object_group_parent_id": null,
+        "object_group_children": [
+          {
+            "id": 9,
+            "artifact_id": 2,
+            "object_group_name": "Евангелие-тетр",
+            "object_group_parent_id": 8,
+            "object_group_children": []
+          }
+        ]
+      }
+    ],
+    "artifact_preservation": [
+      {
+        "id": 5,
+        "artifact_id": 2,
+        "preservation": "Отсутствует 1 лист",
+        "preservation_parent_id": null,
+        "preservation_children": [
+          {
+            "id": 6,
+            "artifact_id": 2,
+            "preservation": "между 177-178 л",
+            "preservation_parent_id": 5,
+            "preservation_children": []
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "artifact_id": 2,
+        "preservation": "Вырван",
+        "preservation_parent_id": null,
+        "preservation_children": [
+          {
+            "id": 8,
+            "artifact_id": 2,
+            "preservation": "между 376-381 л",
+            "preservation_parent_id": 7,
+            "preservation_children": []
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "artifact_id": 2,
+        "preservation": "Рукописные на бумаге в линейку Добрушской писчебумажной фабрики",
+        "preservation_parent_id": null,
+        "preservation_children": [
+          {
+            "id": 10,
+            "artifact_id": 2,
+            "preservation": "лист с выходными данными отсутствует",
+            "preservation_parent_id": 9,
+            "preservation_children": []
+          },
+          {
+            "id": 11,
+            "artifact_id": 2,
+            "preservation": "восстановлен рукописным",
+            "preservation_parent_id": 9,
+            "preservation_children": []
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "artifact_id": 2,
+        "preservation": "Бумага загрязнена",
+        "preservation_parent_id": null,
+        "preservation_children": [
+          {
+            "id": 13,
+            "artifact_id": 2,
+            "preservation": "следы воска",
+            "preservation_parent_id": 12,
+            "preservation_children": []
+          },
+          {
+            "id": 14,
+            "artifact_id": 2,
+            "preservation": "сырости",
+            "preservation_parent_id": 12,
+            "preservation_children": []
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "artifact_id": 2,
+        "preservation": "Бархат на переплёте",
+        "preservation_parent_id": null,
+        "preservation_children": [
+          {
+            "id": 16,
+            "artifact_id": 2,
+            "preservation": "порван",
+            "preservation_parent_id": 15
+          },
+          {
+            "id": 17,
+            "artifact_id": 2,
+            "preservation": "выцвел",
+            "preservation_parent_id": 15
+          },
+          {
+            "id": 18,
+            "artifact_id": 2,
+            "preservation": "реставрирован современным бархатом малинового цвета",
+            "preservation_parent_id": 15
+          },
+          {
+            "id": 19,
+            "artifact_id": 2,
+            "preservation": "живопись на накладной доске почти утрачена",
+            "preservation_parent_id": 15
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "artifact_id": 2,
+        "preservation": "Застёжки",
+        "preservation_parent_id": null,
+        "preservation_children": [
+          {
+            "id": 21,
+            "artifact_id": 2,
+            "preservation": "новодел",
+            "preservation_parent_id": 20,
+            "preservation_children": []
+          }
+        ]
+      }
+    ]
+  }
+]
