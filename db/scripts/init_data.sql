@@ -309,3 +309,7 @@ INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_p
 VALUES (DEFAULT, 2, 'маргинальных рамок – 15 с 9 досок', 17);
 INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
 VALUES (DEFAULT, 2, ' вязь киноварная', 17);
+
+-- insert artifact_style
+INSERT INTO artifact_style (id, artifact_id, artifact_style_id)
+VALUES (DEFAULT, 2, 1);

@@ -17,7 +17,7 @@ type ArtifactMeasurement struct {
 
 // add material
 type ArtifactMaster struct {
-	ID                  int                `json:"id"`
+	ID                  int                  `json:"id"`
 	Creator             string               `json:"creator"`
 	ArtifactStyle       string               `json:"artifact_style"`
 	ExcavationDate      string               `json:"date_exc"`
@@ -97,13 +97,12 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 		return -1, err
 	}
 	fmt.Println("transferredByID:", insertedTransferredById)
-	insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
-	if err != nil {
-		return -1, err
-	}
-	fmt.Println("insertedStyleLUTID:", insertedStyleLUTID)
 
-	insertedArtifactMasterID, err := a.insertArtifactMaster(artifactMaster, insertedTransferredById)
+	insertedArtifactMasterID, err := a.insertArtifactMaster(
+		artifactMaster.Creator,
+		artifactMaster.ExcavationDate,
+		insertedTransferredById,
+	)
 	if err != nil {
 		return -1, err
 	}
@@ -115,10 +114,21 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 		return -1, err
 	}
 	fmt.Println("insertedMeasurementID:", insertedMeasurementID)
-	return -1, nil
+
+	insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
+	if err != nil {
+		return -1, err
+	}
+	fmt.Println("insertedStyleLUTID:", insertedStyleLUTID)
+	_, err = a.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
+	if err != nil {
+		return -1, err
+	}
+
+	return artifactMaster.ID, nil
 }
 
-func (a *ArtifactData) Update(newArtifactMaster *ArtifactMaster, id int) ()  {
+func (a *ArtifactData) Update(id int, newArtifactMaster *ArtifactMaster) () {
 
 }
 
@@ -146,16 +156,10 @@ func (a *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int, err
 	if result.Error != nil {
 		return -1, err
 	}
-	artifactStyleRows, err := a.db.Raw(selectArtifactStyleLUT, style).Rows()
+	artifactStyleRows := a.db.Raw(selectArtifactStyleLUT, style).Row()
+	err = artifactStyleRows.Scan(&insertedStyleLUTID)
 	if err != nil {
 		return -1, err
-	}
-	for artifactStyleRows.Next() {
-		err := artifactStyleRows.Scan(&insertedStyleLUTID)
-		if err != nil {
-			return -1, err
-		}
-		return insertedStyleLUTID, nil
 	}
 	return insertedStyleLUTID, nil
 }
@@ -179,15 +183,15 @@ func (a *ArtifactData) insertStyle(artifactID, styleLUTID int) (insertedStyleID 
 	return insertedStyleID, nil
 }
 
-func (a *ArtifactData) insertArtifactMaster(master *ArtifactMaster, insertedTransferredById int) (insertedArtifactMasterID int, err error) {
-	result := a.db.Exec(insertArtifactMaster, master.Creator, master.ExcavationDate, insertedTransferredById)
+func (a *ArtifactData) insertArtifactMaster(creator string, excavationDate string, insertedTransferredById int) (insertedArtifactMasterID int, err error) {
+	result := a.db.Exec(insertArtifactMaster, creator, excavationDate, insertedTransferredById)
 	if result.Error != nil {
 		return -1, err
 	}
 	artifactStyleRows, err := a.db.Raw(
 		selectArtifactMaster,
-		master.Creator,
-		master.ExcavationDate,
+		creator,
+		excavationDate,
 		insertedTransferredById).Rows()
 	if err != nil {
 		return -1, err

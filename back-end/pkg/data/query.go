@@ -21,6 +21,10 @@ FROM artifact_master
      on (artifact_master.id = artifact_style.artifact_id)
          FULL JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 `
+
+const updateArtifactWithBasicInfo = `
+
+`
 const getArtifactElementByIdQuery = `
 SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
 FROM artifact_element child_ae
