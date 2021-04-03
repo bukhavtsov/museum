@@ -8,24 +8,21 @@ import (
 )
 
 type ArtifactMeasurement struct {
-	Height int64 `json:"height"`
-	Width  int64 `json:"width"`
-	Length int64 `json:"length"`
+	Height int `json:"height"`
+	Width  int `json:"width"`
+	Length int `json:"length"`
 }
 
 // ArtifactMaster the main structure of artifact
 
 // add material
 type ArtifactMaster struct {
-	ID                  int64                `json:"id"`
+	ID                  int                `json:"id"`
 	Creator             string               `json:"creator"`
 	ArtifactStyle       string               `json:"artifact_style"`
 	ExcavationDate      string               `json:"date_exc"`
 	TransferredBy       string               `json:"transferred_by"`
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
-	Elements            map[string][]string  `json:"artifact_elements"`
-	ObjectGroup         map[string][]string  `json:"artifact_object_group"`
-	Preservation        map[string][]string  `json:"artifact_preservation"`
 }
 
 // ArtifactData gets connection to database
@@ -39,52 +36,39 @@ func NewArtifactData(db *gorm.DB) *ArtifactData {
 }
 
 // ReadAll return all artifacts from database
-func (cd *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
-	artifacts := make([]*ArtifactMaster, 0)
-	// Way how to get data with relationship from db has been found, but it's not a ORM way
-	// TODO: write working version without ORM way, after that rewrite to ORM
-	artifactRows, err := cd.db.Raw(getArtifactsWithBasicInfoQuery).Rows()
+func (a *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
+	var artifacts []*ArtifactMaster
+	artifactRows, err := a.db.Raw(getArtifactsWithBasicInfoQuery).Rows()
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 	defer artifactRows.Close()
 	for artifactRows.Next() {
-		artifact := getArtifactWithBasicInfo(artifactRows)
-		err := cd.initArtifactElements(artifact)
+		artifact, err := getArtifactWithBasicInfo(artifactRows)
 		if err != nil {
-			log.Println(err)
+			log.Println("got an error from getArtifactWithBasicInfo method, err is:", err)
+		} else {
+			artifacts = append(artifacts, artifact)
 		}
-		err = cd.initArtifactObjectGroup(artifact)
-		if err != nil {
-			log.Println(err)
-		}
-		err = cd.initArtifactPreservation(artifact)
-		if err != nil {
-			log.Println(err)
-		}
-		if artifact.ID == 0 { //FIXME: hot fix, because rows return n+1 elements
-			continue
-		}
-		artifacts = append(artifacts, artifact)
 	}
 	return artifacts, nil
 }
 
-func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
+func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 	var (
-		id                int64
+		id                int
 		creator           *string
 		artifactStyleName *string
 		transferredBy     *string
 		dateExc           *string
-		height            int64
-		width             int64
-		length            int64
+		height            int
+		width             int
+		length            int
 	)
 	err := artifactRows.Scan(&id, &creator, &artifactStyleName,
 		&transferredBy, &dateExc, &height, &width, &length)
 	if err != nil {
-		log.Println("getArtifactWithBasicInfo scan error:", err)
+		return nil, fmt.Errorf("getArtifactWithBasicInfo scan error: %w", err)
 	}
 	artifact := new(ArtifactMaster)
 	artifact.ID = id
@@ -104,142 +88,46 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) *ArtifactMaster {
 	artifact.ArtifactMeasurement.Height = height
 	artifact.ArtifactMeasurement.Width = width
 	artifact.ArtifactMeasurement.Length = length
-	return artifact
+	return artifact, nil
 }
-
-func (cd *ArtifactData) initArtifactElements(artifact *ArtifactMaster) error {
-	artifact.Elements = make(map[string][]string, 0)
-	elementsRows, err := cd.db.Raw(getArtifactElementByIdQuery, artifact.ID).Rows()
-	if err != nil {
-		return fmt.Errorf("elementsRows.cd.db.Raw err: %s", err)
-	}
-	defer elementsRows.Close()
-	for elementsRows.Next() {
-		var (
-			id                int64
-			childElementName  string
-			parentElementName sql.NullString
-		)
-		err := elementsRows.Scan(&id, &childElementName, &parentElementName)
-		if err != nil {
-			return fmt.Errorf("elementsRows.Scan err: %s", err)
-		}
-		if value, _ := parentElementName.Value(); value != nil {
-			artifact.Elements[parentElementName.String] = append(artifact.Elements[parentElementName.String], childElementName)
-		} else {
-			_, ok := artifact.Elements[childElementName]
-			if !ok {
-				artifact.Elements[childElementName] = make([]string, 0)
-			}
-		}
-	}
-	return nil
-}
-
-func (cd *ArtifactData) initArtifactObjectGroup(artifact *ArtifactMaster) error {
-	artifact.ObjectGroup = make(map[string][]string, 0)
-	objectGroupRows, err := cd.db.Raw(getArtifactObjectGroupByIdQuery, artifact.ID).Rows()
-	if err != nil {
-		return fmt.Errorf("objectGroupRows.cd.db.Raw err: %s", err)
-	}
-	defer objectGroupRows.Close()
-	for objectGroupRows.Next() {
-		var (
-			id                int64
-			childObjectGroup  string
-			parentObjectGroup sql.NullString
-		)
-		err := objectGroupRows.Scan(&id, &childObjectGroup, &parentObjectGroup)
-		if err != nil {
-			return fmt.Errorf("objectGroupRows.Scan err: %s", err)
-		}
-		if value, _ := parentObjectGroup.Value(); value != nil {
-			artifact.ObjectGroup[parentObjectGroup.String] = append(artifact.ObjectGroup[parentObjectGroup.String], childObjectGroup)
-		} else {
-			_, ok := artifact.ObjectGroup[childObjectGroup]
-			if !ok {
-				artifact.ObjectGroup[childObjectGroup] = make([]string, 0)
-			}
-		}
-	}
-	return nil
-}
-
-func (cd *ArtifactData) initArtifactPreservation(artifact *ArtifactMaster) error {
-	artifact.Preservation = make(map[string][]string, 0)
-	preservationRows, err := cd.db.Raw(getArtifactPreservationByIdQuery, artifact.ID).Rows()
-	if err != nil {
-		return fmt.Errorf("preservationRows.cd.db.Raw err: %s", err)
-	}
-	defer preservationRows.Close()
-	for preservationRows.Next() {
-		var (
-			id                 int64
-			childPreservation  string
-			parentPreservation sql.NullString
-		)
-		err := preservationRows.Scan(&id, &childPreservation, &parentPreservation)
-		if err != nil {
-			err := preservationRows.Scan(&id, &childPreservation, &parentPreservation)
-			return fmt.Errorf("preservationRows.Scan err: %s", err)
-		}
-
-		if value, _ := parentPreservation.Value(); value != nil {
-			artifact.Preservation[parentPreservation.String] = append(artifact.Preservation[parentPreservation.String], childPreservation)
-		} else {
-			_, ok := artifact.Preservation[childPreservation]
-			if !ok {
-				artifact.Preservation[childPreservation] = make([]string, 0)
-			}
-		}
-	}
-	return nil
-}
-
-func (cd *ArtifactData) Add(artifactMaster *ArtifactMaster) (int64, error) {
-	//TODO: investigate transaction and rollback. Actually, I make insertion to database in different tables.
-	// Need to make a rollback in case if we will got a failure in the insertion data time.
-
+func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
-	insertedTransferredById, err := cd.insertTransferredBy(artifactMaster.TransferredBy)
+	insertedTransferredById, err := a.insertTransferredBy(artifactMaster.TransferredBy)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("transferredByID:", insertedTransferredById)
-	insertedStyleLUTID, err := cd.insertStyleLUT(artifactMaster.ArtifactStyle)
+	insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("insertedStyleLUTID:", insertedStyleLUTID)
 
-	insertedArtifactMasterID, err := cd.insertArtifactMaster(artifactMaster, insertedTransferredById)
+	insertedArtifactMasterID, err := a.insertArtifactMaster(artifactMaster, insertedTransferredById)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("insertedArtifactMasterID:", insertedArtifactMasterID)
 
 	// can return nil pointer
-	insertedMeasurementID, err := cd.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
+	insertedMeasurementID, err := a.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
 	if err != nil {
 		return -1, err
 	}
 	fmt.Println("insertedMeasurementID:", insertedMeasurementID)
-	//should be after the artifactMaster initialization
-	//insertedStyleID, err := cd.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
-	//if err != nil {
-	//	return -1, err
-	//}
-	//fmt.Println("insertedStyleID", insertedStyleID)
-
 	return -1, nil
 }
 
-func (cd *ArtifactData) insertTransferredBy(transferredBy string) (insertedTransferredById int64, err error) {
-	result := cd.db.Exec(insertTransferredBy, transferredBy)
+func (a *ArtifactData) Update(newArtifactMaster *ArtifactMaster, id int) ()  {
+
+}
+
+func (a *ArtifactData) insertTransferredBy(transferredBy string) (insertedTransferredById int, err error) {
+	result := a.db.Exec(insertTransferredBy, transferredBy)
 	if result.Error != nil {
 		return -1, err
 	}
-	transferredByRows, err := cd.db.Raw(selectTransferredBy, transferredBy).Rows()
+	transferredByRows, err := a.db.Raw(selectTransferredBy, transferredBy).Rows()
 	if err != nil {
 		return -1, err
 	}
@@ -253,12 +141,12 @@ func (cd *ArtifactData) insertTransferredBy(transferredBy string) (insertedTrans
 	return insertedTransferredById, nil
 }
 
-func (cd *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int64, err error) {
-	result := cd.db.Exec(insertArtifactStyleLUT, style)
+func (a *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int, err error) {
+	result := a.db.Exec(insertArtifactStyleLUT, style)
 	if result.Error != nil {
 		return -1, err
 	}
-	artifactStyleRows, err := cd.db.Raw(selectArtifactStyleLUT, style).Rows()
+	artifactStyleRows, err := a.db.Raw(selectArtifactStyleLUT, style).Rows()
 	if err != nil {
 		return -1, err
 	}
@@ -272,12 +160,12 @@ func (cd *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int64, 
 	return insertedStyleLUTID, nil
 }
 
-func (cd *ArtifactData) insertStyle(artifactID, styleLUTID int64) (insertedStyleID int64, err error) {
-	result := cd.db.Exec(insertArtifactStyle, artifactID, styleLUTID)
+func (a *ArtifactData) insertStyle(artifactID, styleLUTID int) (insertedStyleID int, err error) {
+	result := a.db.Exec(insertArtifactStyle, artifactID, styleLUTID)
 	if result.Error != nil {
 		return -1, err
 	}
-	artifactStyleRows, err := cd.db.Raw(selectArtifactStyle, artifactID, styleLUTID).Rows()
+	artifactStyleRows, err := a.db.Raw(selectArtifactStyle, artifactID, styleLUTID).Rows()
 	if err != nil {
 		return -1, err
 	}
@@ -291,12 +179,12 @@ func (cd *ArtifactData) insertStyle(artifactID, styleLUTID int64) (insertedStyle
 	return insertedStyleID, nil
 }
 
-func (cd *ArtifactData) insertArtifactMaster(master *ArtifactMaster, insertedTransferredById int64) (insertedArtifactMasterID int64, err error) {
-	result := cd.db.Exec(insertArtifactMaster, master.Creator, master.ExcavationDate, insertedTransferredById)
+func (a *ArtifactData) insertArtifactMaster(master *ArtifactMaster, insertedTransferredById int) (insertedArtifactMasterID int, err error) {
+	result := a.db.Exec(insertArtifactMaster, master.Creator, master.ExcavationDate, insertedTransferredById)
 	if result.Error != nil {
 		return -1, err
 	}
-	artifactStyleRows, err := cd.db.Raw(
+	artifactStyleRows, err := a.db.Raw(
 		selectArtifactMaster,
 		master.Creator,
 		master.ExcavationDate,
@@ -314,8 +202,8 @@ func (cd *ArtifactData) insertArtifactMaster(master *ArtifactMaster, insertedTra
 	return insertedArtifactMasterID, nil
 }
 
-func (cd *ArtifactData) insertMeasurement(artifactID int64, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int64, err error) {
-	result := cd.db.Exec(
+func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int, err error) {
+	result := a.db.Exec(
 		insertMeasurement,
 		artifactID,
 		artifactMeasurement.Length,
@@ -325,7 +213,7 @@ func (cd *ArtifactData) insertMeasurement(artifactID int64, artifactMeasurement 
 	if result.Error != nil {
 		return -1, err
 	}
-	artifactStyleRows, err := cd.db.Raw(
+	artifactStyleRows, err := a.db.Raw(
 		selectArtifactMeasurement,
 		artifactID,
 		artifactMeasurement.Length,

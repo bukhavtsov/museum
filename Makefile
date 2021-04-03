@@ -17,14 +17,14 @@ help: ## makefile targets description
 	@echo "Usage:"
 	@egrep '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | sed -e 's/:.*##/#-/' | column -t -s "#"
 
-.PHONY: fmt
-fmt: ## automatically formats Go source code
-	@echo "Running 'go fmt ...'"
-	@go fmt -x "$(REPO)/..."
+#.PHONY: fmt
+#fmt: ## automatically formats Go source code
+#	@echo "Running 'go fmt ...'"
+#	@go fmt -x "$(REPO)/..."
 
 
 .PHONY: build
-build: fmt ## compile package and dependencies
+build: ## compile package and dependencies
 	@echo "Building backend..."
 	CGO_ENABLED=0 go build -o $(BACKEND_BIN_PATH) $(BACKEND_SRC_PATH)
 

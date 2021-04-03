@@ -32,7 +32,7 @@ func init() {
 		host = "localhost"
 	}
 	if port == "" {
-		port = "5432"
+		port = "1001"
 	}
 	if user == "" {
 		user = "postgres"

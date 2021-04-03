@@ -23,7 +23,6 @@ create table region
             references country
 );
 
-
 -- location table
 create table location
 (

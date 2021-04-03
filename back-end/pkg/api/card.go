@@ -13,7 +13,7 @@ import (
 
 type ArtifactData interface {
 	ReadAll() ([]*data.ArtifactMaster, error)
-	Add(artifact *data.ArtifactMaster) (int64, error)
+	Add(artifact *data.ArtifactMaster) (int, error)
 }
 
 type artifactAPI struct {
@@ -50,7 +50,7 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 		return
 	}
 	if artifact == nil {
-		log.Printf("failed empty JSON\n")
+		log.Printf("failed empty JSON")
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -68,9 +68,6 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 func printArtifact(artifact *data.ArtifactMaster) {
 	fmt.Println("Artifact")
 	fmt.Println("artifact_id:", artifact.ID)
-	fmt.Println("artifact_object_group:", artifact.ObjectGroup)
-	fmt.Println("artifact_elements:", artifact.Elements)
-	fmt.Println("artifact_preservation:", artifact.Preservation)
 	fmt.Println("artifact_measurement:", artifact.ArtifactMeasurement)
 	fmt.Println("artifact_excavationDate:", artifact.ExcavationDate)
 	fmt.Println("artifact_transferredBy:", artifact.TransferredBy)

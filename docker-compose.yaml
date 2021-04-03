@@ -24,7 +24,7 @@ services:
       - DB_USERS_DBNAME=postgres
       - DB_USERS_PASSWORD=postgres
       - DB_USERS_SSL=disable
-    links:
+    depends_on:
       - db-museum
     networks:
       - museum-network
