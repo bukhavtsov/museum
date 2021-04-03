@@ -128,8 +128,44 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	return artifactMaster.ID, nil
 }
 
-func (a *ArtifactData) Update(id int, newArtifactMaster *ArtifactMaster) () {
+func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {
+	newTransferredById, err := a.updateTransferredBy(artifactMasterID, newArtifactMaster.TransferredBy)
+	if err != nil {
+		return fmt.Errorf("got an error when tried to call updateTransferredBy method")
+	}
+	updateArtifactMasterRow := a.db.Exec(updateArtifactMaster, newArtifactMaster.Creator, newArtifactMaster.ExcavationDate, newTransferredById, newArtifactMaster.ID)
+	if updateArtifactMasterRow.Error != nil {
+		return fmt.Errorf("got an error when tried to updateArtifactMaster %w", err)
+	}
+	// Artifact Measurement
+	// artifact style
+	// 	1. check type in artifact style lut ? yes -> update the value of artifact_style_id
+	// 	2. otherwise add new type to artifact style lut, update the value of artifact_style_id
+	return nil
+}
 
+func (a *ArtifactData) updateTransferredBy(artifactMasterID int, newTransferredBy string) (insertedTransferredById int, err error) {
+	selectTransferredByRow := a.db.Exec(getTransferredByIdFieldByName, newTransferredBy).Row()
+	switch {
+	case selectTransferredByRow.Err() == sql.ErrNoRows:
+		log.Printf("no transfered by with name %s. Create new", newTransferredBy)
+		insertedTransferredByResult := a.db.Exec(insertTransferredBy, newTransferredBy)
+		if insertedTransferredByResult.Error != nil {
+			return -1, fmt.Errorf("selectTransferedByRow err: %w", insertedTransferredByResult.Error)
+		}
+		transferredById, err := a.insertTransferredBy(newTransferredBy)
+		if err != nil {
+			return -1, fmt.Errorf("updateTransferredBy called insertTransferredBy err: %w", err)
+		}
+		return transferredById, nil
+	case selectTransferredByRow.Err() != nil:
+		return -1, fmt.Errorf("got an error selectTransferredByResult: err is %w", err)
+	}
+	transferredById, err := a.insertTransferredBy(newTransferredBy)
+	if err != nil {
+		return -1, fmt.Errorf("updateTransferredBy2 called insertTransferredBy err: %w", err)
+	}
+	return transferredById, nil
 }
 
 func (a *ArtifactData) insertTransferredBy(transferredBy string) (insertedTransferredById int, err error) {
@@ -137,16 +173,10 @@ func (a *ArtifactData) insertTransferredBy(transferredBy string) (insertedTransf
 	if result.Error != nil {
 		return -1, err
 	}
-	transferredByRows, err := a.db.Raw(selectTransferredBy, transferredBy).Rows()
+	transferredByRow := a.db.Raw(selectTransferredBy, transferredBy).Row()
+	err = transferredByRow.Scan(&insertedTransferredById)
 	if err != nil {
 		return -1, err
-	}
-	for transferredByRows.Next() {
-		err := transferredByRows.Scan(&insertedTransferredById)
-		if err != nil {
-			return -1, err
-		}
-		return insertedTransferredById, nil
 	}
 	return insertedTransferredById, nil
 }

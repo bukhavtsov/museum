@@ -88,3 +88,11 @@ VALUES (DEFAULT, ?, ?, ?, ?)
 const selectArtifactMeasurement = `
 SELECT id FROM "artifact_measurement" WHERE artifact_id = ? AND length = ? AND height = ? AND width = ?
 `
+
+const getTransferredByIdFieldByName = `
+SELECT id FROM transferred_by_lut WHERE transferred_by = ?
+`
+
+const updateArtifactMaster = `
+UPDATE artifact_master SET creator = ?, date_exc = ?, transferred_by_id = ? WHERE id = ?
+`

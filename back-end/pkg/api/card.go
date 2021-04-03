@@ -14,6 +14,7 @@ import (
 type ArtifactData interface {
 	ReadAll() ([]*data.ArtifactMaster, error)
 	Add(artifact *data.ArtifactMaster) (int, error)
+	Update(artifactMaster int, newArtifact *data.ArtifactMaster) error
 }
 
 type artifactAPI struct {
@@ -24,6 +25,7 @@ func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 	api := &artifactAPI{data: data}
 	r.HandleFunc("/artifacts", api.getArtifacts).Methods("GET")
 	r.HandleFunc("/artifacts", api.createArtifact).Methods("POST")
+	r.HandleFunc("/artifacts", api.createArtifact).Methods("PUT")
 }
 
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
