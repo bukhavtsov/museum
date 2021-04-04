@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/bukhavtsov/museum/back-end/pkg/data"
 
@@ -25,7 +26,7 @@ func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 	api := &artifactAPI{data: data}
 	r.HandleFunc("/artifacts", api.getArtifacts).Methods("GET")
 	r.HandleFunc("/artifacts", api.createArtifact).Methods("POST")
-	r.HandleFunc("/artifacts", api.createArtifact).Methods("PUT")
+	r.HandleFunc("/artifacts", api.updateArtifact).Methods("PUT")
 }
 
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
@@ -47,7 +48,7 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 	artifact := new(data.ArtifactMaster)
 	err := json.NewDecoder(request.Body).Decode(&artifact)
 	if err != nil {
-		log.Printf("failed reading JSON: %s\n", err)
+		log.Printf("failed reading JSON: %s", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -65,6 +66,28 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 	}
 	writer.Header().Set("Location", fmt.Sprintf("/artifact/%d", artifactId))
 	writer.WriteHeader(http.StatusCreated)
+}
+
+func (api artifactAPI) updateArtifact(w http.ResponseWriter, req *http.Request) {
+	var artifactMaster *data.ArtifactMaster
+	params := mux.Vars(req)
+	id, err := strconv.ParseInt(params["id"], 0, 64)
+	if err != nil {
+		log.Println(err)
+	}
+	err = json.NewDecoder(req.Body).Decode(&artifactMaster)
+	if err != nil {
+		log.Printf("failed reading JSON: %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = api.data.Update(int(id), artifactMaster)
+	if err != nil {
+		log.Println("artifact hasn't been updated")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func printArtifact(artifact *data.ArtifactMaster) {
