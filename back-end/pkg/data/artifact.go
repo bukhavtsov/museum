@@ -129,7 +129,7 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 }
 
 func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {
-	newTransferredById, err := a.updateTransferredBy(artifactMasterID, newArtifactMaster.TransferredBy)
+	newTransferredById, err := a.updateTransferredBy(newArtifactMaster.TransferredBy)
 	if err != nil {
 		return fmt.Errorf("got an error when tried to call updateTransferredBy method")
 	}
@@ -137,14 +137,49 @@ func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactM
 	if updateArtifactMasterRow.Error != nil {
 		return fmt.Errorf("got an error when tried to updateArtifactMaster %w", err)
 	}
-	// Artifact Measurement
-	// artifact style
-	// 	1. check type in artifact style lut ? yes -> update the value of artifact_style_id
-	// 	2. otherwise add new type to artifact style lut, update the value of artifact_style_id
+
+	updateArtifactMeasurementRow := a.db.Exec(updateArtifactMeasurement, newArtifactMaster.ArtifactMeasurement.Length, newArtifactMaster.ArtifactMeasurement.Height, newArtifactMaster.ArtifactMeasurement.Width, artifactMasterID)
+	if updateArtifactMeasurementRow.Error != nil {
+		return fmt.Errorf("got an error when tried to updateArtifactMeasurementRow %w", err)
+	}
+	artifactStyleLUTID, err := a.getOrAddArtifactStyleLUT(newArtifactMaster.ArtifactStyle)
+	if err != nil {
+		return fmt.Errorf("got an error when tried to getOrAddArtifactStyleLUT, error is : %w", err)
+	}
+	updateArtifactStyleRow:= a.db.Exec(updateArtifactStyle, artifactStyleLUTID, artifactMasterID)
+	if updateArtifactStyleRow.Error != nil {
+		return fmt.Errorf("can't execute updateArtifactStyle, got an error: %e", err)
+	}
 	return nil
 }
 
-func (a *ArtifactData) updateTransferredBy(artifactMasterID int, newTransferredBy string) (insertedTransferredById int, err error) {
+// 	check type in artifact style lut ? yes : return artifact_style_id
+// 	otherwise add new type to artifact style lut, then return  artifact_style_id
+func (a *ArtifactData) getOrAddArtifactStyleLUT(newArtifactStyle string) (int, error) {
+	selectArtifactStyleLUTRow := a.db.Exec(selectArtifactStyleLUT, newArtifactStyle).Row()
+	var artifactStyleLUTId int
+	switch {
+	case selectArtifactStyleLUTRow.Err() == sql.ErrNoRows:
+		log.Printf("no artifact style with name %s. Create new", newArtifactStyle)
+		insertArtifactStyleLUTRow := a.db.Exec(insertArtifactStyleLUT, newArtifactStyle).Row()
+		if insertArtifactStyleLUTRow.Err() != nil {
+			return -1, fmt.Errorf("got an eror when tried to add new artifact style: %w", insertArtifactStyleLUTRow.Err())
+		}
+		selectArtifactStyleLUTRow = a.db.Exec(selectArtifactStyleLUT, newArtifactStyle).Row()
+		if selectArtifactStyleLUTRow.Err() != nil {
+			return -1, fmt.Errorf("got an error when tried to read created ")
+		}
+	case selectArtifactStyleLUTRow.Err() == sql.ErrNoRows:
+		return -1, fmt.Errorf("got an error when tried select")
+	}
+	err := selectArtifactStyleLUTRow.Scan(&artifactStyleLUTId)
+	if err != nil {
+		return -1, fmt.Errorf("can't read id from selectArtifactStyleLUTRow query")
+	}
+	return artifactStyleLUTId, nil
+}
+
+func (a *ArtifactData) updateTransferredBy(newTransferredBy string) (insertedTransferredById int, err error) {
 	selectTransferredByRow := a.db.Exec(getTransferredByIdFieldByName, newTransferredBy).Row()
 	switch {
 	case selectTransferredByRow.Err() == sql.ErrNoRows:

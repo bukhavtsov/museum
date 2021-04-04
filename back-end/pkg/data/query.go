@@ -96,3 +96,13 @@ SELECT id FROM transferred_by_lut WHERE transferred_by = ?
 const updateArtifactMaster = `
 UPDATE artifact_master SET creator = ?, date_exc = ?, transferred_by_id = ? WHERE id = ?
 `
+
+
+// TODO: clarify, why we should have separate artifact_id? better to add to artifact_master field with artifact measurements
+const updateArtifactMeasurement = `
+UPDATE artifact_measurement SET length = ?, height = ?, width = ? WHERE artifact_id = ?
+`
+
+const updateArtifactStyle = `
+UPDATE artifact_style SET artifact_style_id = ? WHERE artifact_id = ? 
+`
