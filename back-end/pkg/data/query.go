@@ -90,7 +90,7 @@ SELECT id FROM "artifact_measurement" WHERE artifact_id = ? AND length = ? AND h
 `
 
 const getTransferredByIdFieldByName = `
-SELECT id FROM transferred_by_lut WHERE transferred_by = ?
+SELECT id FROM transferred_by_lut WHERE transferred_by = $1
 `
 
 const updateArtifactMaster = `

@@ -3,7 +3,7 @@
 // 3. components responsible for subscribing and getting info by service
 
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
 
 
@@ -31,13 +31,13 @@ export interface artifact_measurement {
 })
 export class ArtifactService {
     private artifactList: Artifact[] = [];
-    private readonly getCardsURL = "http://localhost:8080/artifacts";
+    private readonly artifactsURL = "http://localhost:8080/artifacts";
 
     constructor(private http: HttpClient) {
     }
 
     public getArtifactList(): Observable<Artifact[]> {
-        return this.http.get<Artifact[]>(this.getCardsURL);
+        return this.http.get<Artifact[]>(this.artifactsURL);
     }
 
 
@@ -50,15 +50,14 @@ export class ArtifactService {
     }
 
     public add(artifact: Artifact) {
-        console.log("Hello from service");
-        console.log(artifact);
-        this.http.post<Artifact>(this.getCardsURL, artifact).subscribe({
+        this.http.post<Artifact>(this.artifactsURL, artifact).subscribe({
             error: error => console.error('There was an error!', error)
         })
     }
 
-    public edit(artifact: Artifact) {
-        const id = this.artifactList.findIndex((event => event.id === artifact.id));
-        this.artifactList[id] = artifact;
+    public edit(artifactID: number, newArtifact: Artifact) {
+        this.http.put<Artifact>(this.artifactsURL + `/${artifactID}`, newArtifact).subscribe({
+            error: error => console.error('There was an error!', error)
+        })
     }
 }

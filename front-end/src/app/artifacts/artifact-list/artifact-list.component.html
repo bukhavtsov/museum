@@ -32,7 +32,10 @@
             </div>
         </div>
         <div class="col-sm-2">
-            <button type="button" class="btn btn-secondary btn-sm btn-block">Edit</button>
+            <button [routerLink]="['/artifacts/edit/', card.id]" routerLinkActive="router-link-active"
+                    class="btn btn-secondary btn-sm btn-block"
+                    type="submit">Edit
+            </button>
             <button type="button" class="btn btn-danger btn-sm btn-block">Delete</button>
         </div>
     </div>

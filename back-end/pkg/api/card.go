@@ -26,7 +26,7 @@ func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 	api := &artifactAPI{data: data}
 	r.HandleFunc("/artifacts", api.getArtifacts).Methods("GET")
 	r.HandleFunc("/artifacts", api.createArtifact).Methods("POST")
-	r.HandleFunc("/artifacts", api.updateArtifact).Methods("PUT")
+	r.HandleFunc("/artifacts/{id}", api.updateArtifact).Methods("PUT")
 }
 
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
@@ -57,7 +57,6 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	printArtifact(artifact) // for temp manual testing
 	artifactId, err := api.data.Add(artifact)
 	if err != nil {
 		log.Println("artifact hasn't been created")
@@ -83,19 +82,9 @@ func (api artifactAPI) updateArtifact(w http.ResponseWriter, req *http.Request) 
 	}
 	err = api.data.Update(int(id), artifactMaster)
 	if err != nil {
-		log.Println("artifact hasn't been updated")
+		log.Printf("artifact hasn't been updated, err is: %+v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func printArtifact(artifact *data.ArtifactMaster) {
-	fmt.Println("Artifact")
-	fmt.Println("artifact_id:", artifact.ID)
-	fmt.Println("artifact_measurement:", artifact.ArtifactMeasurement)
-	fmt.Println("artifact_excavationDate:", artifact.ExcavationDate)
-	fmt.Println("artifact_transferredBy:", artifact.TransferredBy)
-	fmt.Println("artifact_artifactStyle:", artifact.ArtifactStyle)
-	fmt.Println("artifact_creator:", artifact.Creator)
 }

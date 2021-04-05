@@ -96,7 +96,6 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("transferredByID:", insertedTransferredById)
 
 	insertedArtifactMasterID, err := a.insertArtifactMaster(
 		artifactMaster.Creator,
@@ -106,32 +105,28 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("insertedArtifactMasterID:", insertedArtifactMasterID)
 
 	// can return nil pointer
-	insertedMeasurementID, err := a.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
+	_, err = a.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("insertedMeasurementID:", insertedMeasurementID)
 
 	insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("insertedStyleLUTID:", insertedStyleLUTID)
 	_, err = a.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
 	if err != nil {
 		return -1, err
 	}
-
 	return artifactMaster.ID, nil
 }
 
 func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {
 	newTransferredById, err := a.updateTransferredBy(newArtifactMaster.TransferredBy)
 	if err != nil {
-		return fmt.Errorf("got an error when tried to call updateTransferredBy method")
+		return fmt.Errorf("got an error when tried to call updateTransferredBy method, err: %w", err)
 	}
 	updateArtifactMasterRow := a.db.Exec(updateArtifactMaster, newArtifactMaster.Creator, newArtifactMaster.ExcavationDate, newTransferredById, newArtifactMaster.ID)
 	if updateArtifactMasterRow.Error != nil {
@@ -194,7 +189,7 @@ func (a *ArtifactData) updateTransferredBy(newTransferredBy string) (insertedTra
 		}
 		return transferredById, nil
 	case selectTransferredByRow.Err() != nil:
-		return -1, fmt.Errorf("got an error selectTransferredByResult: err is %w", err)
+		return -1, fmt.Errorf("got an error selectTransferredByResult: err is %w", selectTransferredByRow.Err())
 	}
 	transferredById, err := a.insertTransferredBy(newTransferredBy)
 	if err != nil {
