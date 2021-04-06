@@ -92,7 +92,7 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 }
 func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
-	insertedTransferredById, err := a.insertTransferredBy(artifactMaster.TransferredBy)
+	insertedTransferredById, err := a.insertTransferredByLUT(artifactMaster.TransferredBy)
 	if err != nil {
 		return -1, err
 	}
@@ -111,24 +111,24 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-
-	insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
-	if err != nil {
-		return -1, err
-	}
-	_, err = a.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
-	if err != nil {
-		return -1, err
-	}
+	//
+	//insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
+	//if err != nil {
+	//	return -1, err
+	//}
+	//_, err = a.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
+	//if err != nil {
+	//	return -1, err
+	//}
 	return artifactMaster.ID, nil
 }
 
 func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {
-	newTransferredById, err := a.updateTransferredBy(newArtifactMaster.TransferredBy)
+	newTransferredById, err := a.insertTransferredByLUTIfNotExists(newArtifactMaster.TransferredBy)
 	if err != nil {
-		return fmt.Errorf("got an error when tried to call updateTransferredBy method, err: %w", err)
+		return fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, err: %w", err)
 	}
-	updateArtifactMasterRow := a.db.Exec(updateArtifactMaster, newArtifactMaster.Creator, newArtifactMaster.ExcavationDate, newTransferredById, newArtifactMaster.ID)
+	updateArtifactMasterRow := a.db.Exec(updateArtifactMaster, newArtifactMaster.Creator, newArtifactMaster.ExcavationDate, newTransferredById, artifactMasterID)
 	if updateArtifactMasterRow.Error != nil {
 		return fmt.Errorf("got an error when tried to updateArtifactMaster %w", err)
 	}
@@ -137,14 +137,14 @@ func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactM
 	if updateArtifactMeasurementRow.Error != nil {
 		return fmt.Errorf("got an error when tried to updateArtifactMeasurementRow %w", err)
 	}
-	artifactStyleLUTID, err := a.getOrAddArtifactStyleLUT(newArtifactMaster.ArtifactStyle)
-	if err != nil {
-		return fmt.Errorf("got an error when tried to getOrAddArtifactStyleLUT, error is : %w", err)
-	}
-	updateArtifactStyleRow:= a.db.Exec(updateArtifactStyle, artifactStyleLUTID, artifactMasterID)
-	if updateArtifactStyleRow.Error != nil {
-		return fmt.Errorf("can't execute updateArtifactStyle, got an error: %e", err)
-	}
+	//artifactStyleLUTID, err := a.getOrAddArtifactStyleLUT(newArtifactMaster.ArtifactStyle)
+	//if err != nil {
+	//	return fmt.Errorf("got an error when tried to getOrAddArtifactStyleLUT, error is : %w", err)
+	//}
+	//updateArtifactStyleRow:= a.db.Exec(updateArtifactStyle, artifactStyleLUTID, artifactMasterID)
+	//if updateArtifactStyleRow.Error != nil {
+	//	return fmt.Errorf("can't execute updateArtifactStyle, got an error: %e", err)
+	//}
 	return nil
 }
 
@@ -153,19 +153,16 @@ func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactM
 func (a *ArtifactData) getOrAddArtifactStyleLUT(newArtifactStyle string) (int, error) {
 	selectArtifactStyleLUTRow := a.db.Exec(selectArtifactStyleLUT, newArtifactStyle).Row()
 	var artifactStyleLUTId int
-	switch {
-	case selectArtifactStyleLUTRow.Err() == sql.ErrNoRows:
+	if selectArtifactStyleLUTRow.Err() != nil {
 		log.Printf("no artifact style with name %s. Create new", newArtifactStyle)
-		insertArtifactStyleLUTRow := a.db.Exec(insertArtifactStyleLUT, newArtifactStyle).Row()
-		if insertArtifactStyleLUTRow.Err() != nil {
-			return -1, fmt.Errorf("got an eror when tried to add new artifact style: %w", insertArtifactStyleLUTRow.Err())
+		insertArtifactStyleLUTRow := a.db.Exec(insertArtifactStyleLUT, newArtifactStyle)
+		if insertArtifactStyleLUTRow.Error != nil {
+			return -1, fmt.Errorf("got an eror when tried to add new artifact style: %w", insertArtifactStyleLUTRow.Error)
 		}
-		selectArtifactStyleLUTRow = a.db.Exec(selectArtifactStyleLUT, newArtifactStyle).Row()
-		if selectArtifactStyleLUTRow.Err() != nil {
+		selectArtifactStyleLUTRowNew := a.db.Exec(selectArtifactStyleLUT, newArtifactStyle).Row()
+		if selectArtifactStyleLUTRowNew.Err() != nil {
 			return -1, fmt.Errorf("got an error when tried to read created ")
 		}
-	case selectArtifactStyleLUTRow.Err() == sql.ErrNoRows:
-		return -1, fmt.Errorf("got an error when tried select")
 	}
 	err := selectArtifactStyleLUTRow.Scan(&artifactStyleLUTId)
 	if err != nil {
@@ -174,31 +171,26 @@ func (a *ArtifactData) getOrAddArtifactStyleLUT(newArtifactStyle string) (int, e
 	return artifactStyleLUTId, nil
 }
 
-func (a *ArtifactData) updateTransferredBy(newTransferredBy string) (insertedTransferredById int, err error) {
-	selectTransferredByRow := a.db.Exec(getTransferredByIdFieldByName, newTransferredBy).Row()
-	switch {
-	case selectTransferredByRow.Err() == sql.ErrNoRows:
-		log.Printf("no transfered by with name %s. Create new", newTransferredBy)
-		insertedTransferredByResult := a.db.Exec(insertTransferredBy, newTransferredBy)
-		if insertedTransferredByResult.Error != nil {
-			return -1, fmt.Errorf("selectTransferedByRow err: %w", insertedTransferredByResult.Error)
-		}
-		transferredById, err := a.insertTransferredBy(newTransferredBy)
+func (a *ArtifactData) insertTransferredByLUTIfNotExists(transferredBy string) (int, error) {
+	selectTransferredByRow := a.db.Exec(getTransferredByIdFieldByName, transferredBy).Row()
+	if selectTransferredByRow.Err() != nil {
+		log.Printf("no transfered by with name %s. Create new", transferredBy)
+		transferredById, err := a.insertTransferredByLUT(transferredBy)
 		if err != nil {
-			return -1, fmt.Errorf("updateTransferredBy called insertTransferredBy err: %w", err)
+			return -1, fmt.Errorf("insertTransferredByLUTIfNotExists called insertTransferredByLUT err: %w", err)
 		}
 		return transferredById, nil
-	case selectTransferredByRow.Err() != nil:
-		return -1, fmt.Errorf("got an error selectTransferredByResult: err is %w", selectTransferredByRow.Err())
 	}
-	transferredById, err := a.insertTransferredBy(newTransferredBy)
+	var existingTransferredById int
+	transferredByRow := a.db.Raw(getTransferredByIdFieldByName, transferredBy).Row()
+	err := transferredByRow.Scan(&existingTransferredById)
 	if err != nil {
-		return -1, fmt.Errorf("updateTransferredBy2 called insertTransferredBy err: %w", err)
+		return -1, fmt.Errorf("got an error when trid to execute Scan method for transferredByRow: %w", err)
 	}
-	return transferredById, nil
+	return existingTransferredById, nil
 }
 
-func (a *ArtifactData) insertTransferredBy(transferredBy string) (insertedTransferredById int, err error) {
+func (a *ArtifactData) insertTransferredByLUT(transferredBy string) (insertedTransferredById int, err error) {
 	result := a.db.Exec(insertTransferredBy, transferredBy)
 	if result.Error != nil {
 		return -1, err
@@ -294,4 +286,16 @@ func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *Ar
 		return insertedMeasurement, nil
 	}
 	return insertedMeasurement, nil
+}
+
+func (a *ArtifactData) Delete(artifactId int) error  {
+	resDeleteMeasurement := a.db.Exec(deleteMeasurement, artifactId)
+	if resDeleteMeasurement.Error != nil{
+		fmt.Errorf("got an error when tried to execute deleteMeasurement, error is: %w", resDeleteMeasurement.Error)
+	}
+	resDeleteArtifactMaster := a.db.Exec(deleteArtifactMaster, artifactId)
+	if resDeleteArtifactMaster.Error != nil{
+		fmt.Errorf("got an error when tried to execute resDeleteArtifactMaster, error is: %w", resDeleteArtifactMaster.Error)
+	}
+	return nil
 }

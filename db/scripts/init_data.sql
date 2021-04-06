@@ -67,31 +67,31 @@ VALUES (DEFAULT, 1, 1, 1, 5, '1979-02-17', null, null, null,
         219, 120, 'ru.wikipedia.org/wiki/Николай_Чудотворец',
         '/path/to/photo/image.jpg', 1);
 
--- insert object group
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 1, 1, null);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 2, 1, 1);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 3, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 4, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 5, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 6, 1, 2);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 7, 1, 2);
+-- -- insert object group
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 1, 1, null);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 2, 1, 1);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 3, 1, 2);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 4, 1, 2);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 5, 1, 2);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 6, 1, 2);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 7, 1, 2);
 
--- insert artifact_preservation
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 1, 'утраты живописи и золотого покрытия', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 1, 'потёртости', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 1, 'осыпи по верхней кромке', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 1, 'вертикальная трещина', null);
+-- -- insert artifact_preservation
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 1, 'утраты живописи и золотого покрытия', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 1, 'потёртости', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 1, 'осыпи по верхней кромке', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 1, 'вертикальная трещина', null);
 
 -- insert artifact_measurement
 INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
@@ -124,48 +124,48 @@ VALUES (DEFAULT, 'high');
 INSERT INTO material_confidence_level (id, material_confidence_level)
 VALUES (DEFAULT, 'very high');
 
--- init material
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 1, 2, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 1, 3, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 1, 4, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 1, 5, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 1, 5, 1, null, 2, null);
+-- -- init material
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 1, 2, 1, null, 2, null);
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 1, 3, 1, null, 2, null);
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 1, 4, 1, null, 2, null);
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 1, 5, 1, null, 2, null);
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 1, 5, 1, null, 2, null);
 
--- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'доска', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'ольха', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'трехсоставная', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'шпонки дубовые', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'пластевые', 4);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'встречные', 4);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'выступающие', 4);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'отделанные калёвкой', 4);
+-- -- insert artifact_element
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'доска', null);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'ольха', 1);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'трехсоставная', 1);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'шпонки дубовые', 1);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'пластевые', 4);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'встречные', 4);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'выступающие', 4);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 1, 'отделанные калёвкой', 4);
 
 -- insert artifact_style_lut
 INSERT INTO artifact_style_lut (id, artifact_style_name)
-VALUES (default, 'Ветковская школа');
+VALUES (1, 'Ветковская школа');
 
--- insert artifact_style
-INSERT INTO artifact_style (id, artifact_id, artifact_style_id)
-VALUES (DEFAULT, 1, 1);
+-- -- insert artifact_style
+-- INSERT INTO artifact_style (id, artifact_id, artifact_style_id)
+-- VALUES (1, 1, 1);
 
 
 
@@ -205,11 +205,11 @@ VALUES (default, 2, 1, 2, 5, 'Пётр Тимофеев Мстиславец', '
         'Переплёт: доски в коже, покрыты бархатом сиреневого цвета, на верхней крышке накладная доска с живописными наугольниками с изображениями 4-х евангелистов и металлическим литым средником (крест-распятие с предстоящими), застёжки.',
         null, 445, 320, 'ru.wikipedia.org/wiki/Николай_Чудотворец', '/path/to/photo/image.jpg', 2);
 
--- insert object_group
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 1, 2, null);
-INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
-VALUES (DEFAULT, 8, 2, 8);
+-- -- insert object_group
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 1, 2, null);
+-- INSERT INTO "object_group" ("id", "object_group_id", "artifact_id", "object_group_parent_id")
+-- VALUES (DEFAULT, 8, 2, 8);
 
 -- insert material_type_lut
 INSERT INTO "material_type_lut" ("id", "material_type")
@@ -219,97 +219,97 @@ VALUES (DEFAULT, 'двуцветная печать');
 INSERT INTO "material_type_lut" ("id", "material_type")
 VALUES (DEFAULT, 'гравюры');
 
--- insert material
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 2, 7, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 2, 8, 1, null, 2, null);
-INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
-                        "confidence_level_id", "material_type_parent_id")
-VALUES (DEFAULT, 2, 9, 1, null, 2, null);
+-- -- insert material
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 2, 7, 1, null, 2, null);
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 2, 8, 1, null, 2, null);
+-- INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%composition",
+--                         "confidence_level_id", "material_type_parent_id")
+-- VALUES (DEFAULT, 2, 9, 1, null, 2, null);
 
-
--- insert object_group
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'Переплёт', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'доска', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'кожа', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'бархат', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'живопись', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'металлический средник', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'застёжки', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'фигурные жуковины', 9);
+--
+-- -- insert object_group
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'Переплёт', null);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'доска', 9);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'кожа', 9);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'бархат', 9);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'живопись', 9);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'металлический средник', 9);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'застёжки', 9);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'фигурные жуковины', 9);
 
 -- insert artifact_measurement
 INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
 VALUES (DEFAULT, 2, 324, 203, 75);
 
--- insert artifact_preservation
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'Отсутствует 1 лист', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'между 177-178 л', 5);
+-- -- insert artifact_preservation
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'Отсутствует 1 лист', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'между 177-178 л', 5);
+--
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'Вырван', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'между 376-381 л', 7);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'Рукописные на бумаге в линейку Добрушской писчебумажной фабрики', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'лист с выходными данными отсутствует', 9);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'восстановлен рукописным', 9);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'Бумага загрязнена', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'следы воска', 12);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'сырости', 12);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'Бархат на переплёте', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'порван', 15);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'выцвел', 15);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'реставрирован современным бархатом малинового цвета', 15);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'живопись на накладной доске почти утрачена', 15);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2, 'Застёжки', null);
+-- INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
+-- VALUES (DEFAULT, 2,'новодел', 20);
 
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'Вырван', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'между 376-381 л', 7);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'Рукописные на бумаге в линейку Добрушской писчебумажной фабрики', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'лист с выходными данными отсутствует', 9);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'восстановлен рукописным', 9);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'Бумага загрязнена', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'следы воска', 12);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'сырости', 12);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'Бархат на переплёте', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'порван', 15);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'выцвел', 15);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'реставрирован современным бархатом малинового цвета', 15);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'живопись на накладной доске почти утрачена', 15);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2, 'Застёжки', null);
-INSERT INTO artifact_preservation ("id", "artifact_id", "preservation", "artifact_preservation_parent_id")
-VALUES (DEFAULT, 2,'новодел', 20);
+-- -- insert artifact_element
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'Орнамент', null);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'заставок – 10 с 10 досок', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, '4 гравюры (после 1-го листа – евангелист Матфей', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, '105 об. – евангелист Марк', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'между 171-172 – евангелист Лука', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'между 280-281 – евангелист Иоанн)', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, '4 инициала (буквицы) с 4 досок', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, 'маргинальных рамок – 15 с 9 досок', 17);
+-- INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
+-- VALUES (DEFAULT, 2, ' вязь киноварная', 17);
 
--- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'Орнамент', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'заставок – 10 с 10 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, '4 гравюры (после 1-го листа – евангелист Матфей', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, '105 об. – евангелист Марк', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'между 171-172 – евангелист Лука', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'между 280-281 – евангелист Иоанн)', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, '4 инициала (буквицы) с 4 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'маргинальных рамок – 15 с 9 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, ' вязь киноварная', 17);
-
--- insert artifact_style
-INSERT INTO artifact_style (id, artifact_id, artifact_style_id)
-VALUES (DEFAULT, 2, 1);
+-- -- insert artifact_style
+-- INSERT INTO artifact_style (id, artifact_id, artifact_style_id)
+-- VALUES (2, 2, 1);

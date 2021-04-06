@@ -51,18 +51,18 @@ WHERE child_ap.artifact_id = ?
 `
 
 const insertTransferredBy = `
-INSERT INTO transferred_by_lut (id,transferred_by) VALUES (default, ?)
+INSERT INTO transferred_by_lut (transferred_by) VALUES (?)
 `
 
 const selectTransferredBy = `
-SELECT id FROM transferred_by_lut WHERE transferred_by = ?
+SELECT id FROM transferred_by_lut WHERE transferred_by = $1
 `
 
 const insertArtifactStyleLUT = `
-INSERT INTO artifact_style_lut (artifact_style_name) VALUES (?)
+INSERT INTO artifact_style_lut (id, artifact_style_name) VALUES (DEFAULT, ?)
 `
 const selectArtifactStyleLUT = `
-SELECT id FROM artifact_style_lut WHERE artifact_style_name = ? 
+SELECT id FROM artifact_style_lut WHERE artifact_style_name=?
 `
 
 const insertArtifactStyle = `
@@ -94,7 +94,7 @@ SELECT id FROM transferred_by_lut WHERE transferred_by = $1
 `
 
 const updateArtifactMaster = `
-UPDATE artifact_master SET creator = ?, date_exc = ?, transferred_by_id = ? WHERE id = ?
+UPDATE artifact_master SET creator = $1, date_exc = $2, transferred_by_id = $3 WHERE id = $4
 `
 
 
@@ -105,4 +105,12 @@ UPDATE artifact_measurement SET length = ?, height = ?, width = ? WHERE artifact
 
 const updateArtifactStyle = `
 UPDATE artifact_style SET artifact_style_id = ? WHERE artifact_id = ? 
+`
+
+const deleteMeasurement = `
+DELETE FROM artifact_measurement WHERE artifact_id = ?
+`
+
+const deleteArtifactMaster = `
+DELETE FROM artifact_master WHERE artifact_id = ?
 `

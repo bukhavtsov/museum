@@ -31,7 +31,7 @@ export interface artifact_measurement {
 })
 export class ArtifactService {
     private artifactList: Artifact[] = [];
-    private readonly artifactsURL = "http://localhost:8080/artifacts";
+    private readonly artifactsURL = 'http://localhost:8080/artifacts';
 
     constructor(private http: HttpClient) {
     }
@@ -57,6 +57,11 @@ export class ArtifactService {
 
     public edit(artifactID: number, newArtifact: Artifact) {
         this.http.put<Artifact>(this.artifactsURL + `/${artifactID}`, newArtifact).subscribe({
+            error: error => console.error('There was an error!', error)
+        })
+    }
+    public delete(artifactID: number) {
+        this.http.delete<Artifact>(this.artifactsURL + `/${artifactID}`).subscribe({
             error: error => console.error('There was an error!', error)
         })
     }

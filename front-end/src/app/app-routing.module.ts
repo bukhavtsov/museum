@@ -12,7 +12,6 @@ const routes: Routes = [
   { path: 'artifacts', component: ArtifactListComponent },
   { path: 'artifacts/edit/:id', component: EditFormComponent },
   { path: 'artifacts/add', component: AddFormComponent },
-  { path: 'artifacts/:id', component: ViewArtifactComponent },
   { path: '**', redirectTo: '/artifacts', pathMatch: 'full' },
 ];
 

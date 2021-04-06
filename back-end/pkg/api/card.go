@@ -15,7 +15,8 @@ import (
 type ArtifactData interface {
 	ReadAll() ([]*data.ArtifactMaster, error)
 	Add(artifact *data.ArtifactMaster) (int, error)
-	Update(artifactMaster int, newArtifact *data.ArtifactMaster) error
+	Update(artifactId int, newArtifact *data.ArtifactMaster) error
+	Delete(artifactId int) error
 }
 
 type artifactAPI struct {
@@ -27,6 +28,7 @@ func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 	r.HandleFunc("/artifacts", api.getArtifacts).Methods("GET")
 	r.HandleFunc("/artifacts", api.createArtifact).Methods("POST")
 	r.HandleFunc("/artifacts/{id}", api.updateArtifact).Methods("PUT")
+	r.HandleFunc("/artifacts/{id}", api.deleteArtifact).Methods("DELETE")
 }
 
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
@@ -84,6 +86,21 @@ func (api artifactAPI) updateArtifact(w http.ResponseWriter, req *http.Request) 
 	if err != nil {
 		log.Printf("artifact hasn't been updated, err is: %+v", err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (api artifactAPI) deleteArtifact(w http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	id, err := strconv.ParseInt(params["id"], 0, 64)
+	if err != nil {
+		log.Println(err)
+	}
+	err = api.data.Delete(int(id))
+	if err != nil {
+		log.Println("artifact hasn't been removed")
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)

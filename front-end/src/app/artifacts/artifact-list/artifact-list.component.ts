@@ -36,5 +36,9 @@ export class ArtifactListComponent implements OnInit {
     private alterDescriptionText(id: number) {
         this.showShortDescription.set(id, !this.showShortDescription.get(id))
     }
+    public deleteArtifact(event, id: number) {
+        this.artifactService.delete(id)
+        window.location.reload();
+    }
 
 }
