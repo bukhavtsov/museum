@@ -54,6 +54,24 @@ func (a *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 	return artifacts, nil
 }
 
+
+// Read return artifact by id from database
+func (a *ArtifactData) Read(id int) (*ArtifactMaster, error) {
+	var artifact *ArtifactMaster
+	artifactRows, err := a.db.Raw(getArtifactsWithBasicInfoByIDQuery, id).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer artifactRows.Close()
+	for artifactRows.Next() {
+		artifact, err = getArtifactWithBasicInfo(artifactRows)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return artifact, nil
+}
+
 func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 	var (
 		id                int
@@ -120,7 +138,7 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	//if err != nil {
 	//	return -1, err
 	//}
-	return artifactMaster.ID, nil
+	return insertedArtifactMasterID, nil
 }
 
 func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {

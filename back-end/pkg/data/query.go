@@ -22,6 +22,29 @@ FROM artifact_master
          FULL JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 `
 
+const getArtifactsWithBasicInfoByIDQuery = `
+SELECT artifact_master.id,
+       artifact_master.creator,
+       artifact_style.artifact_style_name,
+       transferred_by_lut.transferred_by,
+       artifact_master.date_exc,
+       artifact_measurement.height,
+       artifact_measurement.width,
+       artifact_measurement.length
+FROM artifact_master
+         FULL JOIN transferred_by_lut
+                    ON (artifact_master.transferred_by_id = transferred_by_lut.id)
+         FULL JOIN
+     (
+         SELECT artifact_id, artifact_style_name
+         FROM artifact_style
+                  FULL JOIN artifact_style_lut on (artifact_style.id = artifact_style_lut.id)
+     ) as artifact_style
+     on (artifact_master.id = artifact_style.artifact_id)
+         FULL JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
+WHERE artifact_master.id = $1
+`
+
 const updateArtifactWithBasicInfo = `
 
 `
