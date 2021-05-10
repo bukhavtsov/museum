@@ -2,13 +2,13 @@ package data
 
 import (
 	"fmt"
+
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/bukhavtsov/museum/back-end/db"
-
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,7 +21,7 @@ var (
 	password = os.Getenv("DB_USERS_PASSWORD")
 	sslmode  = os.Getenv("DB_USERS_SSL")
 
-	testArtifact = ArtifactMaster {
+	testArtifact = ArtifactMaster{
 		ID:             0,
 		Creator:        "TestExample",
 		ArtifactStyle:  "1323123123123",
@@ -60,11 +60,11 @@ func prepareTestDB() (*gorm.DB, error) {
 	conn := db.GetConnection(host, port, user, dbname, password, sslmode)
 	path := filepath.Join("../../../db/scripts/init-tables.sql")
 
-	c, ioErr := ioutil.ReadFile(path)
+	sqlBytes, ioErr := ioutil.ReadFile(path)
 	if ioErr != nil {
 		return nil, fmt.Errorf("got an error when read script, err:%v", ioErr)
 	}
-	sql := string(c)
+	sql := string(sqlBytes)
 	conn.Exec(sql)
 	return conn, nil
 }
@@ -134,8 +134,7 @@ func TestUpdated(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
-
-	newArtifact := ArtifactMaster {
+	newArtifact := ArtifactMaster{
 		ID:             0,
 		Creator:        "Artsiom",
 		ArtifactStyle:  "OldSchool",
@@ -162,7 +161,6 @@ func TestUpdated(t *testing.T) {
 	cleanTestDB(conn)
 }
 
-
 func TestDelete(t *testing.T) {
 	conn, err := prepareTestDB()
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
@@ -178,6 +176,45 @@ func TestDelete(t *testing.T) {
 	artifacts, err := artifactData.ReadAll()
 	assert.NoError(t, err)
 	assert.Empty(t, artifacts)
+
+	cleanTestDB(conn)
+}
+
+func TestInsertArtifactElement(t *testing.T) {
+	conn, err := prepareTestDB()
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
+
+	artifactData := NewArtifactData(conn)
+	id, err := artifactData.Add(&testArtifact)
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
+	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
+
+	testArtifactElement := ArtifactElement{
+		ArtifactID: id,
+		Name:       "parent element",
+		Children: []ArtifactElement{
+			{
+				ArtifactID: id,
+				Name:       "child 1",
+				Children: []ArtifactElement{
+					{
+						ArtifactID: id,
+						Name:       "sub child 1",
+						Children:   nil,
+					},
+				},
+			},
+			{
+				ArtifactID: id,
+				Name:       "child 2",
+				Children:   nil,
+			},
+		},
+	}
+
+	actualID, err := artifactData.InsertArtifactElement(testArtifactElement)
+	assert.NoError(t, err, fmt.Sprintf("got error %+v from InsertArtifactElement when tried to insert %v", err, testArtifactElement))
+	assert.NotEqual(t, -1, actualID, "incorrect actualID, should be positive, but have got -1")
 
 	cleanTestDB(conn)
 }

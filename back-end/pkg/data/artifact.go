@@ -25,9 +25,27 @@ type ArtifactMaster struct {
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 }
 
+type ArtifactElement struct {
+	ID         int               `json:"id" gorm:"column:id"`
+	ParentID   sql.NullInt64      `json:"parent_id,omitempty" gorm:"column:artifact_parent_element_id"`
+	ArtifactID int               `json:"artifact_id" gorm:"column:artifact_id"`
+	Name       string            `json:"name" gorm:"column:artifact_element_name"`
+	Children   []ArtifactElement `json:"children" gorm:"-"`
+}
+
 // ArtifactData gets connection to database
 type ArtifactData struct {
 	db *gorm.DB
+}
+
+
+type Tabler interface {
+	TableName() string
+}
+
+// TableName overrides the table name used by User to `profiles`
+func (ArtifactElement) TableName() string {
+	return "artifact_element"
 }
 
 // NewArtifactData creates new instance
@@ -53,7 +71,6 @@ func (a *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 	}
 	return artifacts, nil
 }
-
 
 // Read return artifact by id from database
 func (a *ArtifactData) Read(id int) (*ArtifactMaster, error) {
@@ -276,6 +293,32 @@ func (a *ArtifactData) insertArtifactMaster(creator string, excavationDate strin
 	return insertedArtifactMasterID, nil
 }
 
+
+// InsertArtifactElement allows you insert the hierarchical artifactElement to the database
+// insert parent into table
+// check children is empty? in case empty then, continue
+// otherwise for with the same method
+func (a *ArtifactData) InsertArtifactElement(artifactElement ArtifactElement) (int, error) {
+	if artifactElement.ArtifactID <= 0 {
+		return -1, fmt.Errorf("ArtifactID is empty, ArtifactID is: %d", artifactElement.ArtifactID)
+	}
+	res := a.db.Create(&artifactElement)
+	if res.Error != nil {
+		return -1, fmt.Errorf("got an error when tried to insert %v to db, err is: %w", artifactElement, res.Error)
+	}
+	if len(artifactElement.Children) != 0 {
+		for _, childElement := range artifactElement.Children {
+			childElement.ParentID.Int64 = int64(artifactElement.ID)
+			childElement.ParentID.Valid = true;
+			_, err := a.InsertArtifactElement(childElement)
+			if err != nil {
+				return -1, fmt.Errorf("got an error when tried to insert child element %v to db, err is: %w", artifactElement, res.Error)
+			}
+		}
+	}
+	return artifactElement.ID, nil
+}
+
 func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int, err error) {
 	result := a.db.Exec(
 		insertMeasurement,
@@ -306,13 +349,13 @@ func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *Ar
 	return insertedMeasurement, nil
 }
 
-func (a *ArtifactData) Delete(artifactId int) error  {
+func (a *ArtifactData) Delete(artifactId int) error {
 	resDeleteMeasurement := a.db.Exec(deleteMeasurement, artifactId)
-	if resDeleteMeasurement.Error != nil{
+	if resDeleteMeasurement.Error != nil {
 		fmt.Errorf("got an error when tried to execute deleteMeasurement, error is: %w", resDeleteMeasurement.Error)
 	}
 	resDeleteArtifactMaster := a.db.Exec(deleteArtifactMaster, artifactId)
-	if resDeleteArtifactMaster.Error != nil{
+	if resDeleteArtifactMaster.Error != nil {
 		fmt.Errorf("got an error when tried to execute resDeleteArtifactMaster, error is: %w", resDeleteArtifactMaster.Error)
 	}
 	return nil

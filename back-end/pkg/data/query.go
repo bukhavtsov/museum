@@ -137,3 +137,11 @@ DELETE FROM artifact_measurement WHERE artifact_id = ?
 const deleteArtifactMaster = `
 DELETE FROM artifact_master WHERE artifact_id = ?
 `
+
+const insertArtifactElement = `
+INSERT INTO artifact_element (artifact_id, artifact_element_name, artifact_parent_element_id) VALUES (?, ?, ?, ?);
+`
+
+const insertArtifactElementWithoutParent = `
+INSERT INTO artifact_element (artifact_id, artifact_element_name, artifact_parent_element_id) VALUES (?, ?, ?, null);
+`
