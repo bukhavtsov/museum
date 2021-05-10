@@ -1,6 +1,8 @@
 package data
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 
 	"io/ioutil"
@@ -34,6 +36,31 @@ var (
 		},
 	}
 )
+
+func getTestArtifactElement(artifactMasterID int) ArtifactElement {
+	return ArtifactElement{
+		ArtifactID: artifactMasterID,
+		Name:       "parent element",
+		Children: []ArtifactElement{
+			{
+				ArtifactID: artifactMasterID,
+				Name:       "child 1",
+				Children: []ArtifactElement{
+					{
+						ArtifactID: artifactMasterID,
+						Name:       "sub child 1",
+						Children:   nil,
+					},
+				},
+			},
+			{
+				ArtifactID: artifactMasterID,
+				Name:       "child 2",
+				Children:   nil,
+			},
+		},
+	}
+}
 
 func init() {
 	if host == "" {
@@ -189,32 +216,150 @@ func TestInsertArtifactElement(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
-	testArtifactElement := ArtifactElement{
-		ArtifactID: id,
-		Name:       "parent element",
-		Children: []ArtifactElement{
-			{
-				ArtifactID: id,
-				Name:       "child 1",
-				Children: []ArtifactElement{
-					{
-						ArtifactID: id,
-						Name:       "sub child 1",
-						Children:   nil,
-					},
-				},
-			},
-			{
-				ArtifactID: id,
-				Name:       "child 2",
-				Children:   nil,
-			},
-		},
-	}
+	actualID, err := artifactData.InsertArtifactElement(getTestArtifactElement(id))
+	assert.NoError(t, err, fmt.Sprintf("got error %+v from InsertArtifactElement when tried to insert %v", err, getTestArtifactElement(id)))
+	assert.NotEqual(t, -1, actualID, "incorrect actualID, should be positive, but have got -1")
 
+	cleanTestDB(conn)
+}
+
+func TestReadArtifactElement(t *testing.T) {
+	conn, err := prepareTestDB()
+	defer cleanTestDB(conn)
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
+
+	artifactData := NewArtifactData(conn)
+	id, err := artifactData.Add(&testArtifact)
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
+	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
+	testArtifactElement := getTestArtifactElement(id)
 	actualID, err := artifactData.InsertArtifactElement(testArtifactElement)
 	assert.NoError(t, err, fmt.Sprintf("got error %+v from InsertArtifactElement when tried to insert %v", err, testArtifactElement))
 	assert.NotEqual(t, -1, actualID, "incorrect actualID, should be positive, but have got -1")
 
-	cleanTestDB(conn)
+	actualArtifactElements, err := artifactData.readArtifactElements(id)
+	assert.NoError(t, err, fmt.Sprintf("got error %+v from readArtifactElement, with the following artifactMasterID %d", err, id))
+	assert.NotEmpty(t, actualArtifactElements, "artifact element should not be nil")
+	assert.Equal(t, testArtifactElement.Name, actualArtifactElements[0].Name)
+	assert.Equal(t, testArtifactElement.ArtifactID, actualArtifactElements[0].ArtifactID)
+	assert.NotEmpty(t, actualArtifactElements[0].Children)
+
+	assert.Equal(t, testArtifactElement.Children[0].Name, actualArtifactElements[0].Children[0].Name)
+	assert.Equal(t, testArtifactElement.Children[0].ArtifactID, actualArtifactElements[0].Children[0].ArtifactID)
+	assert.NotEmpty(t, actualArtifactElements[0].Children[0].Children)
+
+	assert.Equal(t, testArtifactElement.Children[0].Children[0].Name, actualArtifactElements[0].Children[0].Children[0].Name)
+	assert.Equal(t, testArtifactElement.Children[0].Children[0].ArtifactID, actualArtifactElements[0].Children[0].Children[0].ArtifactID)
+	assert.Empty(t, actualArtifactElements[0].Children[0].Children[0].Children)
+
+	assert.Equal(t, testArtifactElement.Children[1].Name, actualArtifactElements[0].Children[1].Name)
+	assert.Equal(t, testArtifactElement.Children[1].ArtifactID, actualArtifactElements[0].Children[1].ArtifactID)
+	assert.Empty(t, actualArtifactElements[0].Children[1].Children)
+}
+
+func TestFilterChildren(t *testing.T) {
+
+	testArtifactElement := []ArtifactElement{
+		{
+			ID:         1,
+			ArtifactID: 1,
+			Name:       "parent element",
+		},
+		{
+			ID:         2,
+			ArtifactID: 1,
+			Name:       "child 1",
+			ParentID: sql.NullInt64{
+				Int64: 1,
+				Valid: true,
+			},
+		},
+		{
+			ID:         3,
+			ArtifactID: 1,
+			Name:       "sub child 1",
+			ParentID: sql.NullInt64{
+				Int64: 2,
+				Valid: true,
+			},
+		},
+		{
+			ID:         4,
+			ArtifactID: 1,
+			Name:       "child 2",
+			ParentID: sql.NullInt64{
+				Int64: 1,
+				Valid: true,
+			},
+		},
+	}
+
+	other, children, err := filterChildren(testArtifactElement, 1)
+	assert.NoErrorf(t, err, "error from filterChildren %w", err)
+	assert.Len(t, children, 2)
+	assert.Len(t, other, 2)
+	assert.Equal(t, 1, other[0].ID)
+	assert.Equal(t, 1, other[0].ArtifactID)
+	assert.Equal(t, "parent element", other[0].Name)
+	assert.Equal(t, sql.NullInt64{}, other[0].ParentID)
+	assert.Empty(t, other[0].Children)
+	assert.Equal(t, 3, other[1].ID)
+	assert.Equal(t, 1, other[1].ArtifactID)
+	assert.Equal(t, "sub child 1", other[1].Name)
+	assert.Equal(t, sql.NullInt64{Int64: 2, Valid: true}, other[1].ParentID)
+	assert.Empty(t, other[1].Children)
+
+	assert.Equal(t, 2, children[0].ID)
+	assert.Equal(t, 1, children[0].ArtifactID)
+	assert.Equal(t, "child 1", children[0].Name)
+	assert.Equal(t, sql.NullInt64{Int64: 1, Valid: true}, children[0].ParentID)
+	assert.Empty(t, children[0].Children)
+	assert.Equal(t, 4, children[1].ID)
+	assert.Equal(t, 1, children[1].ArtifactID)
+	assert.Equal(t, "child 2", children[1].Name)
+	assert.Equal(t, sql.NullInt64{Int64: 1, Valid: true}, children[1].ParentID)
+	assert.Empty(t, children[1].Children)
+}
+
+func TestGroupArtifactElements(t *testing.T) {
+	testArtifactElement := []ArtifactElement{
+		{
+			ID:         1,
+			ArtifactID: 1,
+			Name:       "parent element",
+		},
+		{
+			ID:         2,
+			ArtifactID: 1,
+			Name:       "child 1",
+			ParentID: sql.NullInt64{
+				Int64: 1,
+				Valid: true,
+			},
+		},
+		{
+			ID:         3,
+			ArtifactID: 1,
+			Name:       "sub child 1",
+			ParentID: sql.NullInt64{
+				Int64: 2,
+				Valid: true,
+			},
+		},
+		{
+			ID:         4,
+			ArtifactID: 1,
+			Name:       "child 2",
+			ParentID: sql.NullInt64{
+				Int64: 1,
+				Valid: true,
+			},
+		},
+	}
+
+	other, err := groupArtifactElements(testArtifactElement)
+	fmt.Println(err)
+	fmt.Println(other)
+	intB, _ := json.MarshalIndent(&other, "", "\t")
+	fmt.Println(string(intB))
 }

@@ -48,11 +48,16 @@ WHERE artifact_master.id = $1
 const updateArtifactWithBasicInfo = `
 
 `
-const getArtifactElementByIdQuery = `
-SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
-FROM artifact_element child_ae
-         LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id
-WHERE child_ae.artifact_id = ?
+//const getArtifactElementByIdQuery = `
+//SELECT child_ae.artifact_id, child_ae.artifact_element_name, parent_ae.artifact_element_name
+//FROM artifact_element child_ae
+//         LEFT JOIN artifact_element parent_ae ON child_ae.artifact_parent_element_id = parent_ae.id
+//WHERE child_ae.artifact_id = ?
+//`
+
+const getArtifactElementByIdQuery = `SELECT id, artifact_id, artifact_element_name, artifact_parent_element_id
+FROM artifact_element
+WHERE artifact_id = ?
 `
 
 const getArtifactObjectGroupByIdQuery = `

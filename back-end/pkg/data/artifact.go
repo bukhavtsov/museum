@@ -27,7 +27,7 @@ type ArtifactMaster struct {
 
 type ArtifactElement struct {
 	ID         int               `json:"id" gorm:"column:id"`
-	ParentID   sql.NullInt64      `json:"parent_id,omitempty" gorm:"column:artifact_parent_element_id"`
+	ParentID   sql.NullInt64     `json:"parent_id,omitempty" gorm:"column:artifact_parent_element_id"`
 	ArtifactID int               `json:"artifact_id" gorm:"column:artifact_id"`
 	Name       string            `json:"name" gorm:"column:artifact_element_name"`
 	Children   []ArtifactElement `json:"children" gorm:"-"`
@@ -37,7 +37,6 @@ type ArtifactElement struct {
 type ArtifactData struct {
 	db *gorm.DB
 }
-
 
 type Tabler interface {
 	TableName() string
@@ -293,7 +292,6 @@ func (a *ArtifactData) insertArtifactMaster(creator string, excavationDate strin
 	return insertedArtifactMasterID, nil
 }
 
-
 // InsertArtifactElement allows you insert the hierarchical artifactElement to the database
 // insert parent into table
 // check children is empty? in case empty then, continue
@@ -309,7 +307,7 @@ func (a *ArtifactData) InsertArtifactElement(artifactElement ArtifactElement) (i
 	if len(artifactElement.Children) != 0 {
 		for _, childElement := range artifactElement.Children {
 			childElement.ParentID.Int64 = int64(artifactElement.ID)
-			childElement.ParentID.Valid = true;
+			childElement.ParentID.Valid = true
 			_, err := a.InsertArtifactElement(childElement)
 			if err != nil {
 				return -1, fmt.Errorf("got an error when tried to insert child element %v to db, err is: %w", artifactElement, res.Error)
@@ -317,6 +315,71 @@ func (a *ArtifactData) InsertArtifactElement(artifactElement ArtifactElement) (i
 		}
 	}
 	return artifactElement.ID, nil
+}
+
+func (a *ArtifactData) readArtifactElements(artifactMasterID int) ([]ArtifactElement, error) {
+	artifactElementRows, err := a.db.Raw(getArtifactElementByIdQuery, artifactMasterID).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("error when tried to get ArtifactElements from db, err %w", err)
+	}
+	var unsortedArtifactElements []ArtifactElement
+	for artifactElementRows.Next() {
+		var artifactElement ArtifactElement
+		err := artifactElementRows.Scan(
+			&artifactElement.ID,
+			&artifactElement.ArtifactID,
+			&artifactElement.Name,
+			&artifactElement.ParentID)
+		if err != nil {
+			return nil, fmt.Errorf("err when tried scan artifactElement, err: %w", err)
+		}
+		unsortedArtifactElements = append(unsortedArtifactElements, artifactElement)
+	}
+	return unsortedArtifactElements, nil
+}
+
+
+// TODO: improve the following method should not return unnecessary elements from ungroup list
+func groupArtifactElements(unsortedArtifactElements []ArtifactElement)([]ArtifactElement, error) {
+	var res []ArtifactElement
+	for _, element := range unsortedArtifactElements {
+		 _, children, err := filterChildren(unsortedArtifactElements, element.ID)
+		 if err != nil {
+		 	return nil, fmt.Errorf("err when tried to execute filterChildren, err: %w", err)
+		 }
+		element.Children = children
+		if children != nil {
+			_, err := groupArtifactElements(children)
+			if err != nil {
+				return nil, fmt.Errorf("err when tried to execute groupArtifactElements inside the same method, err: %w", err)
+			}
+		}
+
+		//if element.ParentID == unsortedArtifactElements[0].ParentID {
+		//	res = append(res, element)
+		//}
+	}
+	return res, nil
+}
+
+// add children to the children slice, remove found children from artifactUnsorted slice
+// return other elements that not related to children, found children, err?
+func filterChildren(unsortedArtifactElements []ArtifactElement, parentID int) ([]ArtifactElement, []ArtifactElement, error) {
+	if parentID <= 0 {
+		return nil, nil, fmt.Errorf("err, parentID less or equal than 0 %d", parentID)
+	}
+	var (
+		other    []ArtifactElement
+		children []ArtifactElement
+	)
+	for _, element := range unsortedArtifactElements {
+		if element.ParentID.Int64 == int64(parentID) {
+			children = append(children, element)
+		} else {
+			other = append(other, element)
+		}
+	}
+	return other, children, nil
 }
 
 func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int, err error) {
