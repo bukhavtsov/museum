@@ -122,7 +122,7 @@ create unique index transferred_by_lut_transferred_by_uindex
 -- artifact_master table
 create table artifact_master
 (
-    id                   serial  not null
+    id                   serial not null
         constraint artifact_master_pk
             primary key,
     artifact_id          integer,
@@ -384,16 +384,13 @@ create table artifact_preservation
 -- artifact_element table
 create table artifact_element
 (
-    id                         serial       not null
+    id          serial  not null
         constraint artifact_element_pk
             primary key,
-    artifact_id                integer      not null
+    artifact_id integer not null
         constraint artifact_element_artifact_master_id_fk
             references artifact_master,
-    artifact_element_name      varchar(100) not null,
-    artifact_parent_element_id integer
-        constraint artifact_element_artifact_element_id_fk
-            references artifact_element
+    elements    json
 );
 
 -- restoration table
@@ -437,7 +434,7 @@ create unique index artifact_style_lut_artifact_style_name_uindex
 -- artifact_style table
 create table artifact_style
 (
-    id                serial not null
+    id                serial  not null
         constraint artifact_style_pk
             primary key,
     artifact_id       integer not null

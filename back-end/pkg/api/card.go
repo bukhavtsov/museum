@@ -34,6 +34,7 @@ func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
 	cards, err := api.data.ReadAll()
 	if err != nil {
+		log.Println(err)
 		log.Println("artifacts haven't been read")
 		writer.WriteHeader(http.StatusNoContent)
 		return
@@ -50,17 +51,20 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 	artifact := new(data.ArtifactMaster)
 	err := json.NewDecoder(request.Body).Decode(&artifact)
 	if err != nil {
+		log.Println("createArtifact err:",err)
 		log.Printf("failed reading JSON: %s", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if artifact == nil {
+		log.Println("createArtifact err:",err)
 		log.Printf("failed empty JSON")
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	artifactId, err := api.data.Add(artifact)
 	if err != nil {
+		log.Println("createArtifact err:",err)
 		log.Println("artifact hasn't been created")
 		writer.WriteHeader(http.StatusBadRequest)
 		return

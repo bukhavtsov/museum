@@ -2,9 +2,11 @@ package data
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
-	"github.com/jinzhu/gorm"
 	"log"
+
+	"github.com/jinzhu/gorm"
 )
 
 type ArtifactMeasurement struct {
@@ -23,14 +25,12 @@ type ArtifactMaster struct {
 	ExcavationDate      string               `json:"date_exc"`
 	TransferredBy       string               `json:"transferred_by"`
 	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
+	ArtifactElements    []ArtifactElement    `json:"artifact_elements,omitempty"`
 }
 
 type ArtifactElement struct {
-	ID         int               `json:"id" gorm:"column:id"`
-	ParentID   sql.NullInt64     `json:"parent_id,omitempty" gorm:"column:artifact_parent_element_id"`
-	ArtifactID int               `json:"artifact_id" gorm:"column:artifact_id"`
-	Name       string            `json:"name" gorm:"column:artifact_element_name"`
-	Children   []ArtifactElement `json:"children" gorm:"-"`
+	Name     string            `json:"name"`
+	Children []ArtifactElement `json:"children,omitempty"`
 }
 
 // ArtifactData gets connection to database
@@ -63,10 +63,13 @@ func (a *ArtifactData) ReadAll() ([]*ArtifactMaster, error) {
 	for artifactRows.Next() {
 		artifact, err := getArtifactWithBasicInfo(artifactRows)
 		if err != nil {
-			log.Println("got an error from getArtifactWithBasicInfo method, err is:", err)
-		} else {
-			artifacts = append(artifacts, artifact)
+			return nil, fmt.Errorf("got an error from getArtifactWithBasicInfo method, err is: %w", err)
 		}
+		artifact.ArtifactElements, err = a.readArtifactElements(artifact.ID)
+		if err != nil {
+			return nil, fmt.Errorf("got an error from readArtifactElements method, err is: %w", err)
+		}
+		artifacts = append(artifacts, artifact)
 	}
 	return artifacts, nil
 }
@@ -90,14 +93,14 @@ func (a *ArtifactData) Read(id int) (*ArtifactMaster, error) {
 
 func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 	var (
-		id                int
+		id                *int
 		creator           *string
 		artifactStyleName *string
 		transferredBy     *string
 		dateExc           *string
-		height            int
-		width             int
-		length            int
+		height            *int
+		width             *int
+		length            *int
 	)
 	err := artifactRows.Scan(&id, &creator, &artifactStyleName,
 		&transferredBy, &dateExc, &height, &width, &length)
@@ -105,7 +108,9 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 		return nil, fmt.Errorf("getArtifactWithBasicInfo scan error: %w", err)
 	}
 	artifact := new(ArtifactMaster)
-	artifact.ID = id
+	if creator != nil {
+		artifact.ID = *id
+	}
 	if creator != nil {
 		artifact.Creator = *creator
 	}
@@ -118,17 +123,25 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 	if dateExc != nil {
 		artifact.ExcavationDate = *dateExc
 	}
+
 	artifact.ArtifactMeasurement = &ArtifactMeasurement{}
-	artifact.ArtifactMeasurement.Height = height
-	artifact.ArtifactMeasurement.Width = width
-	artifact.ArtifactMeasurement.Length = length
+	if height != nil {
+		artifact.ArtifactMeasurement.Height = *height
+	}
+	if width != nil {
+		artifact.ArtifactMeasurement.Width = *width
+	}
+	if length != nil {
+		artifact.ArtifactMeasurement.Length = *length
+	}
+
 	return artifact, nil
 }
 func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
 	insertedTransferredById, err := a.insertTransferredByLUT(artifactMaster.TransferredBy)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("error when tried to insertTransferredByLUT, err %w", err)
 	}
 
 	insertedArtifactMasterID, err := a.insertArtifactMaster(
@@ -137,24 +150,49 @@ func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 		insertedTransferredById,
 	)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("error when tried to insertArtifactMaster, err %w", err)
 	}
 
 	// can return nil pointer
 	_, err = a.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
 	if err != nil {
-		return -1, err
+		return -1, fmt.Errorf("error when tried to insertMeasurement, err %w", err)
 	}
-	//
-	//insertedStyleLUTID, err := a.insertStyleLUT(artifactMaster.ArtifactStyle)
-	//if err != nil {
-	//	return -1, err
-	//}
-	//_, err = a.insertStyle(insertedArtifactMasterID, insertedStyleLUTID)
-	//if err != nil {
-	//	return -1, err
-	//}
+
+	err = a.insertArtifactElements(insertedArtifactMasterID, artifactMaster.ArtifactElements)
+	if err != nil {
+		return -1, fmt.Errorf("error when tried to insertArtifactElements %w", err)
+	}
 	return insertedArtifactMasterID, nil
+}
+
+func (a *ArtifactData) insertArtifactElements(artifactMasterID int, elements []ArtifactElement) error {
+	for _, element := range elements {
+		_, err := a.insertArtifactElement(artifactMasterID, element)
+		if err != nil {
+			return fmt.Errorf("error from insertArtifactElements when tried to execute insertArtifactElement, err: %w", err)
+		}
+	}
+	return nil
+}
+
+func (a *ArtifactData) insertArtifactElement(artifactMasterID int, element ArtifactElement) (int, error) {
+	b, err := json.Marshal(&element)
+	if err != nil {
+		return -1, fmt.Errorf("err when tried Marshal %v, err: %w", element, err)
+	}
+	elementJSON := string(b)
+	row := a.db.Raw(insertArtifactElement, artifactMasterID, elementJSON).Row()
+	if row.Err() != nil {
+		return -1, fmt.Errorf("err when tried to insert %v into the db. err: %w", element, row.Err())
+	}
+	var lastInsertedID int
+	err = row.Scan(&lastInsertedID)
+	if err != nil {
+		return -1, fmt.Errorf("err when tried to scan inserted id from db. err: %w", err)
+	}
+	return lastInsertedID, nil
+
 }
 
 func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {
@@ -292,96 +330,6 @@ func (a *ArtifactData) insertArtifactMaster(creator string, excavationDate strin
 	return insertedArtifactMasterID, nil
 }
 
-// InsertArtifactElement allows you insert the hierarchical artifactElement to the database
-// insert parent into table
-// check children is empty? in case empty then, continue
-// otherwise for with the same method
-func (a *ArtifactData) InsertArtifactElement(artifactElement ArtifactElement) (int, error) {
-	if artifactElement.ArtifactID <= 0 {
-		return -1, fmt.Errorf("ArtifactID is empty, ArtifactID is: %d", artifactElement.ArtifactID)
-	}
-	res := a.db.Create(&artifactElement)
-	if res.Error != nil {
-		return -1, fmt.Errorf("got an error when tried to insert %v to db, err is: %w", artifactElement, res.Error)
-	}
-	if len(artifactElement.Children) != 0 {
-		for _, childElement := range artifactElement.Children {
-			childElement.ParentID.Int64 = int64(artifactElement.ID)
-			childElement.ParentID.Valid = true
-			_, err := a.InsertArtifactElement(childElement)
-			if err != nil {
-				return -1, fmt.Errorf("got an error when tried to insert child element %v to db, err is: %w", artifactElement, res.Error)
-			}
-		}
-	}
-	return artifactElement.ID, nil
-}
-
-func (a *ArtifactData) readArtifactElements(artifactMasterID int) ([]ArtifactElement, error) {
-	artifactElementRows, err := a.db.Raw(getArtifactElementByIdQuery, artifactMasterID).Rows()
-	if err != nil {
-		return nil, fmt.Errorf("error when tried to get ArtifactElements from db, err %w", err)
-	}
-	var unsortedArtifactElements []ArtifactElement
-	for artifactElementRows.Next() {
-		var artifactElement ArtifactElement
-		err := artifactElementRows.Scan(
-			&artifactElement.ID,
-			&artifactElement.ArtifactID,
-			&artifactElement.Name,
-			&artifactElement.ParentID)
-		if err != nil {
-			return nil, fmt.Errorf("err when tried scan artifactElement, err: %w", err)
-		}
-		unsortedArtifactElements = append(unsortedArtifactElements, artifactElement)
-	}
-	return unsortedArtifactElements, nil
-}
-
-
-// TODO: improve the following method should not return unnecessary elements from ungroup list
-func groupArtifactElements(unsortedArtifactElements []ArtifactElement)([]ArtifactElement, error) {
-	var res []ArtifactElement
-	for _, element := range unsortedArtifactElements {
-		 _, children, err := filterChildren(unsortedArtifactElements, element.ID)
-		 if err != nil {
-		 	return nil, fmt.Errorf("err when tried to execute filterChildren, err: %w", err)
-		 }
-		element.Children = children
-		if children != nil {
-			_, err := groupArtifactElements(children)
-			if err != nil {
-				return nil, fmt.Errorf("err when tried to execute groupArtifactElements inside the same method, err: %w", err)
-			}
-		}
-
-		//if element.ParentID == unsortedArtifactElements[0].ParentID {
-		//	res = append(res, element)
-		//}
-	}
-	return res, nil
-}
-
-// add children to the children slice, remove found children from artifactUnsorted slice
-// return other elements that not related to children, found children, err?
-func filterChildren(unsortedArtifactElements []ArtifactElement, parentID int) ([]ArtifactElement, []ArtifactElement, error) {
-	if parentID <= 0 {
-		return nil, nil, fmt.Errorf("err, parentID less or equal than 0 %d", parentID)
-	}
-	var (
-		other    []ArtifactElement
-		children []ArtifactElement
-	)
-	for _, element := range unsortedArtifactElements {
-		if element.ParentID.Int64 == int64(parentID) {
-			children = append(children, element)
-		} else {
-			other = append(other, element)
-		}
-	}
-	return other, children, nil
-}
-
 func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int, err error) {
 	result := a.db.Exec(
 		insertMeasurement,
@@ -415,11 +363,36 @@ func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *Ar
 func (a *ArtifactData) Delete(artifactId int) error {
 	resDeleteMeasurement := a.db.Exec(deleteMeasurement, artifactId)
 	if resDeleteMeasurement.Error != nil {
-		fmt.Errorf("got an error when tried to execute deleteMeasurement, error is: %w", resDeleteMeasurement.Error)
+		return fmt.Errorf("got an error when tried to execute deleteMeasurement, error is: %w", resDeleteMeasurement.Error)
 	}
 	resDeleteArtifactMaster := a.db.Exec(deleteArtifactMaster, artifactId)
 	if resDeleteArtifactMaster.Error != nil {
-		fmt.Errorf("got an error when tried to execute resDeleteArtifactMaster, error is: %w", resDeleteArtifactMaster.Error)
+		return fmt.Errorf("got an error when tried to execute resDeleteArtifactMaster, error is: %w", resDeleteArtifactMaster.Error)
 	}
 	return nil
+}
+
+func (a *ArtifactData) readArtifactElements(artifactId int) ([]ArtifactElement, error) {
+	var artifactElements []ArtifactElement
+	artifactElementsRows, err := a.db.Raw(selectArtifactElement, artifactId).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("got an error when tried to selectArtifactElement, error is: %w", err)
+	}
+	for artifactElementsRows.Next() {
+		var (
+			artifactElementJSON string
+			artifactElement     ArtifactElement
+		)
+		err := artifactElementsRows.Scan(&artifactElementJSON)
+		if err != nil {
+			return nil, fmt.Errorf("err when tried to scan artifactElementJSON, err: %w", err)
+		}
+		err = json.Unmarshal([]byte(artifactElementJSON), &artifactElement)
+		if err != nil {
+			return nil, fmt.Errorf("err when tried to Unmarshal artifactElementsJSON, err: %w", err)
+		}
+		artifactElements = append(artifactElements, artifactElement)
+	}
+
+	return artifactElements, nil
 }

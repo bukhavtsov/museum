@@ -142,22 +142,10 @@ VALUES (DEFAULT, 'very high');
 -- VALUES (DEFAULT, 1, 5, 1, null, 2, null);
 
 -- -- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'доска', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'ольха', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'трехсоставная', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'шпонки дубовые', 1);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'пластевые', 4);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'встречные', 4);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'выступающие', 4);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 1, 'отделанные калёвкой', 4);
+INSERT INTO artifact_element (id, artifact_id, elements)
+VALUES (DEFAULT, 1, '{"name":"parent element","children":[{"name":"child 1","children":[{"name":"sub child 1"}]},{"name":"child 2"}]}');
+INSERT INTO artifact_element (id, artifact_id, elements)
+VALUES (DEFAULT, 1, '{"name":"parent element second","children":[{"name":"child 1 second","children":[{"name":"sub child 1 second"}]},{"name":"child 2 second"}]}');
 
 -- insert artifact_style_lut
 INSERT INTO artifact_style_lut (id, artifact_style_name)
@@ -231,22 +219,11 @@ INSERT INTO "material" ("id", "artifact_id", material_type_id, "quantity", "%com
 VALUES (DEFAULT, 2, 9, 1, null, 2, null);
 
 -- -- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'Переплёт', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'доска', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'кожа', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'бархат', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'живопись', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'металлический средник', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'застёжки', 9);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'фигурные жуковины', 9);
+INSERT INTO artifact_element (id, artifact_id, elements)
+VALUES (DEFAULT, 2, '{"name":"parent element","children":[{"name":"child 1","children":[{"name":"sub child 1"}]},{"name":"child 2"}]}');
+INSERT INTO artifact_element (id, artifact_id, elements)
+VALUES (DEFAULT, 2, '{"name":"parent element second","children":[{"name":"child 1 second","children":[{"name":"sub child 1 second"}]},{"name":"child 2 second"}]}');
+
 
 -- insert artifact_measurement
 INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
@@ -290,24 +267,10 @@ VALUES (DEFAULT, 2, 324, 203, 75);
 -- VALUES (DEFAULT, 2,'новодел', 20);
 
 -- -- insert artifact_element
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'Орнамент', null);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'заставок – 10 с 10 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, '4 гравюры (после 1-го листа – евангелист Матфей', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, '105 об. – евангелист Марк', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'между 171-172 – евангелист Лука', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'между 280-281 – евангелист Иоанн)', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, '4 инициала (буквицы) с 4 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, 'маргинальных рамок – 15 с 9 досок', 17);
-INSERT INTO artifact_element (id, artifact_id, artifact_element_name, artifact_parent_element_id)
-VALUES (DEFAULT, 2, ' вязь киноварная', 17);
+INSERT INTO artifact_element (id, artifact_id, elements)
+VALUES (DEFAULT, 2, '{"name":"parent element","children":[{"name":"child 1 third","children":[{"name":"sub child 1 third"}]},{"name":"child 2 third"}]}');
+INSERT INTO artifact_element (id, artifact_id, elements)
+VALUES (DEFAULT, 2, '{"name":"parent element second third","children":[{"name":"child 1 second third","children":[{"name":"sub child 1 second third"}]},{"name":"child 2 second third"}]}');
 
 -- -- insert artifact_style
 INSERT INTO artifact_style (id, artifact_id, artifact_style_id)
