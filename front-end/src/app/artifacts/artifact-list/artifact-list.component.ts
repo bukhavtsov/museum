@@ -19,18 +19,22 @@ export class ArtifactListComponent implements OnInit {
     constructor(private artifactService: ArtifactService, private svcSearch: SearchArtifactService) {
     }
 
+    private initMap() {
+        this.showShortDescription = new Map<number, boolean>();
+        this.artifactService.getArtifactList().subscribe(
+            data => {
+                this.cards = data
+            }
+    );
+        this.cards.forEach(artifact => {
+            this.showShortDescription.set(artifact.id, false)
+        });
+    }
+
     ngOnInit(): void {
         this.isAdmin = true;
         this.svcSearch.sharedSearch.subscribe(search => this.search = search);
         this.initMap();
-    }
-
-    private initMap() {
-        this.showShortDescription = new Map<number, boolean>();
-        this.artifactService.getArtifactList().subscribe(data => this.cards = data);
-        this.cards.forEach(artifact => {
-            this.showShortDescription.set(artifact.id, false)
-        });
     }
 
     private alterDescriptionText(id: number) {

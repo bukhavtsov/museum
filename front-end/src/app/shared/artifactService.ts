@@ -3,8 +3,8 @@
 // 3. components responsible for subscribing and getting info by service
 
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from "@angular/common/http";
-import {Observable} from "rxjs";
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 
 export interface Artifact {
@@ -14,10 +14,15 @@ export interface Artifact {
     date_exc: string
     transferred_by: string
     artifact_measurement: artifact_measurement
-    artifact_elements?: Map<string, string[]>
+    artifact_elements?: ArtifactElement[]
     artifact_object_group?: Map<string, string[]>
     artifact_materials?: Map<string, string[]>
     artifact_preservation?: Map<string, string[]>
+}
+
+export interface ArtifactElement {
+    name: string
+    children?: ArtifactElement[]
 }
 
 export interface artifact_measurement {

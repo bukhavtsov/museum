@@ -10,12 +10,12 @@
                 <p>creator: {{card.creator}}</p>
                 <p>excavation date: {{card.date_exc| date}}</p>
                 <p>transferred by: {{card.transferred_by}}</p>
-                <p>measurement:
-                    {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}x{{card.artifact_measurement.length}}
+                <p *ngIf="card.ArtifactMeasurement">measurement:
+                    {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
                 </p>
                 <p style="font-weight: bold">elements:</p>
-                <div *ngFor="let element of card.artifact_object_group | keyvalue">
-                    <p>{{element.key}}[{{element.value}}]</p>
+                <div *ngFor="let element of card.artifact_elements">
+                    <p>{{element| json}}</p>
                 </div>
                 <p style="font-weight: bold">materials:</p>
                 <div *ngFor="let material of card.artifact_materials | keyvalue">

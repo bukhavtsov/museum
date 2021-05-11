@@ -19,7 +19,10 @@ import {AddFormComponent} from './artifacts/admin/add-form/add-form.component';
 import {ViewArtifactComponent} from './artifacts/view-artifact/view-artifact.component';
 import {EditFormComponent} from './artifacts/admin/edit-form/edit-form.component';
 import {ArtifactListComponent} from './artifacts/artifact-list/artifact-list.component';
-import {HttpClientModule} from "@angular/common/http";
+import {HttpClientModule} from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatTreeModule} from '@angular/material/tree';
+
 
 @NgModule({
     declarations: [
@@ -37,10 +40,12 @@ import {HttpClientModule} from "@angular/common/http";
     ],
     imports: [
         BrowserModule,
+        MatTreeModule,
         AppRoutingModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule
+        HttpClientModule,
+        BrowserAnimationsModule
     ],
     providers: [],
     bootstrap: [AppComponent]
