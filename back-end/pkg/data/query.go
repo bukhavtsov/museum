@@ -6,9 +6,9 @@ SELECT artifact_master.id,
        artifact_style.artifact_style_name,
        transferred_by_lut.transferred_by,
        artifact_master.date_exc,
-       ArtifactMeasurement.height,
-       ArtifactMeasurement.width,
-       ArtifactMeasurement.length
+       artifact_measurement.height,
+       artifact_measurement.width,
+       artifact_measurement.length
 FROM artifact_master
          FULL JOIN transferred_by_lut
                    ON (artifact_master.transferred_by_id = transferred_by_lut.id)
@@ -19,7 +19,7 @@ FROM artifact_master
                   FULL JOIN artifact_style_lut on (artifact_style.id = artifact_style_lut.id)
      ) as artifact_style
      on (artifact_master.id = artifact_style.artifact_id)
-         INNER JOIN ArtifactMeasurement on artifact_master.id = ArtifactMeasurement.artifact_id
+         INNER JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 `
 
 const getArtifactsWithBasicInfoByIDQuery = `
@@ -28,9 +28,9 @@ SELECT artifact_master.id,
        artifact_style.artifact_style_name,
        transferred_by_lut.transferred_by,
        artifact_master.date_exc,
-       ArtifactMeasurement.height,
-       ArtifactMeasurement.width,
-       ArtifactMeasurement.length
+       artifact_measurement.height,
+       artifact_measurement.width,
+       artifact_measurement.length
 FROM artifact_master
          FULL JOIN transferred_by_lut
                     ON (artifact_master.transferred_by_id = transferred_by_lut.id)
@@ -41,7 +41,7 @@ FROM artifact_master
                   FULL JOIN artifact_style_lut on (artifact_style.id = artifact_style_lut.id)
      ) as artifact_style
      on (artifact_master.id = artifact_style.artifact_id)
-         FULL JOIN ArtifactMeasurement on artifact_master.id = ArtifactMeasurement.artifact_id
+         FULL JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
 WHERE artifact_master.id = $1
 `
 
@@ -100,11 +100,11 @@ SELECT id FROM artifact_master WHERE creator = ? AND date_exc = ? AND transferre
 `
 
 const insertMeasurement = `
-INSERT INTO "ArtifactMeasurement" ("id", "artifact_id", "length", "height", "width")
+INSERT INTO "artifact_measurement" ("id", "artifact_id", "length", "height", "width")
 VALUES (DEFAULT, ?, ?, ?, ?)
 `
 const selectArtifactMeasurement = `
-SELECT id FROM "ArtifactMeasurement" WHERE artifact_id = ? AND length = ? AND height = ? AND width = ?
+SELECT id FROM "artifact_measurement" WHERE artifact_id = ? AND length = ? AND height = ? AND width = ?
 `
 
 const getTransferredByIdFieldByName = `
@@ -118,7 +118,7 @@ UPDATE artifact_master SET creator = $1, date_exc = $2, transferred_by_id = $3 W
 
 // TODO: clarify, why we should have separate artifact_id? better to add to artifact_master field with artifact measurements
 const updateArtifactMeasurement = `
-UPDATE ArtifactMeasurement SET length = ?, height = ?, width = ? WHERE artifact_id = ?
+UPDATE artifact_measurement SET length = ?, height = ?, width = ? WHERE artifact_id = ?
 `
 
 const updateArtifactStyle = `
@@ -126,7 +126,7 @@ UPDATE artifact_style SET artifact_style_id = ? WHERE artifact_id = ?
 `
 
 const deleteMeasurement = `
-DELETE FROM ArtifactMeasurement WHERE artifact_id = ?
+DELETE FROM artifact_measurement WHERE artifact_id = ?
 `
 
 const deleteArtifactMaster = `
