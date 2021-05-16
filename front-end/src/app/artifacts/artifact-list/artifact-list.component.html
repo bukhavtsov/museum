@@ -14,9 +14,7 @@
                     {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
                 </p>
                 <p style="font-weight: bold">elements:</p>
-                <div *ngFor="let element of card.artifact_elements">
-                    <p>{{element| json}}</p>
-                </div>
+                <app-artifacts-elements-list [elements]="card.artifact_elements"></app-artifacts-elements-list>
                 <p style="font-weight: bold">materials:</p>
                 <div *ngFor="let material of card.artifact_materials | keyvalue">
                     <p>{{material.key}}[{{material.value}}]</p>
