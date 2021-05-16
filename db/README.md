@@ -41,7 +41,7 @@
     "artifact_master_transferred_by_lut_id_fk" FOREIGN KEY (transferred_by_id) REFERENCES transferred_by_lut(id)
 #### Referenced by:
     TABLE "artifact_element" CONSTRAINT "artifact_element_artifact_master_id_fk" FOREIGN KEY (artifact_id) REFERENCES artifact_master(id)
-    TABLE "artifact_measurement" CONSTRAINT "artifact_measurement_artifact_master_id_fk" FOREIGN KEY (artifact_id) REFERENCES artifact_master(id)
+    TABLE "ArtifactMeasurement" CONSTRAINT "artifact_measurement_artifact_master_id_fk" FOREIGN KEY (artifact_id) REFERENCES artifact_master(id)
     TABLE "artifact_preservation" CONSTRAINT "artifact_preservation_artifact_master_id_fk" FOREIGN KEY (artifact_id) REFERENCES artifact_master(id)
     TABLE "artifact_publication" CONSTRAINT "artifact_publication_artifact_master_id_fk" FOREIGN KEY (artifact_id) REFERENCES artifact_master(id)
     TABLE "artifact_related_people" CONSTRAINT "artifact_related_people_artifact_master_id_fk" FOREIGN KEY (artifact_id) REFERENCES artifact_master(id)
@@ -77,7 +77,7 @@
  id     | integer | id
 ##### primary key, btree, for table "public.artifact_master"
 
-### artifact_measurement"
+### ArtifactMeasurement"
    Column    |  Type   | Collation | Nullable |                     Default                      
 -------------|---------|-----------|----------|--------------------------------------------------
  id          | integer |           | not null | nextval('artifact_measurement_id_seq'::regclass)
@@ -94,14 +94,14 @@
   Type   | Start | Minimum |  Maximum   | Increment | Cycles? | Cache 
 ---------|-------|---------|------------|-----------|---------|-------
  integer |     1 |       1 | 2147483647 |         1 | no      |     1
-##### Owned by: public.artifact_measurement.id
+##### Owned by: public.ArtifactMeasurement.id
 
 ##### Index "public.artifact_measurement_pk"
 
  Column |  Type   | Definition 
 --------|---------|------------
  id     | integer | id
-##### primary key, btree, for table "public.artifact_measurement"
+##### primary key, btree, for table "public.ArtifactMeasurement"
 
 ### artifact_preservation
 |             Column              |  Type   | Collation | Nullable |                      Default                     |                      
