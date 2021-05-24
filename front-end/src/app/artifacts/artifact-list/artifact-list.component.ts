@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Artifact, ArtifactService} from 'src/app/shared/artifactService';
 import {SearchArtifactService} from 'src/app/shared/search-artifact.service';
 
+
 @Component({
     selector: 'app-artifact-list',
     templateUrl: './artifact-list.component.html',

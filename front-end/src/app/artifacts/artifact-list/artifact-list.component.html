@@ -1,44 +1,46 @@
 <div *ngFor="let card of cards" class="row p-1">
-    <div class="row" style="border: black solid 1px">
-        <div class="col-sm-4">
-            <img class="img-thumbnail"
-                 src="https://relicrecord.com/wp-content/uploads/2017/08/Loaning-to-Museum-Blog.jpg">
-        </div>
-        <div class="col-sm-4">
-            <div class="module">
-                <p>id: {{card.id}}</p>
-                <p>creator: {{card.creator}}</p>
-                <p>excavation date: {{card.date_exc| date}}</p>
-                <p>transferred by: {{card.transferred_by}}</p>
-                <p *ngIf="card.ArtifactMeasurement">measurement:
-                    {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
-                </p>
-                <p style="font-weight: bold">elements:</p>
-                <app-artifacts-elements-list [elements]="card.artifact_elements"></app-artifacts-elements-list>
-                <p style="font-weight: bold">materials:</p>
-                <div *ngFor="let material of card.artifact_materials | keyvalue">
-                    <p>{{material.key}}[{{material.value}}]</p>
-                </div>
-                <p style="font-weight: bold">preservation:</p>
-                <div *ngFor="let preservation of card.artifact_preservation | keyvalue">
-                    <p>{{preservation.key}}[{{preservation.value}}]</p>
-                </div>
-                <p style="font-weight: bold">preservation:</p>
-                <div *ngFor="let object of card.artifact_object_group | keyvalue">
-                    <p>{{object.key}}[{{object.value}}]</p>
-                </div>
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>id: {{card.id}}</mat-card-title>
+        </mat-card-header>
+        <img src="https://relicrecord.com/wp-content/uploads/2017/08/Loaning-to-Museum-Blog.jpg">
+
+        <mat-card-content>
+            <p></p>
+            <p>creator: {{card.creator}}</p>
+            <p>excavation date: {{card.date_exc| date}}</p>
+            <p>transferred by: {{card.transferred_by}}</p>
+            <p *ngIf="card.ArtifactMeasurement">measurement:
+                {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
+            </p>
+            <p>elements:</p>
+            <app-artifacts-elements-list [elements]="card.artifact_elements"></app-artifacts-elements-list>
+            <p>materials:</p>
+            <div *ngFor="let material of card.artifact_materials | keyvalue">
+                <p>{{material.key}}[{{material.value}}]</p>
             </div>
-        </div>
-        <div class="col-sm-2">
-            <button [routerLink]="['/artifacts/edit/', card.id]" routerLinkActive="router-link-active"
-                    class="btn btn-secondary btn-sm btn-block"
-                    type="submit">Edit
+            <p>preservation:</p>
+            <div *ngFor="let preservation of card.artifact_preservation | keyvalue">
+                <p>{{preservation.key}}[{{preservation.value}}]</p>
+            </div>
+            <p>preservation:</p>
+            <div *ngFor="let object of card.artifact_object_group | keyvalue">
+                <p>{{object.key}}[{{object.value}}]</p>
+            </div>
+        </mat-card-content>
+
+
+        <mat-card-actions>
+            <button mat-raised-button [routerLink]="['/artifacts/edit/', card.id]" routerLinkActive="router-link-active"
+                    type="submit">
+                <mat-icon>edit</mat-icon>
             </button>
-            <button (click)="deleteArtifact($event, card.id)"
-                    class="btn btn-secondary btn-sm btn-block"
-            >Delete
+            <button mat-raised-button (click)="deleteArtifact($event, card.id)">
+                <mat-icon>delete</mat-icon>
             </button>
-        </div>
-    </div>
+        </mat-card-actions>
+
+
+    </mat-card>
 </div>
 

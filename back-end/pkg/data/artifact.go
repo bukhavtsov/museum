@@ -139,15 +139,15 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 }
 func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
-	insertedTransferredById, err := a.insertTransferredByLUT(artifactMaster.TransferredBy)
+	newTransferredById, err := a.insertTransferredByLUTIfNotExists(artifactMaster.TransferredBy)
 	if err != nil {
-		return -1, fmt.Errorf("error when tried to insertTransferredByLUT, err %w", err)
+		return -1, fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
 	}
 
 	insertedArtifactMasterID, err := a.insertArtifactMaster(
 		artifactMaster.Creator,
 		artifactMaster.ExcavationDate,
-		insertedTransferredById,
+		newTransferredById,
 	)
 	if err != nil {
 		return -1, fmt.Errorf("error when tried to insertArtifactMaster, err %w", err)
@@ -265,7 +265,7 @@ func (a *ArtifactData) insertTransferredByLUTIfNotExists(transferredBy string) (
 func (a *ArtifactData) insertTransferredByLUT(transferredBy string) (insertedTransferredById int, err error) {
 	result := a.db.Exec(insertTransferredBy, transferredBy)
 	if result.Error != nil {
-		return -1, fmt.Errorf("error when tried to exec insertTransferredBy query, err: %v", err)
+		return -1, fmt.Errorf("error when tried to exec insertTransferredBy query, err: %w", result.Error)
 	}
 	transferredByRow := a.db.Raw(selectTransferredBy, transferredBy).Row()
 	err = transferredByRow.Scan(&insertedTransferredById)

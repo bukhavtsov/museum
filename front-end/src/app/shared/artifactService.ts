@@ -3,7 +3,7 @@
 // 3. components responsible for subscribing and getting info by service
 
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
 
@@ -65,6 +65,7 @@ export class ArtifactService {
             error: error => console.error('There was an error!', error)
         })
     }
+
     public delete(artifactID: number) {
         this.http.delete<Artifact>(this.artifactsURL + `/${artifactID}`).subscribe({
             error: error => console.error('There was an error!', error)
