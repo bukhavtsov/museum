@@ -237,3 +237,26 @@ func TestReadArtifactElement(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got error %+v from readArtifactElement, with the following artifactMasterID %d", err, id))
 	assert.NotEmpty(t, actualArtifactElements, "artifact element should not be nil")
 }
+
+func TestTableName(t *testing.T) {
+	element := ArtifactElement{}
+	actualTableName := element.TableName()
+	expected := "artifact_element"
+	assert.Equal(t, actualTableName, expected)
+}
+
+func TestNewArtifactData(t *testing.T) {
+	actualNilData := NewArtifactData(nil)
+	expectedNilData := &ArtifactData{nil}
+
+	assert.Equal(t, actualNilData, expectedNilData)
+
+	conn, err := prepareTestDB()
+	defer cleanTestDB(conn)
+
+	actualData := NewArtifactData(conn)
+	expectedData := &ArtifactData{conn}
+	assert.Equal(t, actualData, expectedData)
+	assert.NoError(t, err)
+
+}
