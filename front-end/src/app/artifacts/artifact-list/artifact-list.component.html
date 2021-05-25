@@ -1,46 +1,57 @@
-<div *ngFor="let card of cards" class="row p-1">
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>id: {{card.id}}</mat-card-title>
-        </mat-card-header>
-        <img src="https://relicrecord.com/wp-content/uploads/2017/08/Loaning-to-Museum-Blog.jpg">
+<div class="center-elements">
+    <div *ngFor="let card of cards">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>id: {{card.id}}</mat-card-title>
+            </mat-card-header>
+            <img src="https://relicrecord.com/wp-content/uploads/2017/08/Loaning-to-Museum-Blog.jpg">
 
-        <mat-card-content>
-            <p></p>
-            <p>creator: {{card.creator}}</p>
-            <p>excavation date: {{card.date_exc| date}}</p>
-            <p>transferred by: {{card.transferred_by}}</p>
-            <p *ngIf="card.ArtifactMeasurement">measurement:
-                {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
-            </p>
-            <p>elements:</p>
-            <app-artifacts-elements-list [elements]="card.artifact_elements"></app-artifacts-elements-list>
-            <p>materials:</p>
-            <div *ngFor="let material of card.artifact_materials | keyvalue">
-                <p>{{material.key}}[{{material.value}}]</p>
-            </div>
-            <p>preservation:</p>
-            <div *ngFor="let preservation of card.artifact_preservation | keyvalue">
-                <p>{{preservation.key}}[{{preservation.value}}]</p>
-            </div>
-            <p>preservation:</p>
-            <div *ngFor="let object of card.artifact_object_group | keyvalue">
-                <p>{{object.key}}[{{object.value}}]</p>
-            </div>
-        </mat-card-content>
+            <mat-card-content>
+                <mat-list>
+                    <mat-list-item>creator</mat-list-item>
+                    <mat-list-item>{{card.creator}}</mat-list-item>
+                    <mat-divider></mat-divider>
+
+                    <mat-list-item>excavation date</mat-list-item>
+                    <mat-list-item>
+                        {{card.date_exc| date}}
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+
+                    <mat-list-item>
+                        transferred by
+                    </mat-list-item>
+                    <mat-list-item>
+                        {{card.transferred_by}}
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+
+                    <mat-list-item *ngIf="card.ArtifactMeasurement">measurement</mat-list-item>
+                    <mat-list-item *ngIf="card.ArtifactMeasurement">
+                        {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item>elements</mat-list-item>
+
+                    <app-artifacts-elements-list [elements]="card.artifact_elements"></app-artifacts-elements-list>
+
+                    <mat-divider></mat-divider>
+                </mat-list>
+            </mat-card-content>
 
 
-        <mat-card-actions>
-            <button mat-raised-button [routerLink]="['/artifacts/edit/', card.id]" routerLinkActive="router-link-active"
-                    type="submit">
-                <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-raised-button (click)="deleteArtifact($event, card.id)">
-                <mat-icon>delete</mat-icon>
-            </button>
-        </mat-card-actions>
+            <mat-card-actions>
+                <button mat-raised-button [routerLink]="['/artifacts/edit/', card.id]"
+                        routerLinkActive="router-link-active"
+                        type="submit">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-raised-button (click)="deleteArtifact($event, card.id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </mat-card-actions>
 
 
-    </mat-card>
+        </mat-card>
+    </div>
 </div>
-

@@ -36,7 +36,7 @@ export interface artifact_measurement {
 })
 export class ArtifactService {
     private artifactList: Artifact[] = [];
-    private readonly artifactsURL = 'http://localhost:8080/artifacts';
+    private readonly artifactsURL = 'http://localhost:8888/artifacts';
 
     constructor(private http: HttpClient) {
     }
