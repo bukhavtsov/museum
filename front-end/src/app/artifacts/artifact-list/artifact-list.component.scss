@@ -4,7 +4,8 @@
 }
 
 mat-card {
-  width: 600px;
+  min-width: 600px;
+  max-width: 600px;
   margin-bottom: 20px;
 }
 
@@ -17,4 +18,13 @@ img {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+
+@media screen and (max-width: 600px) {
+  mat-card {
+    min-width: 0;
+    max-width: 300px;
+    margin-bottom: 10px;
+  }
 }
