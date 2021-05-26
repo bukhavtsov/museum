@@ -40,7 +40,7 @@ export class ChecklistDatabase {
     initialize() {
         // Build the tree nodes from Json object. The result is a list of `ArtifactElement` with nested
         //     file node as children.
-        const data = this.buildFileTree(TREE_DATA, 0);
+        const data = [{name:''}]
 
         // Notify the change.
         this.dataChange.next(data);
@@ -129,11 +129,13 @@ export class ArtifactsElementsCreateComponent {
 
     getLevel = (node: TodoItemFlatNode) => node.level;
 
-    isExpandable = (node: TodoItemFlatNode) => node.expandable;
+    isExpandable = (node: TodoItemFlatNode) => true;
 
     getChildren = (node: ArtifactElement): ArtifactElement[] => node.children;
 
-    hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable;
+    hasChild = (_: number, _nodeData: TodoItemFlatNode) => true;
+
+    // hasChild = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.expandable;
 
     hasNoContent = (_: number, _nodeData: TodoItemFlatNode) => _nodeData.name === '';
 
@@ -233,7 +235,15 @@ export class ArtifactsElementsCreateComponent {
 
     /** Select the category so we can insert the new name. */
     addNewItem(node: TodoItemFlatNode) {
+        console.log(node)
+        if (!node.expandable) {
+            node.expandable = true
+        }
         const parentNode = this.flatNodeMap.get(node);
+        console.log('parent node', parentNode)
+        if (parentNode.children === undefined) {
+            parentNode.children = []
+        }
         this._database.insertItem(parentNode!, '');
         this.treeControl.expand(node);
     }

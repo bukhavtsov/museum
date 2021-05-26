@@ -21,7 +21,7 @@ export interface Artifact {
 }
 
 export interface ArtifactElement {
-    name: string
+    name: string,
     children?: ArtifactElement[]
 }
 
@@ -36,7 +36,7 @@ export interface artifact_measurement {
 })
 export class ArtifactService {
     private artifactList: Artifact[] = [];
-    private readonly artifactsURL = 'http://localhost:8888/artifacts';
+    private readonly artifactsURL = 'http://localhost:8080/artifacts';
 
     constructor(private http: HttpClient) {
     }
