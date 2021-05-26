@@ -2,8 +2,8 @@
     <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
         <button mat-icon-button disabled></button>
         <mat-form-field>
-            <mat-label>New item...</mat-label>
-            <input matInput #itemValue placeholder="Ex. Lettuce">
+            <mat-label>New artifact element...</mat-label>
+            <input matInput #itemValue>
         </mat-form-field>
         <button mat-button (click)="saveNode(node, itemValue.value)">Save</button>
     </mat-tree-node>
@@ -15,7 +15,7 @@
 
 
 
-    <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+    <mat-tree-node *matTreeNodeDef="let node; when: alwaysAllowCreate" matTreeNodePadding>
         <button mat-icon-button matTreeNodeToggle
                 [attr.aria-label]="'Toggle ' + node.name">
             <mat-icon class="mat-icon-rtl-mirror">
@@ -23,8 +23,7 @@
             </mat-icon>
         </button>
         {{node.name}}
-        <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>
+        <button mat-icon-button (click)="addNewElement(node)"><mat-icon>add</mat-icon></button>
     </mat-tree-node>
 </mat-tree>
 {{dataSource._data.getValue()|json}}
-<button (click)="createArtifact()">create artifact</button>
