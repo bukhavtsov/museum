@@ -20,7 +20,9 @@ import {ViewArtifactComponent} from './artifacts/view-artifact/view-artifact.com
 import {EditFormComponent} from './artifacts/admin/edit-form/edit-form.component';
 import {ArtifactListComponent} from './artifacts/artifact-list/artifact-list.component';
 import {ArtifactsElementsListComponent} from './artifacts/artifacts-elements-list/artifacts-elements-list.component';
-import {ArtifactsElementsCreateComponent} from './artifacts/admin/add-form/artifacts-elements-create/artifacts-elements-create.component';
+import {
+    ArtifactsElementsCreateComponent
+} from './artifacts/admin/add-form/artifacts-elements-create/artifacts-elements-create.component';
 import {HttpClientModule} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -67,6 +69,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTreeModule} from '@angular/material/tree';
 import {OverlayModule} from '@angular/cdk/overlay';
+import {ArtifactElementsDatasource} from './shared/artifact-elements-datasource.service';
 
 
 @NgModule({
@@ -140,7 +143,7 @@ import {OverlayModule} from '@angular/cdk/overlay';
         PortalModule,
         ScrollingModule,
     ],
-    providers: [],
+    providers: [ArtifactElementsDatasource],
     bootstrap: [AppComponent]
 })
 

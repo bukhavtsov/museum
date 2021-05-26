@@ -2,8 +2,8 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, Injectable} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
-import {Artifact, ArtifactElement, ArtifactService} from '../../../../shared/artifactService';
-import {Router} from '@angular/router';
+import {ArtifactElement} from '../../../../shared/artifactService';
+import {ArtifactElementsDatasource} from '../../../../shared/artifact-elements-datasource.service';
 
 /** Flat Artifact Element name node with expandable and level information */
 export class ArtifactElementFlatNode {
@@ -12,42 +12,10 @@ export class ArtifactElementFlatNode {
     expandable: boolean;
 }
 
-
-@Injectable()
-export class ArtifactElementsDatasource {
-    dataChange = new BehaviorSubject<ArtifactElement[]>([]);
-
-    get data(): ArtifactElement[] {
-        return this.dataChange.value;
-    }
-
-    constructor() {
-        this.initialize();
-    }
-
-    initialize() {
-        const data = [{name: ''}]
-        this.dataChange.next(data);
-    }
-
-    insertElement(parent: ArtifactElement, name: string) {
-        if (parent.children) {
-            parent.children.push({name: name} as ArtifactElement);
-            this.dataChange.next(this.data);
-        }
-    }
-
-    updateElement(node: ArtifactElement, name: string) {
-        node.name = name;
-        this.dataChange.next(this.data);
-    }
-}
-
 @Component({
     selector: 'app-artifacts-elements-create',
     templateUrl: `artifacts-elements-create.component.html`,
     styleUrls: ['artifacts-elements-create.component.scss'],
-    providers: [ArtifactElementsDatasource]
 })
 export class ArtifactsElementsCreateComponent {
     /** Map from flat node to nested node. This helps us finding the nested node to be modified */
@@ -65,7 +33,7 @@ export class ArtifactsElementsCreateComponent {
 
     dataSource: MatTreeFlatDataSource<ArtifactElement, ArtifactElementFlatNode>;
 
-    constructor(private _database: ArtifactElementsDatasource, private _artifactService: ArtifactService, private _router: Router) {
+    constructor(private _database: ArtifactElementsDatasource) {
         this.treeFlattener = new MatTreeFlattener(this.transformer, this.getLevel,
             this.alwaysExpandable, this.getChildren);
         this.treeControl = new FlatTreeControl<ArtifactElementFlatNode>(this.getLevel, this.alwaysExpandable);

@@ -139,15 +139,15 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 }
 func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
-	newTransferredById, err := a.insertTransferredByLUTIfNotExists(artifactMaster.TransferredBy)
-	if err != nil {
-		return -1, fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
-	}
+	//newTransferredById, err := a.insertTransferredByLUTIfNotExists(artifactMaster.TransferredBy)
+	//if err != nil {
+	//	return -1, fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
+	//}
 
 	insertedArtifactMasterID, err := a.insertArtifactMaster(
 		artifactMaster.Creator,
 		artifactMaster.ExcavationDate,
-		newTransferredById,
+		1,
 	)
 	if err != nil {
 		return -1, fmt.Errorf("error when tried to insertArtifactMaster, err %w", err)

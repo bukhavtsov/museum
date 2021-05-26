@@ -1,26 +1,38 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import { FormControl, FormGroup } from '@angular/forms';
-import {ArtifactsElementsCreateComponent} from './artifacts-elements-create/artifacts-elements-create.component';
-import {Artifact, ArtifactService} from '../../../shared/artifactService';
+import {FormControl, FormGroup} from '@angular/forms';
+import {Artifact, ArtifactElement, ArtifactService} from '../../../shared/artifactService';
+import {Subscription} from 'rxjs';
+import {ArtifactElementsDatasource} from '../../../shared/artifact-elements-datasource.service';
 
 @Component({
     selector: 'app-add-form',
     templateUrl: './add-form.component.html',
 })
 
-export class AddFormComponent implements OnInit {
+export class AddFormComponent implements OnInit, OnDestroy {
 
     private addForm: FormGroup;
+    private artifactElements: ArtifactElement[];
+    private subscription: Subscription;
 
     constructor(private artifactService: ArtifactService,
-                private router: Router
+                private router: Router,
+                private dataSource: ArtifactElementsDatasource,
     ) {
     }
 
 
     ngOnInit() {
         this.initForm()
+        this.subscription = this.dataSource.dataChange.subscribe(elements => {
+                this.artifactElements = elements
+            }
+        )
+    }
+
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
     }
 
     private initForm() {
@@ -46,6 +58,7 @@ export class AddFormComponent implements OnInit {
                 width: +this.addForm.controls.width.value,
                 height: +this.addForm.controls.height.value,
             },
+            artifact_elements: this.artifactElements
         };
         this.artifactService.add(newArtifact);
         this.router.navigate(['/artifacts'])

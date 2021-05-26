@@ -1,5 +1,4 @@
-<form class=" text-center border-light p-5 form-horizontal" [formGroup]="addForm"
-      (ngSubmit)="addArtifact()">
+<form class=" text-center border-light p-5 form-horizontal" [formGroup]="addForm">
     <h1 class="h3 font-weight-normal" style="text-align: center">Add Artifact</h1>
     <input class="form-control mb-4" id="creator" type="text" formControlName="creator" placeholder="creator"
            autofocus="" autocomplete="off">
@@ -19,6 +18,6 @@
            autofocus="" autocomplete="off">
     <app-artifacts-elements-create></app-artifacts-elements-create>
 
-    <button class="btn btn-lg btn-dark btn-block mb-4" type="submit">Create</button>
+    <button class="btn btn-lg btn-dark btn-block mb-4" (click)="addArtifact()">Create</button>
 </form>
 
