@@ -24,7 +24,7 @@ type ArtifactMaster struct {
 	ArtifactStyle       string               `json:"artifact_style"`
 	ExcavationDate      string               `json:"date_exc"`
 	TransferredBy       string               `json:"transferred_by"`
-	ArtifactMeasurement *ArtifactMeasurement `json:"ArtifactMeasurement"`
+	ArtifactMeasurement *ArtifactMeasurement `json:"artifact_measurement"`
 	ArtifactElements    []ArtifactElement    `json:"artifact_elements,omitempty"`
 }
 
@@ -139,15 +139,15 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 }
 func (a *ArtifactData) Add(artifactMaster *ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
-	//newTransferredById, err := a.insertTransferredByLUTIfNotExists(artifactMaster.TransferredBy)
-	//if err != nil {
-	//	return -1, fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
-	//}
+	transferredById, err := a.insertTransferredByLUTIfNotExists(artifactMaster.TransferredBy)
+	if err != nil {
+		return -1, fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
+	}
 
 	insertedArtifactMasterID, err := a.insertArtifactMaster(
 		artifactMaster.Creator,
 		artifactMaster.ExcavationDate,
-		1,
+		transferredById,
 	)
 	if err != nil {
 		return -1, fmt.Errorf("error when tried to insertArtifactMaster, err %w", err)
@@ -244,8 +244,9 @@ func (a *ArtifactData) getOrAddArtifactStyleLUT(newArtifactStyle string) (int, e
 }
 
 func (a *ArtifactData) insertTransferredByLUTIfNotExists(transferredBy string) (int, error) {
-	selectTransferredByRow := a.db.Exec(getTransferredByIdFieldByName, transferredBy).Row()
-	if selectTransferredByRow.Err() != nil {
+	var transferredByIDExisting int
+	err := a.db.Raw(getTransferredByIdFieldByName, transferredBy).Row().Scan(&transferredByIDExisting)
+	if err != nil {
 		log.Printf("no transfered by with name %s. Create new", transferredBy)
 		transferredById, err := a.insertTransferredByLUT(transferredBy)
 		if err != nil {
@@ -253,13 +254,7 @@ func (a *ArtifactData) insertTransferredByLUTIfNotExists(transferredBy string) (
 		}
 		return transferredById, nil
 	}
-	var existingTransferredById int
-	transferredByRow := a.db.Raw(getTransferredByIdFieldByName, transferredBy).Row()
-	err := transferredByRow.Scan(&existingTransferredById)
-	if err != nil {
-		return -1, fmt.Errorf("got an error when trid to execute Scan method for transferredByRow: %w", err)
-	}
-	return existingTransferredById, nil
+	return transferredByIDExisting, nil
 }
 
 func (a *ArtifactData) insertTransferredByLUT(transferredBy string) (insertedTransferredById int, err error) {

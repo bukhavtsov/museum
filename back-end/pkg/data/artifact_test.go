@@ -106,6 +106,10 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
+	idSecond, errSecond := artifactData.Add(&testArtifact)
+	assert.NoError(t, errSecond, fmt.Sprintf("got an error when tried to add artifact, err:%v", errSecond))
+	assert.True(t, idSecond > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", idSecond))
+
 	cleanTestDB(conn)
 }
 
@@ -118,10 +122,31 @@ func TestReadAll(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
+	id, err = artifactData.Add(&testArtifact)
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
+	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
+
 	artifacts, err := artifactData.ReadAll()
 	assert.NoError(t, err)
 	assert.NotEmpty(t, artifacts)
-	assert.Len(t, artifacts, 1)
+	assert.Len(t, artifacts, 2)
+
+
+	for _, element := range artifacts {
+		fmt.Printf("%v\n",element)
+	}
+
+	assert.Equal(t, 1, artifacts[0].ID)
+	assert.Equal(t, testArtifact.Creator, artifacts[0].Creator)
+	assert.Equal(t, testArtifact.ArtifactMeasurement, artifacts[0].ArtifactMeasurement)
+	assert.Equal(t, testArtifact.TransferredBy, artifacts[0].TransferredBy)
+
+
+
+	assert.Equal(t, 2, artifacts[1].ID)
+	assert.Equal(t, testArtifact.Creator, artifacts[1].Creator)
+	assert.Equal(t, testArtifact.ArtifactMeasurement, artifacts[1].ArtifactMeasurement)
+	assert.Equal(t, testArtifact.TransferredBy, artifacts[1].TransferredBy)
 
 	cleanTestDB(conn)
 }
@@ -258,5 +283,23 @@ func TestNewArtifactData(t *testing.T) {
 	expectedData := &ArtifactData{conn}
 	assert.Equal(t, actualData, expectedData)
 	assert.NoError(t, err)
+}
 
+func TestInsertTransferredByLUTIfNotExists(t *testing.T) {
+	conn, err := prepareTestDB()
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
+
+	artifactData := NewArtifactData(conn)
+
+	id, err := artifactData.insertTransferredByLUTIfNotExists("test")
+	assert.NoError(t, err, "can't insert into the transferredByLUT table")
+	assert.NotEqual(t, -1, id, "id should not be -1")
+	assert.True(t, id > 0, "id should not be less than 1")
+
+	idSame, errSame := artifactData.insertTransferredByLUTIfNotExists("test")
+	assert.NoError(t, errSame, "can't insert the same data into the transferredByLUT table")
+	assert.NotEqual(t, -1, idSame, "id should not be -1")
+	assert.True(t, idSame > 0, "id should not be less than 1")
+
+	cleanTestDB(conn)
 }

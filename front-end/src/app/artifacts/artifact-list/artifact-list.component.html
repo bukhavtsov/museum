@@ -20,9 +20,12 @@
                         {{card.transferred_by}}
                         <mat-divider></mat-divider>
 
-                        <mat-list-item *ngIf="card.ArtifactMeasurement">measurement</mat-list-item>
-                        {{card.ArtifactMeasurement.width}}x{{card.ArtifactMeasurement.height}}x{{card.ArtifactMeasurement.length}}
-                        <mat-divider></mat-divider>
+                        <mat-list-item *ngIf="card.artifact_measurement">measurement</mat-list-item>
+                        <div *ngIf="card.artifact_measurement">
+                            {{card.artifact_measurement.width}}x{{card.artifact_measurement.height}}x{{card.artifact_measurement.length}}
+                            <mat-divider></mat-divider>
+                        </div>
+
 
 
                         <mat-list-item>elements</mat-list-item>

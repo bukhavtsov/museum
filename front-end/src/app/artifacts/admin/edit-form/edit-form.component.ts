@@ -34,9 +34,9 @@ export class EditFormComponent implements OnInit {
         //     artifact_style: new FormControl(this.artifact.artifact_style),
         //     date_exc: new FormControl(this.artifact.date_exc),
         //     transferred_by: new FormControl(this.artifact.transferred_by),
-        //     length: new FormControl(this.artifact.ArtifactMeasurement.length),
-        //     height: new FormControl(this.artifact.ArtifactMeasurement.height),
-        //     width: new FormControl(this.artifact.ArtifactMeasurement.width),
+        //     length: new FormControl(this.artifact.artifact_measurement.length),
+        //     height: new FormControl(this.artifact.artifact_measurement.height),
+        //     width: new FormControl(this.artifact.artifact_measurement.width),
         // })
         this.editForm = new FormGroup({
             creator: new FormControl(''),
