@@ -8,6 +8,7 @@ import {ArtifactElementsDatasource} from '../../../shared/artifact-elements-data
 @Component({
     selector: 'app-add-form',
     templateUrl: './add-form.component.html',
+    providers: [ArtifactElementsDatasource],
 })
 
 export class AddFormComponent implements OnInit, OnDestroy {

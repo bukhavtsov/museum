@@ -20,6 +20,7 @@ FROM artifact_master
      ) as artifact_style
      on (artifact_master.id = artifact_style.artifact_id)
          INNER JOIN artifact_measurement on artifact_master.id = artifact_measurement.artifact_id
+ORDER BY id ASC
 `
 
 const getArtifactsWithBasicInfoByIDQuery = `

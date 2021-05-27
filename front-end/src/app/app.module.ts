@@ -143,7 +143,7 @@ import {ArtifactElementsDatasource} from './shared/artifact-elements-datasource.
         PortalModule,
         ScrollingModule,
     ],
-    providers: [ArtifactElementsDatasource],
+    providers: [],
     bootstrap: [AppComponent]
 })
 
