@@ -39,7 +39,6 @@ export class AddFormComponent implements OnInit, OnDestroy {
     private initForm() {
         this.addForm = new FormGroup({
             creator: new FormControl(),
-            artifact_style: new FormControl(''),
             date_exc: new FormControl(''),
             transferred_by: new FormControl(''),
             length: new FormControl(''),
@@ -51,7 +50,6 @@ export class AddFormComponent implements OnInit, OnDestroy {
     addArtifact() {
         const newArtifact: Artifact = {
             creator: this.addForm.controls.creator.value,
-            artifact_style: this.addForm.controls.artifact_style.value,
             date_exc: this.addForm.controls.date_exc.value,
             transferred_by: this.addForm.controls.transferred_by.value,
             artifact_measurement: {

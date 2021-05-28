@@ -10,7 +10,6 @@ import {Observable} from 'rxjs';
 export interface Artifact {
     id?: number
     creator: string
-    artifact_style: string
     date_exc: string
     transferred_by: string
     artifact_measurement: artifact_measurement
