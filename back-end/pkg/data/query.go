@@ -81,7 +81,7 @@ const insertArtifactStyleLUT = `
 INSERT INTO artifact_style_lut (id, artifact_style_name) VALUES (DEFAULT, ?)
 `
 const selectArtifactStyleLUT = `
-SELECT id FROM artifact_style_lut WHERE artifact_style_name=?
+SELECT id FROM artifact_style_lut WHERE artifact_style_name = $1
 `
 
 const insertArtifactStyle = `
@@ -93,7 +93,7 @@ SELECT id FROM artifact_style WHERE artifact_id = ? AND artifact_style_id = ?
 `
 
 const insertArtifactMaster = `
-INSERT INTO artifact_master (creator, date_exc, transferred_by_id) VALUES (?, ?, ?)
+INSERT INTO artifact_master (creator, date_exc, transferred_by_id) VALUES (?, ?, ?) RETURNING id
 `
 
 const selectArtifactMaster = `

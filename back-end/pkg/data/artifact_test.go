@@ -24,7 +24,6 @@ var (
 	testArtifact = ArtifactMaster{
 		ID:             0,
 		Creator:        "TestExample",
-		ArtifactStyle:  "1323123123123",
 		ExcavationDate: "1979-02-17",
 		TransferredBy:  "qeqwe",
 		ArtifactMeasurement: &ArtifactMeasurement{
@@ -102,11 +101,11 @@ func TestCreate(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
-	idSecond, errSecond := artifactData.Add(&testArtifact)
+	idSecond, errSecond := artifactData.Add(testArtifact)
 	assert.NoError(t, errSecond, fmt.Sprintf("got an error when tried to add artifact, err:%v", errSecond))
 	assert.True(t, idSecond > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", idSecond))
 
@@ -118,11 +117,11 @@ func TestReadAll(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
-	id, err = artifactData.Add(&testArtifact)
+	id, err = artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
@@ -130,11 +129,6 @@ func TestReadAll(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, artifacts)
 	assert.Len(t, artifacts, 2)
-
-
-	for _, element := range artifacts {
-		fmt.Printf("%v\n",element)
-	}
 
 	assert.Equal(t, 1, artifacts[0].ID)
 	assert.Equal(t, testArtifact.Creator, artifacts[0].Creator)
@@ -157,7 +151,7 @@ func TestRead(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
@@ -168,7 +162,6 @@ func TestRead(t *testing.T) {
 	assert.Equal(t, testArtifact.ArtifactMeasurement, artifact.ArtifactMeasurement)
 	assert.Equal(t, testArtifact.TransferredBy, artifact.TransferredBy)
 	//	assert.Equal(t, testArtifact.ExcavationDate, artifact.ExcavationDate) incorrect prefix
-	//	assert.Equal(t, testArtifact.ArtifactStyle, artifact.ArtifactStyle) not implemented
 }
 
 func TestUpdated(t *testing.T) {
@@ -176,14 +169,13 @@ func TestUpdated(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
 	newArtifact := ArtifactMaster{
 		ID:             0,
 		Creator:        "Artsiom",
-		ArtifactStyle:  "OldSchool",
 		ExcavationDate: "1972-02-17",
 		TransferredBy:  "Some One",
 		ArtifactMeasurement: &ArtifactMeasurement{
@@ -202,7 +194,6 @@ func TestUpdated(t *testing.T) {
 	assert.Equal(t, newArtifact.ArtifactMeasurement, artifact.ArtifactMeasurement)
 	assert.Equal(t, newArtifact.TransferredBy, artifact.TransferredBy)
 	//	assert.Equal(t, testArtifact.ExcavationDate, artifact.ExcavationDate) incorrect prefix
-	//	assert.Equal(t, testArtifact.ArtifactStyle, artifact.ArtifactStyle) not implemented
 
 	cleanTestDB(conn)
 }
@@ -214,7 +205,7 @@ func TestDelete(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
@@ -233,7 +224,7 @@ func TestInsertArtifactElement(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
@@ -250,7 +241,7 @@ func TestReadArtifactElement(t *testing.T) {
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
 
 	artifactData := NewArtifactData(conn)
-	id, err := artifactData.Add(&testArtifact)
+	id, err := artifactData.Add(testArtifact)
 	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
 	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
 
@@ -298,6 +289,27 @@ func TestInsertTransferredByLUTIfNotExists(t *testing.T) {
 
 	idSame, errSame := artifactData.insertTransferredByLUTIfNotExists("test")
 	assert.NoError(t, errSame, "can't insert the same data into the transferredByLUT table")
+	assert.NotEqual(t, -1, idSame, "id should not be -1")
+	assert.True(t, idSame > 0, "id should not be less than 1")
+
+	cleanTestDB(conn)
+}
+
+
+
+func TestInsertArtifactStyleLUTIfNotExists(t *testing.T) {
+	conn, err := prepareTestDB()
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
+
+	artifactData := NewArtifactData(conn)
+
+	id, err := artifactData.insertArtifactStyleLUTIfNotExists("test")
+	assert.NoError(t, err, "can't insert into the artifact_style_lut table")
+	assert.NotEqual(t, -1, id, "id should not be -1")
+	assert.True(t, id > 0, "id should not be less than 1")
+
+	idSame, errSame := artifactData.insertArtifactStyleLUTIfNotExists("test")
+	assert.NoError(t, errSame, "can't insert the same data into the artifact_style_lut table")
 	assert.NotEqual(t, -1, idSame, "id should not be -1")
 	assert.True(t, idSame > 0, "id should not be less than 1")
 

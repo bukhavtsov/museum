@@ -14,7 +14,7 @@ import (
 
 type ArtifactData interface {
 	ReadAll() ([]*data.ArtifactMaster, error)
-	Add(artifact *data.ArtifactMaster) (int, error)
+	Add(artifact data.ArtifactMaster) (int, error)
 	Update(artifactId int, newArtifact *data.ArtifactMaster) error
 	Delete(artifactId int) error
 }
@@ -62,10 +62,9 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	artifactId, err := api.data.Add(artifact)
+	artifactId, err := api.data.Add(*artifact)
 	if err != nil {
-		log.Println("createArtifact err:",err)
-		log.Println("artifact hasn't been created")
+		log.Println("artifact hasn't been created, createArtifact err:",err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
