@@ -354,6 +354,12 @@ func (a *ArtifactData) Delete(artifactId int) error {
 	if resDeleteMeasurement.Error != nil {
 		return fmt.Errorf("got an error when tried to execute deleteMeasurement, error is: %w", resDeleteMeasurement.Error)
 	}
+
+	resDeleteArtifactElements := a.db.Exec(deleteArtifactElements, artifactId)
+	if resDeleteArtifactElements.Error != nil {
+		return fmt.Errorf("err when tried to delete ArtifactElements, err: %w", resDeleteArtifactElements.Error)
+	}
+
 	resDeleteArtifactMaster := a.db.Exec(deleteArtifactMaster, artifactId)
 	if resDeleteArtifactMaster.Error != nil {
 		return fmt.Errorf("got an error when tried to execute resDeleteArtifactMaster, error is: %w", resDeleteArtifactMaster.Error)

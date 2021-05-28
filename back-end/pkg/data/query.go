@@ -130,8 +130,12 @@ const deleteMeasurement = `
 DELETE FROM artifact_measurement WHERE artifact_id = ?
 `
 
+const deleteArtifactElements = `
+DELETE FROM artifact_element WHERE artifact_id = ?
+`
+
 const deleteArtifactMaster = `
-DELETE FROM artifact_master WHERE artifact_id = ?
+DELETE FROM artifact_master WHERE id = ?
 `
 
 const insertArtifactElement = `INSERT INTO artifact_element (artifact_id, elements) VALUES (?, ?) RETURNING id`

@@ -31,7 +31,6 @@ export class EditFormComponent implements OnInit {
     initForm() {
         // this.editForm = new FormGroup({
         //     creator: new FormControl(this.artifact.creator),
-        //     artifact_style: new FormControl(this.artifact.artifact_style),
         //     date_exc: new FormControl(this.artifact.date_exc),
         //     transferred_by: new FormControl(this.artifact.transferred_by),
         //     length: new FormControl(this.artifact.artifact_measurement.length),
@@ -40,7 +39,6 @@ export class EditFormComponent implements OnInit {
         // })
         this.editForm = new FormGroup({
             creator: new FormControl(''),
-            artifact_style: new FormControl(''),
             date_exc: new FormControl(''),
             transferred_by: new FormControl(''),
             length: new FormControl(''),
@@ -52,7 +50,6 @@ export class EditFormComponent implements OnInit {
     editArtifact() {
         const newArtifact: Artifact = {
             creator: this.editForm.controls.creator.value,
-            artifact_style: this.editForm.controls.artifact_style.value,
             date_exc: this.editForm.controls.date_exc.value,
             transferred_by: this.editForm.controls.transferred_by.value,
             artifact_measurement: {
