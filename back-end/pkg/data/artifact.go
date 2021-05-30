@@ -261,7 +261,7 @@ func (a *ArtifactData) insertTransferredByLUTIfNotExists(tx *gorm.DB, transferre
 	err := tx.Raw(getTransferredByIdFieldByName, transferredBy).Row().Scan(&transferredByIDExisting)
 	if err != nil {
 		log.Printf("no transfered by with name %s. Create new", transferredBy)
-		transferredById, err := a.insertTransferredByLUT(transferredBy)
+		transferredById, err := a.insertTransferredByLUT(tx, transferredBy)
 		if err != nil {
 			return 0, fmt.Errorf("insertTransferredByLUTIfNotExists called insertTransferredByLUT err: %w", err)
 		}
@@ -270,12 +270,12 @@ func (a *ArtifactData) insertTransferredByLUTIfNotExists(tx *gorm.DB, transferre
 	return transferredByIDExisting, nil
 }
 
-func (a *ArtifactData) insertTransferredByLUT(transferredBy string) (insertedTransferredById int, err error) {
-	result := a.db.Exec(insertTransferredBy, transferredBy)
+func (a *ArtifactData) insertTransferredByLUT(tx *gorm.DB, transferredBy string) (insertedTransferredById int, err error) {
+	result := tx.Exec(insertTransferredBy, transferredBy)
 	if result.Error != nil {
 		return 0, fmt.Errorf("error when tried to exec insertTransferredBy query, err: %w", result.Error)
 	}
-	transferredByRow := a.db.Raw(selectTransferredBy, transferredBy).Row()
+	transferredByRow := tx.Raw(selectTransferredBy, transferredBy).Row()
 	err = transferredByRow.Scan(&insertedTransferredById)
 	if err != nil {
 		return 0, fmt.Errorf("error when tried to scan insertedTransferredById, err: %v", err)
