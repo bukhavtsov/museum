@@ -139,45 +139,54 @@ func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
 }
 func (a *ArtifactData) Add(artifactMaster ArtifactMaster) (int, error) {
 	// first of all need to insert data to tables to which we have a foreign key
+	var insertedArtifactMasterID int
+	err := a.db.Transaction(func(tx *gorm.DB) error {
+		transferredById, err := a.insertTransferredByLUTIfNotExists(tx, artifactMaster.TransferredBy)
+		if err != nil {
+			return fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
+		}
 
-	transferredById, err := a.insertTransferredByLUTIfNotExists(artifactMaster.TransferredBy)
-	if err != nil {
-		return -1, fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, in Add, err: %w", err)
-	}
+		insertedArtifactMasterID, err = a.insertArtifactMaster(
+			tx,
+			artifactMaster.Creator,
+			artifactMaster.ExcavationDate,
+			transferredById,
+		)
+		if err != nil {
+			return fmt.Errorf("error when tried to insertArtifactMaster, err %w", err)
+		}
+
+		if &artifactMaster.ArtifactMeasurement != nil {
+			_, err = a.insertMeasurement(tx, insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
+		} else {
+			log.Println("ArtifactMeasurement has not been added, because has a nil value")
+		}
+		if err != nil {
+			return fmt.Errorf("error when tried to insertMeasurement, err %w", err)
+		}
+
+		err = a.insertArtifactElements(tx, insertedArtifactMasterID, artifactMaster.ArtifactElements)
+		if err != nil {
+			return fmt.Errorf("error when tried to insertArtifactElements %w", err)
+		}
+
+		// return nil will commit
+		return nil
+	})
 
 	//artifactStyleLUTId, err := a.insertArtifactStyleLUTIfNotExists(artifactMaster.ArtifactStyle)
 	//if err != nil {
-	//	return -1, fmt.Errorf("got an error when tried to call insertArtifactStyleLUTIfNotExists method, in Add, err: %w", err)
+	//	return 0, fmt.Errorf("got an error when tried to call insertArtifactStyleLUTIfNotExists method, in Add, err: %w", err)
 	//}
-
-	insertedArtifactMasterID, err := a.insertArtifactMaster(
-		artifactMaster.Creator,
-		artifactMaster.ExcavationDate,
-		transferredById,
-	)
 	if err != nil {
-		return -1, fmt.Errorf("error when tried to insertArtifactMaster, err %w", err)
-	}
-
-	if &artifactMaster.ArtifactMeasurement != nil {
-		_, err = a.insertMeasurement(insertedArtifactMasterID, artifactMaster.ArtifactMeasurement)
-	} else {
-		log.Println("ArtifactMeasurement has not been added, because has a nil value")
-	}
-	if err != nil {
-		return -1, fmt.Errorf("error when tried to insertMeasurement, err %w", err)
-	}
-
-	err = a.insertArtifactElements(insertedArtifactMasterID, artifactMaster.ArtifactElements)
-	if err != nil {
-		return -1, fmt.Errorf("error when tried to insertArtifactElements %w", err)
+		return 0, fmt.Errorf("Transaction incomplettted, rollback has been made, err: %v", err)
 	}
 	return insertedArtifactMasterID, nil
 }
 
-func (a *ArtifactData) insertArtifactElements(artifactMasterID int, elements []ArtifactElement) error {
+func (a *ArtifactData) insertArtifactElements(tx *gorm.DB, artifactMasterID int, elements []ArtifactElement) error {
 	for _, element := range elements {
-		_, err := a.insertArtifactElement(artifactMasterID, element)
+		_, err := a.insertArtifactElement(tx, artifactMasterID, element)
 		if err != nil {
 			return fmt.Errorf("error from insertArtifactElements when tried to execute insertArtifactElement, err: %w", err)
 		}
@@ -185,27 +194,27 @@ func (a *ArtifactData) insertArtifactElements(artifactMasterID int, elements []A
 	return nil
 }
 
-func (a *ArtifactData) insertArtifactElement(artifactMasterID int, element ArtifactElement) (int, error) {
+func (a *ArtifactData) insertArtifactElement(tx *gorm.DB, artifactMasterID int, element ArtifactElement) (int, error) {
 	b, err := json.Marshal(&element)
 	if err != nil {
-		return -1, fmt.Errorf("err when tried Marshal %v, err: %w", element, err)
+		return 0, fmt.Errorf("err when tried Marshal %v, err: %w", element, err)
 	}
 	elementJSON := string(b)
-	row := a.db.Raw(insertArtifactElement, artifactMasterID, elementJSON).Row()
+	row := tx.Raw(insertArtifactElement, artifactMasterID, elementJSON).Row()
 	if row.Err() != nil {
-		return -1, fmt.Errorf("err when tried to insert %v into the db. err: %w", element, row.Err())
+		return 0, fmt.Errorf("err when tried to insert %v into the db. err: %w", element, row.Err())
 	}
 	var lastInsertedID int
 	err = row.Scan(&lastInsertedID)
 	if err != nil {
-		return -1, fmt.Errorf("err when tried to scan inserted id from db. err: %w", err)
+		return 0, fmt.Errorf("err when tried to scan inserted id from db. err: %w", err)
 	}
 	return lastInsertedID, nil
 
 }
 
 func (a *ArtifactData) Update(artifactMasterID int, newArtifactMaster *ArtifactMaster) error {
-	newTransferredById, err := a.insertTransferredByLUTIfNotExists(newArtifactMaster.TransferredBy)
+	newTransferredById, err := a.insertTransferredByLUTIfNotExists(a.db, newArtifactMaster.TransferredBy)
 	if err != nil {
 		return fmt.Errorf("got an error when tried to call insertTransferredByLUTIfNotExists method, err: %w", err)
 	}
@@ -240,21 +249,21 @@ func (a *ArtifactData) insertArtifactStyleLUTIfNotExists(artifactStyle string) (
 		log.Printf("no artifact style lut record with artifactStyle: %s. Create new", artifactStyle)
 		artifactStyleLUTInsertedID, err := a.insertStyleLUT(artifactStyle)
 		if err != nil {
-			return -1, fmt.Errorf("insertArtifactStyleLUTIfNotExists called insertStyleLUT err: %w", err)
+			return 0, fmt.Errorf("insertArtifactStyleLUTIfNotExists called insertStyleLUT err: %w", err)
 		}
 		return artifactStyleLUTInsertedID, nil
 	}
 	return artifactStyleLUTExistingID, nil
 }
 
-func (a *ArtifactData) insertTransferredByLUTIfNotExists(transferredBy string) (int, error) {
+func (a *ArtifactData) insertTransferredByLUTIfNotExists(tx *gorm.DB, transferredBy string) (int, error) {
 	var transferredByIDExisting int
-	err := a.db.Raw(getTransferredByIdFieldByName, transferredBy).Row().Scan(&transferredByIDExisting)
+	err := tx.Raw(getTransferredByIdFieldByName, transferredBy).Row().Scan(&transferredByIDExisting)
 	if err != nil {
 		log.Printf("no transfered by with name %s. Create new", transferredBy)
 		transferredById, err := a.insertTransferredByLUT(transferredBy)
 		if err != nil {
-			return -1, fmt.Errorf("insertTransferredByLUTIfNotExists called insertTransferredByLUT err: %w", err)
+			return 0, fmt.Errorf("insertTransferredByLUTIfNotExists called insertTransferredByLUT err: %w", err)
 		}
 		return transferredById, nil
 	}
@@ -264,12 +273,12 @@ func (a *ArtifactData) insertTransferredByLUTIfNotExists(transferredBy string) (
 func (a *ArtifactData) insertTransferredByLUT(transferredBy string) (insertedTransferredById int, err error) {
 	result := a.db.Exec(insertTransferredBy, transferredBy)
 	if result.Error != nil {
-		return -1, fmt.Errorf("error when tried to exec insertTransferredBy query, err: %w", result.Error)
+		return 0, fmt.Errorf("error when tried to exec insertTransferredBy query, err: %w", result.Error)
 	}
 	transferredByRow := a.db.Raw(selectTransferredBy, transferredBy).Row()
 	err = transferredByRow.Scan(&insertedTransferredById)
 	if err != nil {
-		return -1, fmt.Errorf("error when tried to scan insertedTransferredById, err: %v", err)
+		return 0, fmt.Errorf("error when tried to scan insertedTransferredById, err: %v", err)
 	}
 	return insertedTransferredById, nil
 }
@@ -277,12 +286,12 @@ func (a *ArtifactData) insertTransferredByLUT(transferredBy string) (insertedTra
 func (a *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int, err error) {
 	result := a.db.Exec(insertArtifactStyleLUT, style)
 	if result.Error != nil {
-		return -1, fmt.Errorf("error when tried to exec insertArtifactStyleLUT query, err: %v", err)
+		return 0, fmt.Errorf("error when tried to exec insertArtifactStyleLUT query, err: %v", err)
 	}
 	artifactStyleRows := a.db.Raw(selectArtifactStyleLUT, style).Row()
 	err = artifactStyleRows.Scan(&insertedStyleLUTID)
 	if err != nil {
-		return -1, fmt.Errorf("error when tried to scan insertedStyleLUTID, err: %v", err)
+		return 0, fmt.Errorf("error when tried to scan insertedStyleLUTID, err: %v", err)
 	}
 	return insertedStyleLUTID, nil
 }
@@ -290,37 +299,37 @@ func (a *ArtifactData) insertStyleLUT(style string) (insertedStyleLUTID int, err
 func (a *ArtifactData) insertStyle(artifactID, styleLUTID int) (insertedStyleID int, err error) {
 	result := a.db.Exec(insertArtifactStyle, artifactID, styleLUTID)
 	if result.Error != nil {
-		return -1, fmt.Errorf("error when tried to exec insertArtifactStyle query, err: %v", err)
+		return 0, fmt.Errorf("error when tried to exec insertArtifactStyle query, err: %v", err)
 	}
 	artifactStyleRows, err := a.db.Raw(selectArtifactStyle, artifactID, styleLUTID).Rows()
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 	for artifactStyleRows.Next() {
 		err := artifactStyleRows.Scan(&insertedStyleID)
 		if err != nil {
-			return -1, fmt.Errorf("error when tried to scan insertedStyleID, err: %v", err)
+			return 0, fmt.Errorf("error when tried to scan insertedStyleID, err: %v", err)
 		}
 		return insertedStyleID, nil
 	}
 	return insertedStyleID, nil
 }
 
-func (a *ArtifactData) insertArtifactMaster(creator string, excavationDate string, insertedTransferredById int) (insertedArtifactMasterID int, err error) {
-	result := a.db.Raw(insertArtifactMaster, creator, excavationDate, insertedTransferredById).Row()
+func (a *ArtifactData) insertArtifactMaster(tx *gorm.DB, creator string, excavationDate string, insertedTransferredById int) (insertedArtifactMasterID int, err error) {
+	result := tx.Raw(insertArtifactMaster, creator, excavationDate, insertedTransferredById).Row()
 	if result.Err() != nil {
-		return -1, fmt.Errorf("error when tried to exec insertArtifactMaster query, err: %v", err)
+		return 0, fmt.Errorf("error when tried to exec insertArtifactMaster query, err: %v", err)
 	}
 	err = result.Scan(&insertedArtifactMasterID)
 	if err != nil {
-		return -1, fmt.Errorf("error when tried to scan insertedArtifactMasterID, err: %v", err)
+		return 0, fmt.Errorf("error when tried to scan insertedArtifactMasterID, err: %v", err)
 	}
 
 	return insertedArtifactMasterID, nil
 }
 
-func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int, err error) {
-	result := a.db.Exec(
+func (a *ArtifactData) insertMeasurement(tx *gorm.DB, artifactID int, artifactMeasurement *ArtifactMeasurement) (insertedMeasurement int, err error) {
+	result := tx.Exec(
 		insertMeasurement,
 		artifactID,
 		artifactMeasurement.Length,
@@ -328,21 +337,21 @@ func (a *ArtifactData) insertMeasurement(artifactID int, artifactMeasurement *Ar
 		artifactMeasurement.Width,
 	)
 	if result.Error != nil {
-		return -1, fmt.Errorf("error when tried to exec insertMeasurement, err: %v", err)
+		return 0, fmt.Errorf("error when tried to exec insertMeasurement, err: %v", err)
 	}
-	artifactMeasurementRows, err := a.db.Raw(
+	artifactMeasurementRows, err := tx.Raw(
 		selectArtifactMeasurement,
 		artifactID,
 		artifactMeasurement.Length,
 		artifactMeasurement.Height,
 		artifactMeasurement.Width).Rows()
 	if err != nil {
-		return -1, fmt.Errorf("error when tried to Raw selectArtifactMeasurement, err: %v", err)
+		return 0, fmt.Errorf("error when tried to Raw selectArtifactMeasurement, err: %v", err)
 	}
 	for artifactMeasurementRows.Next() {
 		err := artifactMeasurementRows.Scan(&insertedMeasurement)
 		if err != nil {
-			return -1, fmt.Errorf("error when tried to scan insertedMeasurement, err: %v", err)
+			return 0, fmt.Errorf("error when tried to scan insertedMeasurement, err: %v", err)
 		}
 		return insertedMeasurement, nil
 	}
