@@ -315,3 +315,22 @@ func TestInsertArtifactStyleLUTIfNotExists(t *testing.T) {
 
 	cleanTestDB(conn)
 }
+
+func TestArtifactsElements(t *testing.T) {
+	conn, err := prepareTestDB()
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to prepare db, err:%v", err))
+
+	artifactData := NewArtifactData(conn)
+	id, err := artifactData.Add(testArtifact)
+	assert.NoError(t, err, fmt.Sprintf("got an error when tried to add artifact, err:%v", err))
+	assert.True(t, id > 0, fmt.Sprintf("id less then zero, but should be higher, id: %d", id))
+
+
+	elements, err := artifactData.ReadArtifactsElements()
+	assert.NoError(t, err)
+	assert.NotNil(t, elements)
+	assert.NotEmpty(t, elements)
+
+
+	cleanTestDB(conn)
+}

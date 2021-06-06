@@ -17,6 +17,7 @@ type ArtifactData interface {
 	Add(artifact data.ArtifactMaster) (int, error)
 	Update(artifactId int, newArtifact *data.ArtifactMaster) error
 	Delete(artifactId int) error
+	ReadArtifactsElements() ([]data.ArtifactElement, error)
 }
 
 type artifactAPI struct {
@@ -29,6 +30,7 @@ func ServerArtifactResource(r *mux.Router, data ArtifactData) {
 	r.HandleFunc("/artifacts", api.createArtifact).Methods("POST")
 	r.HandleFunc("/artifacts/{id}", api.updateArtifact).Methods("PUT")
 	r.HandleFunc("/artifacts/{id}", api.deleteArtifact).Methods("DELETE")
+	r.HandleFunc("/artifacts/elements", api.getArtifactsElements).Methods("GET")
 }
 
 func (api artifactAPI) getArtifacts(writer http.ResponseWriter, request *http.Request) {
@@ -51,20 +53,20 @@ func (api artifactAPI) createArtifact(writer http.ResponseWriter, request *http.
 	artifact := new(data.ArtifactMaster)
 	err := json.NewDecoder(request.Body).Decode(&artifact)
 	if err != nil {
-		log.Println("createArtifact err:",err)
+		log.Println("createArtifact err:", err)
 		log.Printf("failed reading JSON: %s", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if artifact == nil {
-		log.Println("createArtifact err:",err)
+		log.Println("createArtifact err:", err)
 		log.Printf("failed empty JSON")
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	artifactId, err := api.data.Add(*artifact)
 	if err != nil {
-		log.Println("artifact hasn't been created, createArtifact err:",err)
+		log.Println("artifact hasn't been created, createArtifact err:", err)
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -107,4 +109,19 @@ func (api artifactAPI) deleteArtifact(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (api artifactAPI) getArtifactsElements(w http.ResponseWriter, req *http.Request) {
+	elements, err := api.data.ReadArtifactsElements()
+	if err != nil {
+		log.Println("artifact elements hasn't been got")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	err = json.NewEncoder(w).Encode(elements)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

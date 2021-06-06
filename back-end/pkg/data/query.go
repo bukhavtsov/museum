@@ -140,3 +140,5 @@ DELETE FROM artifact_master WHERE id = ?
 
 const insertArtifactElement = `INSERT INTO artifact_element (artifact_id, elements) VALUES (?, ?) RETURNING id`
 const selectArtifactElement = `SELECT elements FROM artifact_element WHERE artifact_id = ?`
+
+const selectArtifactsElements = `SELECT artifact_id, elements FROM artifact_element`

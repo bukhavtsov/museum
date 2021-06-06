@@ -29,8 +29,9 @@ type ArtifactMaster struct {
 }
 
 type ArtifactElement struct {
-	Name     string            `json:"name"`
-	Children []ArtifactElement `json:"children,omitempty"`
+	ArtifactID int               `json:"artifact_id,omitempty"`
+	Name       string            `json:"name"`
+	Children   []ArtifactElement `json:"children,omitempty"`
 }
 
 // ArtifactData gets connection to database
@@ -89,6 +90,33 @@ func (a *ArtifactData) Read(id int) (*ArtifactMaster, error) {
 		}
 	}
 	return artifact, nil
+}
+
+func (a *ArtifactData) ReadArtifactsElements() ([]ArtifactElement, error) {
+	var artifactElements []ArtifactElement
+	artifactElementsRows, err := a.db.Raw(selectArtifactsElements).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("got an error when tried to selectArtifactElement, error is: %w", err)
+	}
+	for artifactElementsRows.Next() {
+		var (
+			artifactElementJSON string
+			artifactElement     ArtifactElement
+			artifactID          int
+		)
+		err := artifactElementsRows.Scan(&artifactID, &artifactElementJSON)
+		if err != nil {
+			return nil, fmt.Errorf("err when tried to scan artifactElementJSON, err: %w", err)
+		}
+		err = json.Unmarshal([]byte(artifactElementJSON), &artifactElement)
+		if err != nil {
+			return nil, fmt.Errorf("err when tried to Unmarshal artifactElementsJSON, err: %w", err)
+		}
+		artifactElement.ArtifactID = artifactID
+		artifactElements = append(artifactElements, artifactElement)
+	}
+
+	return artifactElements, nil
 }
 
 func getArtifactWithBasicInfo(artifactRows *sql.Rows) (*ArtifactMaster, error) {
